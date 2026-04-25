@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Runger — Midnight Lombok</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1437;
+    --bg-2:#070D26;
+    --bg-3:#11214F;
+    --cyan:#4DA3FF;
+    --cyan-soft:#7EC0FF;
+    --cream:#F5EFE0;
+    --cream-dim:#D9D2C0;
+    --line:rgba(245,239,224,0.12);
+    --sunset:#FF8B5C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+
+  .display{font-family:'Space Grotesk',sans-serif;letter-spacing:-.025em;line-height:.92;font-weight:600}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+
+  /* ============ NAV ============ */
+  nav.top{
+    position:sticky;top:0;z-index:50;
+    background:rgba(11,20,55,.85);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1440px;margin:0 auto;padding:18px 36px;
+    display:flex;align-items:center;gap:36px;
+  }
+  .nav-brand{display:flex;align-items:center;gap:12px}
+  .nav-logo{height:32px}
+  .nav-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);padding:4px 8px;border:1px solid rgba(77,163,255,.4);border-radius:2px}
+  .nav-links{display:flex;gap:28px;font-size:13px;font-weight:500;margin-left:auto}
+  .nav-links a{opacity:.7;transition:opacity .2s,color .2s;display:flex;align-items:center;gap:6px}
+  .nav-links a::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--cyan);opacity:0;transition:opacity .2s}
+  .nav-links a:hover{opacity:1;color:var(--cyan)}
+  .nav-links a:hover::before{opacity:1}
+  .nav-cta{display:flex;align-items:center;gap:14px}
+  .live-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--cream);
+  }
+  .live-dot{width:8px;height:8px;border-radius:50%;background:#ff5b5b;box-shadow:0 0 0 0 rgba(255,91,91,.7);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,91,91,.6)}70%{box-shadow:0 0 0 10px rgba(255,91,91,0)}100%{box-shadow:0 0 0 0 rgba(255,91,91,0)}}
+  .btn-primary{
+    background:var(--cyan);color:var(--bg);
+    padding:11px 20px;border-radius:999px;
+    font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    transition:transform .15s, background .2s;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary:hover{transform:translateY(-1px);background:var(--cyan-soft)}
+
+  /* ============ HERO ============ */
+  .hero{
+    position:relative;
+    min-height:92vh;
+    display:grid;grid-template-columns:1.15fr 1fr;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-left{
+    padding:80px 60px 60px;
+    position:relative;
+    background:
+      radial-gradient(1000px 600px at 20% 10%, rgba(77,163,255,.18), transparent 60%),
+      var(--bg);
+  }
+  .hero-meta-top{
+    display:flex;justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--cream-dim);margin-bottom:64px;
+  }
+  .hero-meta-top span{display:inline-flex;align-items:center;gap:8px}
+  .hero-meta-top .indot{width:6px;height:6px;border-radius:50%;background:var(--cyan);display:inline-block}
+  .hero h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(64px,9.5vw,160px);
+    line-height:.9;letter-spacing:-.035em;font-weight:600;
+  }
+  .hero h1 .out{
+    -webkit-text-stroke:1.5px var(--cream);color:transparent;
+  }
+  .hero h1 .ink{color:var(--cream)}
+  .hero h1 .accent{color:var(--cyan);font-style:italic;font-weight:500}
+  .hero-sub{
+    margin-top:40px;max-width:560px;
+    font-size:18px;line-height:1.6;color:var(--cream-dim);font-weight:300;
+  }
+  .hero-sub strong{color:var(--cream);font-weight:500}
+  .hero-cta-row{margin-top:48px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .btn-lg{
+    padding:18px 28px;border-radius:999px;
+    font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;letter-spacing:-.005em;
+    display:inline-flex;align-items:center;gap:10px;
+    transition:transform .15s, background .2s;
+  }
+  .btn-lg.fill{background:var(--cream);color:var(--bg)}
+  .btn-lg.fill:hover{transform:translateY(-2px);background:#fff}
+  .btn-lg.line{border:1px solid var(--line);color:var(--cream)}
+  .btn-lg.line:hover{border-color:var(--cyan);color:var(--cyan)}
+  .arr{transition:transform .2s}
+  .btn-lg:hover .arr{transform:translateX(4px)}
+
+  .hero-stats{
+    margin-top:auto;padding-top:80px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+    border-top:1px dashed var(--line);
+  }
+  .hero-stats .s{padding:24px 16px 8px 0;border-right:1px dashed var(--line)}
+  .hero-stats .s:last-child{border-right:none}
+  .hero-stats .s-num{font-family:'Space Grotesk',sans-serif;font-size:48px;line-height:.9;font-weight:500;letter-spacing:-.025em}
+  .hero-stats .s-num em{color:var(--cyan);font-style:normal}
+  .hero-stats .s-lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--cream-dim);margin-top:8px}
+
+  .hero-right{
+    position:relative;
+    background:var(--bg-2);
+    overflow:hidden;
+  }
+  .hero-photo{
+    position:absolute;inset:0;
+    background-image:url('assets/g-squad-night1.jpeg');
+    background-size:cover;background-position:center 30%;
+    filter:brightness(.7) saturate(1.05);
+  }
+  .hero-photo::after{
+    content:'';position:absolute;inset:0;
+    background:
+      linear-gradient(180deg, rgba(11,20,55,.4) 0%, rgba(11,20,55,.0) 30%, rgba(11,20,55,.85) 100%),
+      linear-gradient(90deg, rgba(11,20,55,.7) 0%, transparent 30%);
+  }
+  .hero-overlay{
+    position:absolute;inset:0;padding:60px;
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .race-bib{
+    align-self:flex-end;
+    background:var(--cream);color:var(--bg);
+    padding:18px 24px;border-radius:2px;
+    font-family:'Space Grotesk',sans-serif;
+    text-align:center;
+    box-shadow:0 12px 40px rgba(0,0,0,.4);
+    transform:rotate(2deg);
+  }
+  .race-bib .label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;color:var(--bg);opacity:.6;text-transform:uppercase}
+  .race-bib .num{font-size:62px;font-weight:600;line-height:1;letter-spacing:-.04em;margin:4px 0 2px}
+  .race-bib .nm{font-size:11px;letter-spacing:.04em;font-weight:500;text-transform:uppercase}
+  .next-card{
+    background:rgba(7,13,38,.85);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(77,163,255,.3);
+    border-radius:4px;padding:28px;
+    max-width:420px;
+    align-self:flex-start;margin-top:auto;
+  }
+  .next-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .next-card .head .ttl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--cyan);text-transform:uppercase}
+  .next-card .head .ed{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--cream-dim);text-transform:uppercase}
+  .next-card .when{font-family:'Space Grotesk',sans-serif;font-size:38px;font-weight:500;letter-spacing:-.03em;line-height:1}
+  .next-card .when em{color:var(--cyan);font-style:normal}
+  .next-card .countdown{display:flex;gap:0;margin-top:24px;border-top:1px solid var(--line)}
+  .next-card .cd{flex:1;padding:14px 0;border-right:1px solid var(--line);text-align:center}
+  .next-card .cd:last-child{border-right:none}
+  .next-card .cd-n{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:600;letter-spacing:-.025em;line-height:1;color:var(--cream)}
+  .next-card .cd-l{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--cream-dim);text-transform:uppercase;margin-top:6px}
+  .next-card .meta{margin-top:18px;display:flex;justify-content:space-between;font-size:12px;color:var(--cream-dim)}
+  .next-card .meta strong{color:var(--cream);font-weight:500}
+
+  /* ============ SECTION SCAFFOLD ============ */
+  section{padding:120px 60px;position:relative}
+  .wrap{max-width:1440px;margin:0 auto}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--cyan);margin-bottom:24px;
+  }
+  .eyebrow .num{color:var(--cream);opacity:.4}
+  .section-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(48px,7vw,108px);
+    line-height:.92;letter-spacing:-.03em;font-weight:500;
+    max-width:1100px;
+  }
+  .section-title em{color:var(--cyan);font-style:normal}
+  .section-title .out{-webkit-text-stroke:1.5px var(--cream);color:transparent}
+
+  /* ============ NIGHT RUN ============ */
+  .nightrun{background:var(--bg);position:relative;overflow:hidden}
+  .nightrun::before{
+    content:'';position:absolute;inset:0;
+    background-image:
+      radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.4) 50%, transparent),
+      radial-gradient(1px 1px at 60% 20%, rgba(255,255,255,.3) 50%, transparent),
+      radial-gradient(1.5px 1.5px at 80% 60%, rgba(77,163,255,.5) 50%, transparent),
+      radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.3) 50%, transparent),
+      radial-gradient(2px 2px at 90% 40%, rgba(255,255,255,.25) 50%, transparent);
+    background-size: 800px 800px;
+    pointer-events:none;
+  }
+  .nightrun .wrap{position:relative}
+
+  .nr-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:80px;margin-top:64px;align-items:start}
+  .nr-info{display:flex;flex-direction:column;gap:0}
+  .nr-row{
+    display:grid;grid-template-columns:160px 1fr;gap:0;
+    padding:22px 0;border-top:1px solid var(--line);
+    align-items:baseline;
+  }
+  .nr-row:last-child{border-bottom:1px solid var(--line)}
+  .nr-row dt{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;color:var(--cream-dim);text-transform:uppercase}
+  .nr-row dd{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:500;letter-spacing:-.005em;color:var(--cream)}
+  .nr-row dd em{color:var(--cyan);font-style:normal}
+  .nr-cta-row{margin-top:36px;display:flex;gap:14px;flex-wrap:wrap}
+
+  /* Tracker dashboard */
+  .tracker{
+    background:linear-gradient(180deg, rgba(17,33,79,.6) 0%, rgba(7,13,38,.8) 100%);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:32px;
+    position:relative;
+  }
+  .tracker-head{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    padding-bottom:20px;border-bottom:1px solid var(--line);
+  }
+  .tracker-head .ttl{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:500;letter-spacing:-.015em}
+  .tracker-head .sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--cream-dim);text-transform:uppercase;margin-top:4px}
+  .tracker-head .live-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--cyan);
+    padding:6px 10px;border:1px solid rgba(77,163,255,.4);border-radius:999px;text-transform:uppercase;
+  }
+  .tracker-head .live-pill::before{content:'';width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:pulse 1.6s infinite;box-shadow:0 0 0 0 rgba(77,163,255,.7)}
+
+  .map-window{
+    margin-top:24px;
+    aspect-ratio:5/3;
+    background:
+      radial-gradient(circle at 20% 80%, rgba(255,139,92,.2), transparent 40%),
+      radial-gradient(circle at 80% 20%, rgba(77,163,255,.18), transparent 50%),
+      linear-gradient(135deg, #0a1230, #050a1c);
+    border-radius:4px;border:1px solid var(--line);
+    position:relative;overflow:hidden;
+  }
+  .map-grid{position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(77,163,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77,163,255,.06) 1px, transparent 1px);
+    background-size:36px 36px;
+  }
+  .map-svg{position:absolute;inset:0;width:100%;height:100%}
+  .pin{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(77,163,255,.25), 0 0 0 12px rgba(77,163,255,.1)}
+  .pin.start{top:68%;left:14%}
+  .pin.k1{top:42%;left:38%;background:var(--cream);box-shadow:0 0 0 3px rgba(245,239,224,.2)}
+  .pin.k2{top:24%;left:62%;background:var(--cream);box-shadow:0 0 0 3px rgba(245,239,224,.2)}
+  .pin.end{top:18%;left:84%;background:var(--sunset);box-shadow:0 0 0 4px rgba(255,139,92,.25), 0 0 0 12px rgba(255,139,92,.1)}
+  .pin-label{position:absolute;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;background:var(--bg-2);padding:4px 8px;border:1px solid var(--line);border-radius:2px;color:var(--cream)}
+  .pin-label.start{top:calc(68% + 16px);left:calc(14% - 12px)}
+  .pin-label.end{top:calc(18% - 26px);left:calc(84% - 32px);color:var(--sunset);border-color:rgba(255,139,92,.4)}
+  .pin-label.k1{top:calc(42% - 24px);left:calc(38% - 4px);color:var(--cream-dim)}
+  .pin-label.k2{top:calc(24% + 16px);left:calc(62% - 4px);color:var(--cream-dim)}
+
+  .tracker-stats{margin-top:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line)}
+  .tracker-stats .ts{padding:18px 14px 4px 0;border-right:1px solid var(--line)}
+  .tracker-stats .ts:last-child{border-right:none;padding-left:14px;padding-right:0}
+  .tracker-stats .ts:not(:first-child):not(:last-child){padding-left:14px}
+  .tracker-stats .tn{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:500;letter-spacing:-.025em;line-height:1}
+  .tracker-stats .tn small{font-size:14px;color:var(--cream-dim);font-weight:400}
+  .tracker-stats .tl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;color:var(--cream-dim);text-transform:uppercase;margin-top:6px}
+
+  /* ============ PENGURUS ============ */
+  .pengurus{background:var(--bg);position:relative;border-top:1px solid var(--line)}
+  .pengurus::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 80% 30%, rgba(77,163,255,.08), transparent 60%);
+  }
+  .pengurus .wrap{position:relative}
+  .pengurus-grid{margin-top:64px;display:grid;grid-template-columns:1.05fr 1fr;gap:80px;align-items:start}
+  .pengurus-poster{
+    position:relative;
+    background:var(--bg-2);border:1px solid var(--line);
+    padding:18px;border-radius:4px;
+    box-shadow:0 24px 80px rgba(0,0,0,.5);
+  }
+  .pengurus-poster img{width:100%;display:block;border-radius:2px}
+  .poster-cap{
+    margin-top:12px;display:flex;justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--cream-dim);
+  }
+  .pengurus-roster{padding-top:8px}
+  .roster-intro{
+    font-family:'Space Grotesk',sans-serif;font-size:20px;line-height:1.5;
+    color:var(--cream);font-weight:300;
+    padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:8px;
+  }
+  .roster{list-style:none;padding:0;margin:0}
+  .roster li{
+    display:grid;grid-template-columns:46px 1fr 1.3fr;gap:18px;align-items:baseline;
+    padding:18px 0;border-bottom:1px solid var(--line);
+    transition:padding .2s, color .2s;cursor:default;
+  }
+  .roster li:hover{padding-left:8px}
+  .roster li:hover .r-n{color:var(--cyan)}
+  .roster .r-i{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--cream-dim);opacity:.6}
+  .roster .r-r{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan)}
+  .roster .r-n{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:500;letter-spacing:-.015em;line-height:1;color:var(--cream);transition:color .2s}
+
+  /* ============ ABOUT ============ */
+  .about{
+    background:var(--cream);color:var(--bg);
+    border-top:1px solid var(--line);
+  }
+  .about .eyebrow{color:var(--bg);opacity:.7}
+  .about .eyebrow .num{color:var(--bg);opacity:.4}
+  .about .section-title .out{-webkit-text-stroke:1.5px var(--bg)}
+  .about .section-title em{color:var(--bg)}
+  .about .section-title em::after{content:'';display:inline-block;width:.6em;height:.6em;background:var(--cyan);border-radius:50%;margin:0 .15em .1em;vertical-align:middle}
+
+  .about-grid{margin-top:64px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+  .about-text p{font-family:'Inter',sans-serif;font-size:17px;line-height:1.65;color:var(--bg);margin-bottom:18px;opacity:.85}
+  .about-text p.lead{font-family:'Space Grotesk',sans-serif;font-size:24px;line-height:1.45;font-weight:400;letter-spacing:-.015em;opacity:1;margin-bottom:32px}
+  .about-text p.lead em{color:var(--bg);font-style:italic;border-bottom:2px solid var(--cyan);padding-bottom:1px}
+
+  .principles{margin-top:32px}
+  .principle{
+    display:grid;grid-template-columns:60px 1fr auto;gap:24px;
+    padding:22px 0;border-top:1px solid rgba(11,20,55,.15);
+    align-items:center;cursor:pointer;
+    transition:padding .2s;
+  }
+  .principle:last-child{border-bottom:1px solid rgba(11,20,55,.15)}
+  .principle:hover{padding-left:8px}
+  .principle .pn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;opacity:.5}
+  .principle .pt{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:500;letter-spacing:-.015em}
+  .principle .pd{display:none;font-size:14px;line-height:1.5;color:rgba(11,20,55,.7);grid-column:2;margin-top:6px}
+  .principle.open .pd{display:block}
+  .principle .arrow{font-family:'Space Grotesk',sans-serif;font-size:20px;transition:transform .2s}
+  .principle.open .arrow{transform:rotate(45deg)}
+
+  /* About visual: poster style */
+  .about-poster{
+    aspect-ratio:3/4;
+    background:var(--bg);color:var(--cream);
+    padding:36px;border-radius:4px;
+    position:relative;overflow:hidden;
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .about-poster .photo{
+    position:absolute;inset:0;
+    background-image:url('assets/g-flag.jpeg');
+    background-size:cover;background-position:center 30%;
+    opacity:.5;
+  }
+  .about-poster::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(11,20,55,.5) 0%, rgba(11,20,55,.85) 100%);
+  }
+  .about-poster > *{position:relative;z-index:1}
+  .about-poster .top-meta{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--cream-dim)}
+  .about-poster .big{font-family:'Space Grotesk',sans-serif;font-size:72px;font-weight:600;line-height:.85;letter-spacing:-.04em}
+  .about-poster .big em{color:var(--cyan);font-style:normal}
+  .about-poster .cap{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-dim);max-width:280px;line-height:1.5}
+
+  /* ============ SCHEDULE ============ */
+  .schedule{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .sched-grid{margin-top:64px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .sched-card{
+    background:linear-gradient(180deg, rgba(17,33,79,.4), rgba(7,13,38,.4));
+    border:1px solid var(--line);
+    border-radius:4px;padding:28px;
+    transition:transform .25s, border-color .25s, background .25s;
+    cursor:pointer;display:flex;flex-direction:column;gap:16px;min-height:340px;
+  }
+  .sched-card:hover{transform:translateY(-4px);border-color:rgba(77,163,255,.5);background:linear-gradient(180deg, rgba(17,33,79,.7), rgba(7,13,38,.6))}
+  .sched-card.feat{
+    background:linear-gradient(180deg, rgba(77,163,255,.18), rgba(11,20,55,.6));
+    border-color:rgba(77,163,255,.5);
+  }
+  .sched-card .day-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--cyan);text-transform:uppercase;display:flex;justify-content:space-between}
+  .sched-card.feat .day-tag{color:var(--cyan-soft)}
+  .sched-card .star{color:var(--sunset)}
+  .sched-card .title{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:500;letter-spacing:-.025em;line-height:.95}
+  .sched-card .desc{font-size:13px;line-height:1.55;color:var(--cream-dim);flex:1}
+  .sched-card .when{
+    padding-top:14px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;
+  }
+  .sched-card .when .t{color:var(--cream)}
+  .sched-card .when .where{color:var(--cream-dim);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+
+  /* ============ GALLERY MARQUEE ============ */
+  .gallery{background:var(--bg);padding-bottom:0;overflow:hidden}
+  .gallery-strip{
+    margin-top:64px;
+    display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:0;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  .g-cell{
+    aspect-ratio:1/1.3;border-right:1px solid var(--line);
+    position:relative;overflow:hidden;
+  }
+  .g-cell:last-child{border-right:none}
+  .g-cell.feat{aspect-ratio:auto}
+  .g-cell.real{background-size:cover;background-position:center}
+  .g-cell.g1{background-image:url('assets/g-squad-night1.jpeg')}
+  .g-cell.g2{background-image:url('assets/g-squad-night2.jpeg')}
+  .g-cell.g3{background-image:url('assets/g-poster.jpeg')}
+  .g-cell.g4{background-image:url('assets/g-grup-pagar.jpeg')}
+  .g-cell.g5{background-image:url('assets/g-tugu1.jpeg')}
+  .g-cell.g6{background-image:url('assets/g-tugu-moon1.jpeg')}
+  .g-cell.g7{background-image:url('assets/g-sunset.jpeg')}
+  .g-cell.g8{background-image:url('assets/g-flag.jpeg')}
+  .g-cell .ph{
+    position:absolute;inset:0;
+    background:repeating-linear-gradient(135deg, rgba(77,163,255,.04) 0 12px, rgba(77,163,255,.08) 12px 24px);
+    display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;
+  }
+  .g-cell .ph span{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cream-dim);line-height:1.6}
+  .g-cell .meta{
+    position:absolute;top:18px;left:18px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream);
+    background:rgba(7,13,38,.7);padding:6px 10px;border:1px solid var(--line);border-radius:2px;
+    backdrop-filter:blur(6px);
+  }
+  .g-cell .meta.cyan{color:var(--cyan);border-color:rgba(77,163,255,.4)}
+  .g-cell .cap{
+    position:absolute;bottom:0;left:0;right:0;padding:24px;
+    background:linear-gradient(transparent, rgba(7,13,38,.95));
+    font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:500;letter-spacing:-.005em;
+  }
+
+  /* ============ JOIN ============ */
+  .join{
+    background:linear-gradient(135deg, var(--bg) 0%, var(--bg-3) 100%);
+    position:relative;overflow:hidden;
+  }
+  .join-mark{
+    position:absolute;font-family:'Space Grotesk',sans-serif;font-weight:600;
+    font-size:clamp(180px,28vw,440px);line-height:.8;letter-spacing:-.05em;
+    color:rgba(77,163,255,.04);bottom:-40px;left:-30px;pointer-events:none;
+    -webkit-text-stroke:2px rgba(77,163,255,.12);
+  }
+  .join .wrap{position:relative;z-index:1}
+  .join-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:80px;align-items:center}
+  .join h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(56px,8vw,128px);line-height:.92;letter-spacing:-.03em;font-weight:500}
+  .join h2 em{color:var(--cyan);font-style:italic;font-weight:400}
+  .join h2 .out{-webkit-text-stroke:1.5px var(--cream);color:transparent}
+  .join-lead{margin-top:32px;font-size:18px;line-height:1.6;color:var(--cream-dim);max-width:540px;font-weight:300}
+
+  .join-card{
+    background:var(--cream);color:var(--bg);
+    padding:40px;border-radius:6px;
+    box-shadow:0 30px 80px rgba(0,0,0,.4);
+  }
+  .join-card .label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .join-card .label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;opacity:.6}
+  .join-card .badge{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;background:var(--bg);color:var(--cream);padding:5px 10px;border-radius:999px;text-transform:uppercase}
+  .join-card h3{font-family:'Space Grotesk',sans-serif;font-size:48px;font-weight:500;letter-spacing:-.03em;line-height:.95;margin:8px 0 28px}
+  .step{display:grid;grid-template-columns:48px 1fr;gap:20px;padding:18px 0;border-top:1px solid rgba(11,20,55,.12);align-items:start}
+  .step:last-of-type{border-bottom:1px solid rgba(11,20,55,.12)}
+  .step .n{
+    width:40px;height:40px;border-radius:50%;
+    background:var(--bg);color:var(--cream);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;
+  }
+  .step.cyan .n{background:var(--cyan);color:var(--bg)}
+  .step .t{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:500;letter-spacing:-.01em;margin-bottom:4px}
+  .step .d{font-size:13px;line-height:1.5;color:rgba(11,20,55,.7)}
+  .join-card .cta{
+    margin-top:28px;width:100%;
+    padding:18px;background:var(--bg);color:var(--cream);
+    border-radius:999px;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;letter-spacing:-.005em;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    transition:background .2s;
+  }
+  .join-card .cta:hover{background:var(--cyan);color:var(--bg)}
+
+  /* ============ FOOTER ============ */
+  footer{background:var(--bg-2);padding:80px 60px 32px;border-top:1px solid var(--line)}
+  .foot-top{
+    max-width:1440px;margin:0 auto;
+    display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:48px;
+    padding-bottom:56px;border-bottom:1px solid var(--line);
+  }
+  .foot-brand{display:flex;flex-direction:column;gap:18px}
+  .foot-brand img{height:44px;align-self:flex-start}
+  .foot-brand p{font-size:14px;line-height:1.6;color:var(--cream-dim);max-width:340px}
+  .foot-col h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:18px}
+  .foot-col a{display:block;font-size:14px;padding:6px 0;color:var(--cream-dim);transition:color .2s}
+  .foot-col a:hover{color:var(--cream)}
+  .foot-bottom{
+    max-width:1440px;margin:0 auto;padding-top:32px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cream-dim);
+  }
+  .foot-bottom span em{color:var(--cyan);font-style:normal}
+
+  @media (max-width: 1000px){
+    .hero{grid-template-columns:1fr;min-height:auto}
+    .hero-left{padding:48px 28px}
+    .hero-right{min-height:60vh}
+    .hero-overlay{padding:32px}
+    section{padding:80px 28px}
+    .nr-grid,.about-grid,.join-grid,.pengurus-grid{grid-template-columns:1fr;gap:48px}
+    .sched-grid{grid-template-columns:1fr 1fr;gap:14px}
+    .gallery-strip{grid-template-columns:1fr 1fr}
+    .foot-top{grid-template-columns:1fr 1fr;gap:32px}
+    .nav-links{display:none}
+    .hero-stats{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <img class="nav-logo" src="assets/runger-logo.png" alt="Runger">
+      <span class="nav-tag">Gerung · NTB</span>
+    </div>
+    <div class="nav-links">
+      <a href="#night">Night Run</a>
+      <a href="#tentang">Tentang</a>
+      <a href="#pengurus">Pengurus</a>
+      <a href="#jadwal">Jadwal</a>
+      <a href="#galeri">Galeri</a>
+      <a href="#gabung">Gabung</a>
+    </div>
+    <div class="nav-cta">
+      <span class="live-badge"><span class="live-dot"></span>Jumat ini</span>
+      <a class="btn-primary" href="#gabung">Daftar →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-left">
+    <div class="hero-meta-top">
+      <span><span class="indot"></span>RUNNERS GERUNG · EST 2023</span>
+      <span>08° 42' S · 116° 07' E</span>
+    </div>
+
+    <h1>
+      <span class="ink">Lari bareng,</span><br>
+      <span class="out">sehat bareng</span><br>
+      <span class="accent">di Gerung.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Komunitas lari di Lombok Barat yang berpusat di <strong>Gerung</strong>.
+      Setiap Jumat malam kami berkumpul di Kantor Bupati Lombok Barat —
+      lari bareng, sehat bareng, jaga silaturrahmi.
+    </p>
+
+    <div class="hero-cta-row">
+      <a href="#gabung" class="btn-lg fill">Gabung Jumat ini <span class="arr">→</span></a>
+      <a href="#night" class="btn-lg line">Lihat rute <span class="arr">→</span></a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="s"><div class="s-num">400<em>++</em></div><div class="s-lab">Anggota</div></div>
+      <div class="s"><div class="s-num">3<em>K</em></div><div class="s-lab">Rute Pemula</div></div>
+      <div class="s"><div class="s-num">5<em>K</em></div><div class="s-lab">Rute Utama</div></div>
+      <div class="s"><div class="s-num">∞</div><div class="s-lab">All Pace</div></div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-photo"></div>
+    <div class="hero-overlay">
+      <div class="race-bib">
+        <div class="label">RUNGER · GERUNG</div>
+        <div class="num">400<small style="font-size:30px">++</small></div>
+        <div class="nm">Runners Strong</div>
+      </div>
+
+      <div class="next-card">
+        <div class="head">
+          <div>
+            <div class="ttl">Lari berikutnya</div>
+            <div class="ed" style="margin-top:6px">/ Gerung Night Run</div>
+          </div>
+          <span class="live-badge"><span class="live-dot"></span>Open</span>
+        </div>
+        <div class="when" id="hero-next-date">Jumat <em>malam</em></div>
+        <div class="countdown">
+          <div class="cd"><div class="cd-n" id="cd-d">06</div><div class="cd-l">Hari</div></div>
+          <div class="cd"><div class="cd-n" id="cd-h">14</div><div class="cd-l">Jam</div></div>
+          <div class="cd"><div class="cd-n" id="cd-m">22</div><div class="cd-l">Menit</div></div>
+          <div class="cd"><div class="cd-n" id="cd-s">08</div><div class="cd-l">Detik</div></div>
+        </div>
+        <div class="meta">
+          <span>Start <strong>20.00 WITA</strong></span>
+          <span>Tikum <strong>Kantor Bupati Lobar</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- NIGHT RUN -->
+<section id="night" class="nightrun">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">/01</span>Kegiatan Rutin</div>
+    <h2 class="section-title">Gerung <em>Night Run.</em><br><span class="out">Setiap Jumat</span> malam.</h2>
+
+    <div class="nr-grid">
+      <div class="nr-info">
+        <p style="font-size:17px;line-height:1.7;color:var(--cream-dim);margin-bottom:32px;font-weight:300;max-width:520px">
+          Kegiatan utama Runger. Tikum di halaman Kantor Bupati Lombok Barat,
+          pemanasan bareng, lalu menyusuri rute kota Gerung. <strong style="color:var(--cream);font-weight:500">Rute 3K untuk pemula dan 5K utama —</strong>
+          gratis, terbuka untuk siapa saja.
+        </p>
+
+        <dl style="display:contents">
+          <div class="nr-row"><dt>Hari</dt><dd><em>Jumat malam</em> · mingguan</dd></div>
+          <div class="nr-row"><dt>Tikum</dt><dd>Kantor Bupati Lombok Barat, Gerung</dd></div>
+          <div class="nr-row"><dt>Briefing</dt><dd>19.45 WITA — pemanasan bersama</dd></div>
+          <div class="nr-row"><dt>Start</dt><dd><em>20.00 WITA</em></dd></div>
+          <div class="nr-row"><dt>Rute</dt><dd>3K (pemula) · 5K (utama) · all pace welcome</dd></div>
+          <div class="nr-row"><dt>Sweeper</dt><dd>Pelari belakang — nggak ada yang ditinggal</dd></div>
+          <div class="nr-row"><dt>After-run</dt><dd>Cooldown & silaturrahmi</dd></div>
+          <div class="nr-row"><dt>Biaya</dt><dd><em>Gratis</em> · bawa air sendiri</dd></div>
+        </dl>
+
+        <div class="nr-cta-row">
+          <a href="#gabung" class="btn-lg fill">Gabung lari <span class="arr">→</span></a>
+          <a href="https://www.instagram.com/runnersgerung/" target="_blank" rel="noopener" class="btn-lg line">@runnersgerung <span class="arr">↗</span></a>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <div class="tracker-head">
+          <div>
+            <div class="ttl">Kota Gerung Loop</div>
+            <div class="sub">Rute Standar · 5K</div>
+          </div>
+          <span class="live-pill">Active</span>
+        </div>
+
+        <div class="map-window">
+          <div class="map-grid"></div>
+          <svg class="map-svg" viewBox="0 0 400 300" preserveAspectRatio="none">
+            <path d="M 56 204 Q 110 180 152 126 T 248 72 T 336 54" stroke="rgba(77,163,255,.85)" stroke-width="2.5" fill="none" stroke-dasharray="5 4"/>
+            <path d="M 56 204 Q 110 180 152 126 T 248 72 T 336 54" stroke="rgba(77,163,255,.18)" stroke-width="10" fill="none"/>
+          </svg>
+          <div class="pin start"></div>
+          <div class="pin k1"></div>
+          <div class="pin k2"></div>
+          <div class="pin end"></div>
+          <div class="pin-label start">Start · Kantor Bupati</div>
+          <div class="pin-label k1">KM 1.5</div>
+          <div class="pin-label k2">KM 3.5</div>
+          <div class="pin-label end">Finish · 5K</div>
+        </div>
+
+        <div class="tracker-stats">
+          <div class="ts"><div class="tn">5.0<small>km</small></div><div class="tl">Jarak</div></div>
+          <div class="ts"><div class="tn">+24<small>m</small></div><div class="tl">Elevasi</div></div>
+          <div class="ts"><div class="tn">~32<small>'</small></div><div class="tl">Avg</div></div>
+          <div class="ts"><div class="tn">★★★</div><div class="tl">Easy</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="tentang" class="about">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">/02</span>Tentang Komunitas</div>
+    <h2 class="section-title">Silaturrahmi<br>lewat <em>lari</em><br><span class="out">bareng.</span></h2>
+
+    <div class="about-grid">
+      <div class="about-text">
+        <p class="lead">Runger lahir dari niat sederhana: menjaga silaturrahmi bersama teman-teman <em>SMP & SMA</em> di Lombok Barat lewat aktivitas yang sehat.</p>
+        <p>Dari janjian lari kecil-kecilan, kini tumbuh jadi komunitas dengan 400++ anggota yang berpusat di Gerung. Kami percaya lari itu bukan soal kecepatan — tapi soal hadir.</p>
+        <p>Hadir buat diri sendiri, buat teman, dan buat kota Gerung yang malamnya jadi lebih hidup. Pemula bisa pilih rute 3K, yang sudah terbiasa di rute 5K. Tidak ada syarat khusus — bawa sepatu, bawa air, bawa niat. Sisanya kita lari bareng.</p>
+
+        <div class="principles">
+          <div class="principle open">
+            <div class="pn">/ 01</div>
+            <div>
+              <div class="pt">Silaturrahmi via lari</div>
+              <div class="pd">Reuni teman SMP & SMA Lombok Barat lewat aktivitas yang sehat — bukan cuma lari, tapi keluarga.</div>
+            </div>
+            <div class="arrow">+</div>
+          </div>
+          <div class="principle">
+            <div class="pn">/ 02</div>
+            <div>
+              <div class="pt">All pace welcome</div>
+              <div class="pd">Pemula di rute 3K, yang sudah terbiasa di 5K. Sweeper jaga pelari paling belakang — semua pulang bareng.</div>
+            </div>
+            <div class="arrow">+</div>
+          </div>
+          <div class="principle">
+            <div class="pn">/ 03</div>
+            <div>
+              <div class="pt">Berpusat di Gerung</div>
+              <div class="pd">Rute kita, kota kita, komunitas kita. Mengenalkan Gerung & Lombok Barat lewat sepatu lari.</div>
+            </div>
+            <div class="arrow">+</div>
+          </div>
+          <div class="principle">
+            <div class="pn">/ 04</div>
+            <div>
+              <div class="pt">Solid, lari bareng pulang bareng</div>
+              <div class="pd">Tidak ada yang ditinggal sendirian. After-run silaturrahmi untuk eratin teman.</div>
+            </div>
+            <div class="arrow">+</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-poster">
+        <div class="photo"></div>
+        <div class="top-meta">
+          <span>RUNGER · GERUNG</span>
+          <span>RUNNERS GERUNG</span>
+        </div>
+        <div>
+          <div class="big">400<em>++</em><br>RUNNERS<br>STRONG.</div>
+        </div>
+        <div class="cap">
+          Komunitas lari berpusat di Gerung, Lombok Barat. Lari bareng, sehat bareng, jaga silaturrahmi.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PENGURUS -->
+<section id="pengurus" class="pengurus">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">/03</span>Struktur Pengurus</div>
+    <h2 class="section-title">Yang njagain<br><em>Runger</em> tetap jalan.</h2>
+
+    <div class="pengurus-grid">
+      <div class="pengurus-poster">
+        <img src="assets/community-structure.jpeg" alt="Community Structure of Runners Gerung" />
+        <div class="poster-cap"><span>Community Structure</span><span>· Runners Gerung</span></div>
+      </div>
+
+      <div class="pengurus-roster">
+        <div class="roster-intro">
+          Tim kecil yang ngejaga ritme komunitas — dari race day, latihan, sampai dokumentasi tiap edisi.
+        </div>
+        <ol class="roster">
+          <li>
+            <span class="r-i">01</span>
+            <span class="r-r">Captain</span>
+            <span class="r-n">Hairul Fahmi</span>
+          </li>
+          <li>
+            <span class="r-i">02</span>
+            <span class="r-r">Vice Captain</span>
+            <span class="r-n">Zanul Harir</span>
+          </li>
+          <li>
+            <span class="r-i">03</span>
+            <span class="r-r">Secretary</span>
+            <span class="r-n">Fahrudi Hy</span>
+          </li>
+          <li>
+            <span class="r-i">04</span>
+            <span class="r-r">Treasury</span>
+            <span class="r-n">M. Zulpakar S</span>
+          </li>
+          <li>
+            <span class="r-i">05</span>
+            <span class="r-r">Co. Race</span>
+            <span class="r-n">Wais Al Qorni</span>
+          </li>
+          <li>
+            <span class="r-i">06</span>
+            <span class="r-r">Co. Training</span>
+            <span class="r-n">Fajri Ramadhan</span>
+          </li>
+          <li>
+            <span class="r-i">07</span>
+            <span class="r-r">Co. Humas</span>
+            <span class="r-n">Hazril Tanwir</span>
+          </li>
+          <li>
+            <span class="r-i">08</span>
+            <span class="r-r">Co. Media</span>
+            <span class="r-n">Izaq Rozali</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<section id="jadwal" class="schedule">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">/04</span>Jadwal Mingguan</div>
+    <h2 class="section-title">Kapan kita <em>lari?</em></h2>
+
+    <div class="sched-grid">
+      <div class="sched-card feat">
+        <div class="day-tag"><span>Jumat</span><span class="star">★ FEATURED</span></div>
+        <div class="title">Gerung<br>Night Run</div>
+        <div class="desc">Kegiatan utama mingguan. Rute 3K (pemula) & 5K menyusuri kota Gerung, ditutup dengan silaturrahmi.</div>
+        <div class="when"><span class="t">20.00 WITA</span><span class="where">Kantor Bupati</span></div>
+      </div>
+      <div class="sched-card">
+        <div class="day-tag"><span>Kamis</span><span>—</span></div>
+        <div class="title">Speed<br>Session</div>
+        <div class="desc">Latihan interval & tempo untuk yang mau push pace. Sedang dipersiapkan.</div>
+        <div class="when"><span class="t">Cooming Soon</span><span class="where">TBA · IG</span></div>
+      </div>
+      <div class="sched-card">
+        <div class="day-tag"><span>Minggu</span><span>—</span></div>
+        <div class="title">Long<br>Run</div>
+        <div class="desc">Long run akhir pekan, lokasi variatif tiap minggunya. Cek IG Story.</div>
+        <div class="when"><span class="t">05.30 WITA</span><span class="where">Variatif · IG</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="galeri" class="gallery">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">/05</span>Dokumentasi</div>
+    <h2 class="section-title">Dokumentasi<br><em>Runger.</em></h2>
+  </div>
+
+  <div class="gallery-strip">
+    <div class="g-cell real g1 feat">
+      <div class="meta cyan">● Giri Menang Night Run</div>
+      <div class="cap">Squad finish — start gate Bank NTB Syariah, ornamen Sasak di belakang.</div>
+    </div>
+    <div class="g-cell real g3">
+      <div class="meta">Poster · Apr 2026</div>
+      <div class="cap">Poster Gerung Night Run — 3K & 5K, 20.00 WITA.</div>
+    </div>
+    <div class="g-cell real g5">
+      <div class="meta">Tugu Giri Menang</div>
+      <div class="cap">After-run di landmark Gerung.</div>
+    </div>
+    <div class="g-cell real g7">
+      <div class="meta cyan">● Lari Sehat</div>
+      <div class="cap">Sunset run di bukit Lombok Barat.</div>
+    </div>
+  </div>
+
+  <div class="gallery-strip">
+    <div class="g-cell real g4">
+      <div class="meta">Squad · Gerung</div>
+      <div class="cap">Foto bareng di Kantor Bupati Lobar.</div>
+    </div>
+    <div class="g-cell real g6">
+      <div class="meta">Moon Lit</div>
+      <div class="cap">Lari malam di bawah bulan, Tugu Giri Menang.</div>
+    </div>
+    <div class="g-cell real g2">
+      <div class="meta">Finish Line</div>
+      <div class="cap">Squad bareng setelah finish.</div>
+    </div>
+    <div class="g-cell real g8">
+      <div class="meta">Runger Flag</div>
+      <div class="cap">Bendera Runger — lari bareng, sehat bareng.</div>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section id="gabung" class="join">
+  <div class="join-mark">RUN</div>
+  <div class="wrap">
+    <div class="join-grid">
+      <div>
+        <div class="eyebrow"><span class="num">/06</span>Cara Gabung</div>
+        <h2>Nggak perlu <em>ribet.</em><br><span class="out">Datang.</span> lari.<br>jadi keluarga.</h2>
+        <p class="join-lead">
+          Runger gratis dan terbuka. Cukup datang Jumat malam ke <strong style="color:var(--cream)">Kantor Bupati Lombok Barat</strong> jam 19.45 WITA.
+          Cari kaos biru bertuliskan Runger, salam dulu — sisanya lari bareng.
+        </p>
+      </div>
+
+      <div class="join-card">
+        <div class="label-row">
+          <div class="label">/ Step-by-step</div>
+          <div class="badge">Gratis</div>
+        </div>
+        <h3>4 langkah<br>mulai lari.</h3>
+
+        <div class="step">
+          <div class="n">1</div>
+          <div>
+            <div class="t">Follow @runnersgerung di Instagram</div>
+            <div class="d">Update rute & info Night Run setiap Jumat pagi.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <div>
+            <div class="t">Datang Jumat 19.45 WITA</div>
+            <div class="d">Kantor Bupati Lobar. Bawa air sendiri & sepatu lari.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <div>
+            <div class="t">Briefing & pemanasan bareng</div>
+            <div class="d">Kenalan, peregangan, lalu start jam 20.00 WITA.</div>
+          </div>
+        </div>
+        <div class="step cyan">
+          <div class="n">4</div>
+          <div>
+            <div class="t">Selesai? Silaturrahmi dulu.</div>
+            <div class="d">Cooldown & ngobrol bareng. Selamat datang di Runger.</div>
+          </div>
+        </div>
+
+        <a href="https://www.instagram.com/runnersgerung/" target="_blank" rel="noopener" class="cta">DM @runnersgerung <span class="arr">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-top">
+    <div class="foot-brand">
+      <img src="assets/runger-logo.png" alt="Runger">
+      <p>Runners Gerung — komunitas lari Kecamatan Gerung, Kabupaten Lombok Barat, NTB. Lari bareng setiap Jumat malam sejak 2023.</p>
+      <div class="mono" style="color:var(--cyan);margin-top:8px">● ACTIVE — JUMAT 20.00 WITA</div>
+    </div>
+    <div class="foot-col">
+      <h4>Navigasi</h4>
+      <a href="#night">Night Run</a>
+      <a href="#tentang">Tentang</a>
+      <a href="#pengurus">Pengurus</a>
+      <a href="#jadwal">Jadwal Mingguan</a>
+      <a href="#galeri">Galeri</a>
+      <a href="#gabung">Gabung</a>
+    </div>
+    <div class="foot-col">
+      <h4>Sosial</h4>
+      <a href="https://www.instagram.com/runnersgerung/" target="_blank" rel="noopener">Instagram · @runnersgerung</a>
+      <a href="#">Strava Club · Runger</a>
+      <a href="#">WhatsApp Group</a>
+    </div>
+    <div class="foot-col">
+      <h4>Tikum</h4>
+      <a href="#">Kantor Bupati Lobar</a>
+      <a href="#">Jl. Soekarno-Hatta, Gerung</a>
+      <a href="#">Lombok Barat, NTB 83363</a>
+      <a href="#">Buka di Google Maps →</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Runger · Runners Gerung</span>
+    <span>Made with sweat in <em>Gerung, Lombok Barat</em></span>
+    <span>v.04.26 — Midnight Lombok</span>
+  </div>
+</footer>
+
+<script>
+  // Live countdown to next Friday 19:30 WITA
+  function nextFriday2000(){
+    const now = new Date();
+    const witaNow = new Date(now.getTime() + (now.getTimezoneOffset()*60000) + (8*3600000));
+    const day = witaNow.getUTCDay();
+    let target = new Date(witaNow);
+    const daysUntilFri = (5 - day + 7) % 7;
+    target.setUTCDate(witaNow.getUTCDate() + daysUntilFri);
+    target.setUTCHours(20,0,0,0);
+    if (target <= witaNow) target.setUTCDate(target.getUTCDate()+7);
+    return new Date(target.getTime() - (8*3600000));
+  }
+  const target = nextFriday2000();
+  const _months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const _label = document.getElementById('hero-next-date');
+  if(_label){ _label.innerHTML = `Jumat <em>${target.getDate()} ${_months[target.getMonth()]}</em>`; }
+  const elD=document.getElementById('cd-d'),elH=document.getElementById('cd-h'),
+        elM=document.getElementById('cd-m'),elS=document.getElementById('cd-s');
+  function pad(n){return String(Math.max(0,n)).padStart(2,'0')}
+  function tick(){
+    const diff = target - new Date();
+    const d=Math.floor(diff/86400000), h=Math.floor(diff/3600000)%24,
+          m=Math.floor(diff/60000)%60, s=Math.floor(diff/1000)%60;
+    elD.textContent=pad(d);elH.textContent=pad(h);elM.textContent=pad(m);elS.textContent=pad(s);
+  }
+  tick();setInterval(tick,1000);
+
+  // Accordion principles
+  document.querySelectorAll('.principle').forEach(p=>{
+    p.addEventListener('click',()=>p.classList.toggle('open'));
+  });
+</script>
+
+</body>
+</html>

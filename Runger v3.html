@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Runger — Lari Bareng, Sehat Bareng di Gerung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#1530C7;
+    --blue-deep:#0A1B8A;
+    --ink:#0A0A0A;
+    --paper:#EFEAE0;
+    --paper-2:#E2DCCB;
+    --line:#0A0A0A;
+    --hot:#FF4E1F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Archivo',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  .display{font-family:'Archivo Black',sans-serif;line-height:.86;letter-spacing:-.025em;text-transform:uppercase}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+
+  /* ============ TICKER ============ */
+  .ticker{
+    background:var(--ink);color:var(--paper);
+    border-bottom:3px solid var(--ink);overflow:hidden;white-space:nowrap;
+  }
+  .ticker-track{display:inline-block;padding:11px 0;animation:tick 30s linear infinite;font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+  .ticker-track span{margin:0 22px}
+  .ticker-track span.x{color:var(--hot)}
+  @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ============ NAV ============ */
+  nav.top{
+    position:sticky;top:0;z-index:50;
+    background:var(--paper);
+    border-bottom:3px solid var(--ink);
+  }
+  .nav-inner{
+    max-width:1500px;margin:0 auto;padding:14px 28px;
+    display:flex;align-items:center;gap:24px;
+  }
+  .nav-logo-box{
+    background:var(--blue);padding:6px 10px;border:3px solid var(--ink);
+    box-shadow:4px 4px 0 var(--ink);
+  }
+  .nav-logo{height:30px;display:block}
+  .nav-links{display:flex;margin-left:24px}
+  .nav-links a{
+    padding:10px 18px;font-weight:800;font-size:13px;letter-spacing:.02em;text-transform:uppercase;
+    border-right:1px solid var(--ink);
+  }
+  .nav-links a:first-child{border-left:1px solid var(--ink)}
+  .nav-links a:hover{background:var(--ink);color:var(--paper)}
+  .nav-cta{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .nav-live{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;
+    background:var(--hot);color:var(--ink);padding:8px 12px;border:3px solid var(--ink);
+    text-transform:uppercase;font-weight:700;display:inline-flex;align-items:center;gap:8px;
+  }
+  .nav-live::before{content:'';width:8px;height:8px;background:var(--ink);border-radius:50%;animation:blink 1s infinite}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.2}}
+  .btn-brut{
+    background:var(--blue);color:var(--paper);border:3px solid var(--ink);
+    padding:11px 18px;font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:.02em;text-transform:uppercase;
+    box-shadow:4px 4px 0 var(--ink);transition:transform .1s, box-shadow .1s;
+  }
+  .btn-brut:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+  .btn-brut:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+
+  /* ============ HERO ============ */
+  .hero{
+    border-bottom:3px solid var(--ink);
+    display:grid;grid-template-columns:1.4fr 1fr;
+  }
+  .hero-left{
+    padding:56px 40px 40px;border-right:3px solid var(--ink);
+    position:relative;background:var(--paper);
+  }
+  .hero-tag{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--ink);color:var(--paper);
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    padding:8px 14px;margin-bottom:32px;
+  }
+  .hero-tag .dot{width:7px;height:7px;background:var(--hot);border-radius:50%}
+  .hero h1{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(72px,11.5vw,200px);
+    line-height:.84;letter-spacing:-.04em;text-transform:uppercase;
+  }
+  .hero h1 .blue{color:var(--blue)}
+  .hero h1 .out{
+    -webkit-text-stroke:3px var(--ink);color:transparent;
+  }
+  .hero h1 .hot{color:var(--hot)}
+  .hero-slogan{
+    margin-top:28px;display:inline-block;background:var(--hot);color:var(--ink);
+    padding:14px 22px;border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);
+    font-family:'Archivo Black',sans-serif;font-size:clamp(20px,2.4vw,30px);text-transform:uppercase;letter-spacing:-.005em;
+    transform:rotate(-1.5deg);
+  }
+  .hero-slogan em{font-style:normal;color:var(--blue);background:var(--paper);padding:0 6px;margin:0 2px}
+  .hero-sub{margin-top:48px;max-width:580px;font-size:18px;line-height:1.55;font-weight:500}
+  .hero-sub strong{background:var(--ink);color:var(--paper);padding:2px 6px}
+
+  .hero-cta{margin-top:36px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn-lg{
+    padding:18px 26px;border:3px solid var(--ink);
+    font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:.02em;text-transform:uppercase;
+    display:inline-flex;align-items:center;gap:10px;
+    box-shadow:6px 6px 0 var(--ink);transition:transform .1s, box-shadow .1s;
+  }
+  .btn-lg.fill-blue{background:var(--blue);color:var(--paper)}
+  .btn-lg.fill-ink{background:var(--ink);color:var(--paper)}
+  .btn-lg.fill-paper{background:var(--paper);color:var(--ink)}
+  .btn-lg:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink)}
+  .btn-lg:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+
+  .hero-stats{
+    margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);
+    border-top:3px solid var(--ink);
+  }
+  .hero-stats .s{padding:22px 16px;border-right:1px solid var(--ink)}
+  .hero-stats .s:last-child{border-right:none}
+  .hero-stats .s-num{font-family:'Archivo Black',sans-serif;font-size:60px;line-height:.9;letter-spacing:-.04em}
+  .hero-stats .s-num em{color:var(--hot);font-style:normal}
+  .hero-stats .s-num .pl{color:var(--blue)}
+  .hero-stats .s-lab{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-top:6px;font-weight:500}
+
+  .hero-right{
+    background:var(--blue);color:var(--paper);position:relative;overflow:hidden;
+  }
+  .hero-photo-wrap{
+    position:absolute;inset:0;
+    background-image:url('assets/g-squad-night1.jpeg');
+    background-size:cover;background-position:center 30%;
+    filter:contrast(1.1) saturate(.9);
+  }
+  .hero-photo-wrap::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(21,48,199,.35) 0%, rgba(21,48,199,.25) 50%, rgba(10,10,10,.85) 100%);
+    mix-blend-mode:multiply;
+  }
+  .hero-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:32px}
+  .bib{
+    align-self:flex-end;
+    background:var(--paper);color:var(--ink);
+    border:3px solid var(--ink);box-shadow:8px 8px 0 var(--ink);
+    padding:14px 22px;text-align:center;transform:rotate(3deg);
+  }
+  .bib .lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+  .bib .num{font-family:'Archivo Black',sans-serif;font-size:60px;line-height:.95;letter-spacing:-.04em;color:var(--blue)}
+  .bib .nm{font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+
+  .next-card{
+    background:var(--paper);color:var(--ink);
+    border:3px solid var(--ink);box-shadow:10px 10px 0 var(--ink);
+    padding:22px;
+  }
+  .next-card .head{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+  .next-card .head .ttl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;font-weight:700;text-transform:uppercase}
+  .next-card .head .ed{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;background:var(--ink);color:var(--paper);padding:4px 8px;text-transform:uppercase;font-weight:700}
+  .next-card .when{font-family:'Archivo Black',sans-serif;font-size:30px;line-height:1;letter-spacing:-.025em;text-transform:uppercase;margin-top:14px}
+  .next-card .when em{color:var(--blue);font-style:normal}
+  .countdown{display:grid;grid-template-columns:repeat(4,1fr);margin-top:14px;border:2px solid var(--ink)}
+  .countdown .cd{padding:10px 0;text-align:center;border-right:2px solid var(--ink)}
+  .countdown .cd:last-child{border-right:none}
+  .countdown .cd-n{font-family:'Archivo Black',sans-serif;font-size:26px;line-height:1;color:var(--blue)}
+  .countdown .cd-l{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-top:4px;font-weight:700}
+  .next-card .meta{margin-top:14px;display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+  .next-card .meta strong{color:var(--blue)}
+
+  /* ============ SECTION SCAFFOLD ============ */
+  section{padding:0;border-bottom:3px solid var(--ink);position:relative}
+  .sec-pad{padding:80px 40px}
+  .wrap{max-width:1500px;margin:0 auto}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--ink);color:var(--paper);
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+    padding:7px 12px;margin-bottom:28px;
+  }
+  .eyebrow .num{background:var(--hot);color:var(--ink);padding:2px 6px;margin:-2px -4px -2px -8px}
+  .section-title{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(54px,8.5vw,128px);
+    line-height:.86;letter-spacing:-.035em;text-transform:uppercase;
+  }
+  .section-title em{color:var(--blue);font-style:normal}
+  .section-title .out{-webkit-text-stroke:3px var(--ink);color:transparent}
+  .section-title .hot{color:var(--hot)}
+
+  /* ============ NIGHT RUN ============ */
+  .nightrun{background:var(--paper-2)}
+  .nr-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:0;margin-top:48px;border:3px solid var(--ink);background:var(--paper)}
+  .nr-info{padding:36px;border-right:3px solid var(--ink)}
+  .nr-lead{font-size:17px;line-height:1.6;font-weight:500;margin-bottom:24px;max-width:480px}
+  .nr-lead strong{background:var(--blue);color:var(--paper);padding:2px 6px}
+  .nr-row{
+    display:grid;grid-template-columns:140px 1fr;gap:12px;
+    padding:14px 0;border-top:2px solid var(--ink);align-items:baseline;
+  }
+  .nr-row:last-of-type{border-bottom:2px solid var(--ink)}
+  .nr-row dt{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+  .nr-row dd{font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.005em;text-transform:uppercase;line-height:1.2}
+  .nr-row dd em{color:var(--blue);font-style:normal}
+  .nr-row dd .hot{background:var(--hot);color:var(--ink);padding:1px 5px}
+  .nr-cta{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap}
+
+  /* Route panel */
+  .route-panel{padding:36px;background:var(--ink);color:var(--paper);position:relative;overflow:hidden}
+  .route-panel::before{
+    content:'';position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(239,234,224,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(239,234,224,.04) 1px, transparent 1px);
+    background-size:24px 24px;
+  }
+  .route-panel > *{position:relative}
+  .route-head{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:18px;border-bottom:2px solid var(--paper)}
+  .route-head .ttl{font-family:'Archivo Black',sans-serif;font-size:26px;line-height:.95;letter-spacing:-.025em;text-transform:uppercase}
+  .route-head .sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;margin-top:6px;text-transform:uppercase;color:var(--hot);font-weight:700}
+  .route-head .badge{
+    background:var(--hot);color:var(--ink);
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;font-weight:700;
+    padding:6px 10px;border:2px solid var(--paper);text-transform:uppercase;
+  }
+  .map-wrap{
+    margin-top:18px;background:#0F1F4F;
+    border:2px solid var(--paper);aspect-ratio:4/3;position:relative;overflow:hidden;
+  }
+  .map-wrap::before{
+    content:'';position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(239,234,224,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(239,234,224,.07) 1px, transparent 1px);
+    background-size:24px 24px;
+  }
+  .map-svg{position:absolute;inset:0;width:100%;height:100%}
+  .pin{position:absolute;width:14px;height:14px;background:var(--hot);border:2px solid var(--paper);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(255,78,31,.2)}
+  .pin.start{background:var(--paper)}
+  .pin-label{
+    position:absolute;transform:translate(-50%,0);margin-top:8px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+    background:var(--paper);color:var(--ink);padding:3px 6px;white-space:nowrap;
+  }
+  .pin-label.hot{background:var(--hot)}
+  /* Route tabs */
+  .route-tabs{display:flex;gap:0;margin-top:14px;border:2px solid var(--paper)}
+  .route-tab{
+    flex:1;padding:10px 12px;background:transparent;color:var(--paper);border:none;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;font-weight:700;text-transform:uppercase;
+    border-right:2px solid var(--paper);text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;
+    transition:background .15s, color .15s;
+  }
+  .route-tab:last-child{border-right:none}
+  .route-tab .km{color:var(--hot)}
+  .route-tab.active{background:var(--paper);color:var(--ink)}
+  .route-tab.active .km{color:var(--blue)}
+  .route-tab .wk{font-size:8px;opacity:.6;display:block;letter-spacing:.18em;margin-top:2px}
+  .route-rolling-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    margin-top:14px;padding:8px 12px;border:2px dashed rgba(239,234,224,.4);
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;
+    color:rgba(239,234,224,.85);
+  }
+  .route-rolling-tag .dot{width:8px;height:8px;background:var(--hot);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+  .route-svg-layer{display:none}
+  .route-svg-layer.active{display:block}
+  .route-pin-layer{display:none}
+  .route-pin-layer.active{display:contents}
+  .map-attrib{
+    position:absolute;bottom:8px;right:10px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:rgba(239,234,224,.5);text-transform:uppercase;
+  }
+  .route-stats{margin-top:18px;display:grid;grid-template-columns:repeat(4,1fr);border:2px solid var(--paper)}
+  .route-stats .ts{padding:14px;border-right:2px solid var(--paper)}
+  .route-stats .ts:last-child{border-right:none}
+  .route-stats .tn{font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;letter-spacing:-.025em}
+  .route-stats .tn small{font-size:12px;color:var(--hot);font-weight:400}
+  .route-stats .tl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--paper);opacity:.6;margin-top:4px;text-transform:uppercase;font-weight:700}
+
+  /* ============ ABOUT ============ */
+  .about{background:var(--paper)}
+  .about-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:0;margin-top:48px;border:3px solid var(--ink)}
+  .about-text-cell{padding:40px;border-right:3px solid var(--ink);background:var(--paper)}
+  .about-text-cell p.lead{font-family:'Archivo Black',sans-serif;font-size:clamp(22px,2.4vw,32px);line-height:1.15;letter-spacing:-.015em;text-transform:uppercase;margin-bottom:24px}
+  .about-text-cell p.lead em{color:var(--blue);font-style:normal}
+  .about-text-cell p{font-size:16px;line-height:1.6;margin-bottom:14px;font-weight:500}
+  .about-text-cell p strong{background:var(--ink);color:var(--paper);padding:1px 5px}
+
+  .principles{margin-top:28px;border-top:2px solid var(--ink)}
+  .principle{display:grid;grid-template-columns:60px 1fr 30px;gap:16px;padding:18px 0;border-bottom:2px solid var(--ink);align-items:center;cursor:pointer;transition:padding .15s}
+  .principle:hover{padding-left:8px;background:var(--paper-2)}
+  .principle .pn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;font-weight:700}
+  .principle .pt{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.005em;text-transform:uppercase;line-height:1.1}
+  .principle .pd{display:none;grid-column:2;font-size:13px;line-height:1.55;font-weight:500;margin-top:6px}
+  .principle.open .pd{display:block}
+  .principle .ar{font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;text-align:center}
+  .principle.open .ar{transform:rotate(45deg)}
+
+  .about-poster{
+    background:var(--blue);color:var(--paper);
+    padding:40px;display:flex;flex-direction:column;justify-content:space-between;
+    position:relative;overflow:hidden;min-height:600px;
+  }
+  .about-poster .photo{
+    position:absolute;inset:0;
+    background-image:url('assets/g-grup-archway.jpeg');
+    background-size:cover;background-position:center 30%;
+    opacity:.55;mix-blend-mode:multiply;
+  }
+  .about-poster::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(21,48,199,.4) 0%, rgba(10,27,138,.7) 100%);
+  }
+  .about-poster > *{position:relative;z-index:1}
+  .ap-top{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .ap-mid{margin-top:auto}
+  .ap-mid .big{font-family:'Archivo Black',sans-serif;font-size:clamp(80px,11vw,140px);line-height:.85;letter-spacing:-.04em;text-transform:uppercase}
+  .ap-mid .big em{color:var(--hot);font-style:normal;display:block}
+  .ap-cap{
+    margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;line-height:1.6;
+    background:var(--ink);padding:12px 14px;border:2px solid var(--paper);max-width:340px;
+  }
+
+  /* ============ PENGURUS ============ */
+  .pengurus{background:var(--paper)}
+  .pengurus-grid{
+    margin-top:48px;display:grid;grid-template-columns:1fr 1fr;gap:0;
+    border:3px solid var(--ink);background:var(--paper);
+  }
+  .pengurus-poster-cell{
+    background:var(--blue);padding:32px;
+    border-right:3px solid var(--ink);
+    position:relative;display:flex;flex-direction:column;gap:16px;
+  }
+  .pengurus-poster-cell img{
+    width:100%;display:block;
+    border:3px solid var(--ink);box-shadow:8px 8px 0 var(--ink);
+  }
+  .pp-tape{
+    align-self:flex-start;
+    background:var(--hot);color:var(--ink);
+    border:3px solid var(--ink);padding:6px 12px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;font-weight:700;
+    transform:rotate(-1.5deg);box-shadow:4px 4px 0 var(--ink);
+  }
+  .pp-foot{
+    display:flex;justify-content:space-between;
+    color:var(--paper);font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+    padding-top:8px;border-top:2px dashed rgba(239,234,224,.4);
+  }
+
+  .pengurus-roster-cell{padding:32px;background:var(--paper)}
+  .pr-head{padding-bottom:18px;border-bottom:2px solid var(--ink);margin-bottom:6px}
+  .pr-stamp{
+    display:inline-block;background:var(--ink);color:var(--paper);
+    padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:.18em;font-weight:700;text-transform:uppercase;
+    margin-bottom:14px;white-space:nowrap;
+  }
+  .pr-head p{font-size:15px;line-height:1.55;font-weight:500;max-width:42ch}
+  .pr-list{list-style:none;padding:0;margin:0}
+  .pr-list li{
+    display:grid;grid-template-columns:48px 1fr 1.3fr;gap:14px;align-items:center;
+    padding:14px 4px;border-bottom:2px solid var(--ink);
+    transition:padding .12s, background .12s;
+  }
+  .pr-list li:last-child{border-bottom:none}
+  .pr-list li:hover{background:var(--paper-2);padding-left:14px}
+  .pr-list li:hover .pr-n{color:var(--blue)}
+  .pr-i{
+    font-family:'Archivo Black',sans-serif;font-size:22px;line-height:1;
+    color:var(--paper);background:var(--ink);
+    text-align:center;padding:6px 0;letter-spacing:-.02em;
+  }
+  .pr-r{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;font-weight:700;color:var(--ink);opacity:.7;
+  }
+  .pr-n{
+    font-family:'Archivo Black',sans-serif;font-size:22px;line-height:1;
+    text-transform:uppercase;letter-spacing:-.02em;
+    transition:color .12s;
+  }
+
+  /* ============ SCHEDULE ============ */
+  .schedule{background:var(--paper-2)}
+  .sched-grid{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);border:3px solid var(--ink);background:var(--paper)}
+  .sched-card{padding:32px;border-right:3px solid var(--ink);min-height:340px;display:flex;flex-direction:column;gap:14px;position:relative}
+  .sched-card:last-child{border-right:none}
+  .sched-card.feat{background:var(--blue);color:var(--paper)}
+  .sched-card.soon{background:var(--paper-2)}
+  .sched-day{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+  .sched-day .star{background:var(--hot);color:var(--ink);padding:3px 7px;font-weight:700}
+  .sched-card.feat .sched-day .star{background:var(--paper);color:var(--ink)}
+  .sched-card.soon .sched-day .star{background:var(--ink);color:var(--paper)}
+  .sched-title{font-family:'Archivo Black',sans-serif;font-size:48px;line-height:.88;letter-spacing:-.035em;text-transform:uppercase}
+  .sched-card.feat .sched-title em{color:var(--hot);font-style:normal;display:block}
+  .sched-desc{font-size:14px;line-height:1.55;font-weight:500;flex:1}
+  .sched-when{
+    padding-top:14px;border-top:2px solid currentColor;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;font-weight:700;text-transform:uppercase;
+  }
+  .sched-card.soon::after{
+    content:'COOMING SOON';position:absolute;top:18px;right:18px;
+    background:var(--ink);color:var(--hot);
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;font-weight:700;
+    padding:4px 8px;transform:rotate(4deg);
+  }
+
+  /* ============ GALLERY ============ */
+  .gallery{padding:0}
+  .gallery-head{padding:80px 40px 0}
+  .gallery-strip{margin-top:48px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)}
+  .g-cell{aspect-ratio:1/1.2;border-right:3px solid var(--ink);position:relative;overflow:hidden}
+  .g-cell:last-child{border-right:none}
+  .g-cell.feat{aspect-ratio:auto}
+  .g-cell.real{background-size:cover;background-position:center}
+  .g-cell.g1{background-image:url('assets/g-squad-night1.jpeg')}
+  .g-cell.g2{background-image:url('assets/g-squad-night2.jpeg')}
+  .g-cell.g3{background-image:url('assets/g-poster.jpeg')}
+  .g-cell.g4{background-image:url('assets/g-grup-pagar.jpeg')}
+  .g-cell.g5{background-image:url('assets/g-tugu1.jpeg')}
+  .g-cell.g6{background-image:url('assets/g-tugu-moon1.jpeg')}
+  .g-cell.g7{background-image:url('assets/g-sunset.jpeg')}
+  .g-cell.g8{background-image:url('assets/g-flag.jpeg')}
+  .g-cell .ph{
+    position:absolute;inset:0;
+    background:repeating-linear-gradient(45deg, var(--paper) 0 14px, var(--paper-2) 14px 28px);
+    display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;
+  }
+  .g-cell .ph span{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;line-height:1.7;color:var(--ink)}
+  .g-cell .meta{position:absolute;top:18px;left:18px;background:var(--paper);color:var(--ink);border:2px solid var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:4px 8px}
+  .g-cell .meta.hot{background:var(--hot)}
+  .g-cell .cap{position:absolute;bottom:0;left:0;right:0;padding:18px;background:var(--ink);color:var(--paper);font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:-.005em;text-transform:uppercase;line-height:1.2}
+
+  /* ============ JOIN ============ */
+  .join{background:var(--blue);color:var(--paper);position:relative;overflow:hidden}
+  .join-mark{
+    position:absolute;font-family:'Archivo Black',sans-serif;
+    font-size:clamp(220px,32vw,520px);line-height:.8;letter-spacing:-.05em;
+    color:rgba(239,234,224,.06);bottom:-60px;right:-30px;pointer-events:none;text-transform:uppercase;
+  }
+  .join .wrap{position:relative;z-index:1}
+  .join-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+  .join h2{font-family:'Archivo Black',sans-serif;font-size:clamp(56px,8.5vw,140px);line-height:.86;letter-spacing:-.035em;text-transform:uppercase}
+  .join h2 em{color:var(--hot);font-style:normal}
+  .join h2 .out{-webkit-text-stroke:3px var(--paper);color:transparent}
+  .join-lead{margin-top:24px;font-size:18px;line-height:1.55;max-width:520px;font-weight:500}
+  .join-lead strong{background:var(--paper);color:var(--ink);padding:2px 6px}
+
+  .join-card{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:14px 14px 0 var(--ink);padding:32px}
+  .join-card .label-row{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+  .join-card .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .join-card .badge{background:var(--hot);color:var(--ink);padding:5px 9px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;border:2px solid var(--ink)}
+  .join-card h3{font-family:'Archivo Black',sans-serif;font-size:42px;line-height:.9;letter-spacing:-.03em;text-transform:uppercase;margin:18px 0 24px}
+  .step{display:grid;grid-template-columns:48px 1fr;gap:18px;padding:16px 0;border-bottom:2px solid var(--ink);align-items:start}
+  .step .n{
+    width:42px;height:42px;background:var(--ink);color:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Archivo Black',sans-serif;font-size:18px;
+  }
+  .step.blue .n{background:var(--blue)}
+  .step.hot .n{background:var(--hot);color:var(--ink)}
+  .step .t{font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.005em;text-transform:uppercase;margin-bottom:4px;line-height:1.15}
+  .step .d{font-size:13px;line-height:1.5;font-weight:500}
+  .step .d a{text-decoration:underline;color:var(--blue);font-weight:700}
+  .join-card .cta{
+    margin-top:24px;width:100%;
+    padding:18px;background:var(--ink);color:var(--paper);
+    font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:.02em;text-transform:uppercase;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    border:3px solid var(--ink);transition:background .15s, color .15s;
+  }
+  .join-card .cta:hover{background:var(--blue);color:var(--paper)}
+
+  /* ============ FOOTER ============ */
+  footer{background:var(--ink);color:var(--paper);padding:64px 40px 28px}
+  .foot-top{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:2px solid var(--paper)}
+  .foot-brand{display:flex;flex-direction:column;gap:16px}
+  .foot-brand .logo-box{background:var(--blue);padding:8px 12px;border:2px solid var(--paper);box-shadow:5px 5px 0 var(--paper);align-self:flex-start}
+  .foot-brand img{height:36px;display:block}
+  .foot-brand p{font-size:14px;line-height:1.55;max-width:340px;font-weight:500;color:var(--paper-2)}
+  .foot-col h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--hot);margin-bottom:14px;font-weight:700}
+  .foot-col a{display:block;font-size:14px;padding:5px 0;font-weight:500;transition:color .15s}
+  .foot-col a:hover{color:var(--hot)}
+  .foot-bottom{max-width:1500px;margin:0 auto;padding-top:24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--paper-2)}
+  .foot-bottom em{color:var(--hot);font-style:normal}
+
+  @media (max-width: 1000px){
+    .hero{grid-template-columns:1fr}
+    .hero-left{border-right:none;border-bottom:3px solid var(--ink)}
+    .hero-right{min-height:60vh}
+    .hero-stats{grid-template-columns:1fr 1fr 1fr}
+    .nr-grid,.about-grid,.join-grid,.sched-grid,.pengurus-grid{grid-template-columns:1fr}
+    .about-text-cell,.sched-card,.nr-info,.pengurus-poster-cell{border-right:none;border-bottom:3px solid var(--ink)}
+    .sched-card:last-child{border-bottom:none}
+    .gallery-strip{grid-template-columns:1fr 1fr}
+    .g-cell:nth-child(2n){border-right:none}
+    .foot-top{grid-template-columns:1fr 1fr;gap:24px}
+    .nav-links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span>★ Lari Bareng</span><span class="x">●</span><span>Sehat Bareng</span><span class="x">●</span><span>di Gerung</span><span class="x">●</span>
+    <span>Setiap Jumat 20.00 WITA</span><span class="x">●</span><span>Tikum Kantor Bupati Lobar</span><span class="x">●</span><span>All Pace Welcome</span><span class="x">●</span>
+    <span>★ Lari Bareng</span><span class="x">●</span><span>Sehat Bareng</span><span class="x">●</span><span>di Gerung</span><span class="x">●</span>
+    <span>Setiap Jumat 20.00 WITA</span><span class="x">●</span><span>Tikum Kantor Bupati Lobar</span><span class="x">●</span><span>All Pace Welcome</span><span class="x">●</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="top">
+  <div class="nav-inner">
+    <div class="nav-logo-box"><img class="nav-logo" src="assets/runger-logo.png" alt="Runger"></div>
+    <div class="nav-links">
+      <a href="#night">Night Run</a>
+      <a href="#tentang">Tentang</a>
+      <a href="#pengurus">Pengurus</a>
+      <a href="#jadwal">Jadwal</a>
+      <a href="#galeri">Galeri</a>
+      <a href="#gabung">Gabung</a>
+    </div>
+    <div class="nav-cta">
+      <span class="nav-live">Jumat 20.00</span>
+      <a class="btn-brut" href="#gabung">Daftar Lari →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-left">
+    <div class="hero-tag"><span class="dot"></span>RUNNERS GERUNG · LOMBOK BARAT · NTB</div>
+
+    <h1>
+      <span class="blue">Lari</span><br>
+      <span class="out">Malam</span><br>
+      <span>di <span class="hot">Gerung.</span></span>
+    </h1>
+
+    <div class="hero-slogan">Lari <em>Bareng</em>, Sehat <em>Bareng</em> di Gerung</div>
+
+    <p class="hero-sub">
+      Runger — komunitas lari di <strong>Kabupaten Lombok Barat</strong> yang kegiatannya
+      berpusat di Kecamatan Gerung. Lari rutin setiap Jumat malam, kami berkumpul, lari,
+      dan menjadikan jalanan kota lebih hidup.
+    </p>
+
+    <div class="hero-cta">
+      <a href="#gabung" class="btn-lg fill-blue">Gabung Jumat ini →</a>
+      <a href="#night" class="btn-lg fill-paper">Lihat Rute →</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="s">
+        <div class="s-num">400<span class="pl">++</span></div>
+        <div class="s-lab">Anggota Aktif</div>
+      </div>
+      <div class="s">
+        <div class="s-num">3<em>K</em>·5<em>K</em></div>
+        <div class="s-lab">Rute Rutin</div>
+      </div>
+      <div class="s">
+        <div class="s-num">All</div>
+        <div class="s-lab">Pace Welcome</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-photo-wrap"></div>
+    <div class="hero-overlay">
+      <div class="bib">
+        <div class="lab">BIB · GNR</div>
+        <div class="num">005</div>
+        <div class="nm">Gerung Night Run</div>
+      </div>
+
+      <div class="next-card">
+        <div class="head">
+          <div class="ttl">● Lari Berikutnya</div>
+          <div class="ed">Jumat</div>
+        </div>
+        <div class="when">Jumat <em>Night Run</em></div>
+        <div class="countdown">
+          <div class="cd"><div class="cd-n" id="cd-d">06</div><div class="cd-l">Hari</div></div>
+          <div class="cd"><div class="cd-n" id="cd-h">14</div><div class="cd-l">Jam</div></div>
+          <div class="cd"><div class="cd-n" id="cd-m">22</div><div class="cd-l">Menit</div></div>
+          <div class="cd"><div class="cd-n" id="cd-s">08</div><div class="cd-l">Detik</div></div>
+        </div>
+        <div class="meta">
+          <span>Start <strong>20.00</strong></span>
+          <span>Tikum <strong>Kantor Bupati</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- NIGHT RUN -->
+<section id="night" class="nightrun">
+  <div class="wrap sec-pad">
+    <div class="eyebrow"><span class="num">/01</span>Kegiatan Rutin</div>
+    <h2 class="section-title">Gerung<br><em>Night Run.</em></h2>
+
+    <div class="nr-grid">
+      <div class="nr-info">
+        <p class="nr-lead">
+          Kegiatan utama Runger. Tikum di halaman <strong>Kantor Bupati Lombok Barat</strong>,
+          pemanasan bareng, lalu menyusuri rute kota Gerung. Tidak berbayar, tidak ada target.
+        </p>
+
+        <dl style="display:contents">
+          <div class="nr-row"><dt>Hari</dt><dd>Jumat <em>Malam</em></dd></div>
+          <div class="nr-row"><dt>Tikum</dt><dd>Kantor Bupati Lobar</dd></div>
+          <div class="nr-row"><dt>Briefing</dt><dd>19.45 WITA</dd></div>
+          <div class="nr-row"><dt>Start</dt><dd><em>20.00 WITA</em></dd></div>
+          <div class="nr-row"><dt>Rute</dt><dd>3K <span class="hot">Pemula</span> · 5K</dd></div>
+          <div class="nr-row"><dt>Pace</dt><dd><em>All Pace Welcome</em></dd></div>
+          <div class="nr-row"><dt>Biaya</dt><dd><span class="hot">Gratis</span></dd></div>
+        </dl>
+
+        <div class="nr-cta">
+          <a href="https://strava.app.link/jDbaVzyfC2b" target="_blank" class="btn-lg fill-blue">Lihat di Strava ↗</a>
+          <a href="#gabung" class="btn-lg fill-ink">Daftar Lari →</a>
+        </div>
+      </div>
+
+      <div class="route-panel">
+        <div class="route-head">
+          <div>
+            <div class="ttl" id="route-title">Evening Loop</div>
+            <div class="sub" id="route-sub">// GPX · 7.02 KM · STRAVA VERIFIED</div>
+          </div>
+          <span class="badge">● ROLLING</span>
+        </div>
+
+        <div class="route-tabs" role="tablist">
+          <button class="route-tab active" data-route="evening" role="tab">
+            <span>EVENING<br><span class="wk">// MINGGU GANJIL</span></span>
+            <span class="km">7.02 KM</span>
+          </button>
+          <button class="route-tab" data-route="night" role="tab">
+            <span>NIGHT RUN<br><span class="wk">// MINGGU GENAP</span></span>
+            <span class="km">5.02 KM</span>
+          </button>
+        </div>
+
+        <div class="map-wrap">
+          <svg class="map-svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet">
+            <!-- EVENING route -->
+            <g class="route-svg-layer active" data-route="evening">
+              <path d="M275.6 206.2 L279.0 204.0 L277.5 199.5 L274.9 195.2 L270.5 196.9 L265.9 199.6 L261.2 202.1 L256.5 204.8 L251.9 207.6 L247.3 210.3 L242.6 212.9 L238.0 215.4 L233.5 217.8 L228.8 220.5 L224.0 223.1 L219.6 225.3 L215.0 227.8 L210.3 230.3 L205.8 232.8 L201.1 234.8 L201.6 232.4 L206.3 229.9 L210.8 227.2 L215.5 225.0 L220.0 222.7 L224.6 220.2 L228.9 217.8 L233.1 215.5 L237.5 213.1 L241.8 210.8 L246.2 208.6 L250.5 205.9 L254.7 203.5 L258.9 201.1 L263.2 198.7 L267.8 196.1 L272.1 193.5 L276.6 191.0 L281.0 188.6 L285.5 186.1 L288.0 182.2 L286.2 177.2 L284.6 172.2 L283.0 167.2 L281.7 162.2 L280.3 157.2 L278.9 152.0 L277.3 147.1 L275.3 142.6 L273.0 138.2 L270.8 133.6 L268.9 128.9 L266.7 124.2 L264.7 119.2 L262.0 114.9 L257.7 112.6 L254.0 108.8 L251.1 104.5 L249.3 100.0 L247.5 95.5 L245.7 91.0 L244.1 86.4 L242.3 81.9 L240.5 77.4 L238.6 72.9 L236.6 68.5 L234.5 63.9 L232.4 59.4 L230.2 54.5 L228.3 49.7 L226.3 45.3 L224.4 41.0 L222.2 36.6 L220.1 32.2 L218.0 27.8 L215.5 23.6 L217.6 26.2 L220.1 31.3 L222.8 36.7 L225.3 41.7 L227.6 46.9 L229.8 52.2 L232.0 57.4 L234.6 62.7 L237.0 67.9 L239.4 73.0 L241.7 78.5 L243.7 83.9 L245.4 89.2 L247.8 94.5 L250.0 99.9 L252.4 105.3 L256.1 109.7 L260.5 113.1 L264.6 117.1 L266.7 122.5 L269.0 127.9 L271.2 133.3 L273.7 138.5 L276.2 143.4 L278.6 148.6 L280.3 154.1 L281.7 159.5 L283.2 164.9 L284.5 170.2 L286.3 175.9 L288.2 181.8 L288.3 187.4 L282.4 190.4 L276.6 193.6 L270.8 196.8 L265.3 200.2 L259.9 203.3 L254.5 206.6 L249.1 209.8 L243.8 212.6 L238.4 215.4 L232.9 218.3 L227.3 221.4 L221.8 224.5 L216.4 227.4 L210.9 230.3 L205.5 233.2 L199.9 235.0 L204.6 231.1 L209.8 228.4 L215.3 225.4 L220.7 222.3 L226.1 219.4 L231.5 216.5 L237.0 213.4 L242.5 210.4 L247.9 207.5 L253.2 204.4 L258.5 201.2 L263.8 198.1 L269.4 195.0 L274.7 192.0 L279.7 189.3 L285.2 186.1 L287.4 182.0 L285.8 177.1 L286.4 177.6 L289.0 184.7 L285.2 189.4 L278.9 192.4 L275.5 197.0 L276.2 198.0"
+                stroke="#FF4E1F" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".25"/>
+              <path d="M275.6 206.2 L279.0 204.0 L277.5 199.5 L274.9 195.2 L270.5 196.9 L265.9 199.6 L261.2 202.1 L256.5 204.8 L251.9 207.6 L247.3 210.3 L242.6 212.9 L238.0 215.4 L233.5 217.8 L228.8 220.5 L224.0 223.1 L219.6 225.3 L215.0 227.8 L210.3 230.3 L205.8 232.8 L201.1 234.8 L201.6 232.4 L206.3 229.9 L210.8 227.2 L215.5 225.0 L220.0 222.7 L224.6 220.2 L228.9 217.8 L233.1 215.5 L237.5 213.1 L241.8 210.8 L246.2 208.6 L250.5 205.9 L254.7 203.5 L258.9 201.1 L263.2 198.7 L267.8 196.1 L272.1 193.5 L276.6 191.0 L281.0 188.6 L285.5 186.1 L288.0 182.2 L286.2 177.2 L284.6 172.2 L283.0 167.2 L281.7 162.2 L280.3 157.2 L278.9 152.0 L277.3 147.1 L275.3 142.6 L273.0 138.2 L270.8 133.6 L268.9 128.9 L266.7 124.2 L264.7 119.2 L262.0 114.9 L257.7 112.6 L254.0 108.8 L251.1 104.5 L249.3 100.0 L247.5 95.5 L245.7 91.0 L244.1 86.4 L242.3 81.9 L240.5 77.4 L238.6 72.9 L236.6 68.5 L234.5 63.9 L232.4 59.4 L230.2 54.5 L228.3 49.7 L226.3 45.3 L224.4 41.0 L222.2 36.6 L220.1 32.2 L218.0 27.8 L215.5 23.6 L217.6 26.2 L220.1 31.3 L222.8 36.7 L225.3 41.7 L227.6 46.9 L229.8 52.2 L232.0 57.4 L234.6 62.7 L237.0 67.9 L239.4 73.0 L241.7 78.5 L243.7 83.9 L245.4 89.2 L247.8 94.5 L250.0 99.9 L252.4 105.3 L256.1 109.7 L260.5 113.1 L264.6 117.1 L266.7 122.5 L269.0 127.9 L271.2 133.3 L273.7 138.5 L276.2 143.4 L278.6 148.6 L280.3 154.1 L281.7 159.5 L283.2 164.9 L284.5 170.2 L286.3 175.9 L288.2 181.8 L288.3 187.4 L282.4 190.4 L276.6 193.6 L270.8 196.8 L265.3 200.2 L259.9 203.3 L254.5 206.6 L249.1 209.8 L243.8 212.6 L238.4 215.4 L232.9 218.3 L227.3 221.4 L221.8 224.5 L216.4 227.4 L210.9 230.3 L205.5 233.2 L199.9 235.0 L204.6 231.1 L209.8 228.4 L215.3 225.4 L220.7 222.3 L226.1 219.4 L231.5 216.5 L237.0 213.4 L242.5 210.4 L247.9 207.5 L253.2 204.4 L258.5 201.2 L263.8 198.1 L269.4 195.0 L274.7 192.0 L279.7 189.3 L285.2 186.1 L287.4 182.0 L285.8 177.1 L286.4 177.6 L289.0 184.7 L285.2 189.4 L278.9 192.4 L275.5 197.0 L276.2 198.0"
+                stroke="#EFEAE0" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <!-- NIGHT route -->
+            <g class="route-svg-layer" data-route="night">
+              <path d="M275.1 207.3 L276.6 206.0 L278.7 204.4 L278.2 201.3 L275.4 195.5 L270.3 197.3 L265.9 199.8 L262.5 201.8 L259.2 203.8 L255.5 205.9 L251.9 207.9 L249.0 209.7 L245.7 211.6 L242.2 213.5 L238.8 215.4 L235.0 217.2 L231.4 219.3 L227.7 221.4 L224.5 223.3 L221.1 224.9 L217.6 226.7 L214.7 228.3 L211.4 230.1 L208.1 231.9 L204.7 233.9 L201.4 235.6 L197.8 237.2 L194.2 238.9 L191.1 240.6 L187.8 242.2 L184.6 243.8 L181.1 245.7 L177.9 247.4 L174.7 249.3 L171.3 251.1 L167.8 253.1 L164.4 255.0 L160.8 257.0 L157.1 258.9 L153.5 260.1 L149.6 261.2 L146.0 262.5 L142.6 263.9 L139.1 265.4 L135.5 267.3 L132.2 268.9 L128.7 270.4 L125.0 272.2 L121.5 273.9 L118.3 275.4 L113.3 277.7 L110.8 276.1 L110.7 272.0 L111.4 268.0 L112.0 263.8 L112.6 259.9 L113.3 255.9 L113.9 252.1 L114.6 248.1 L115.1 244.4 L115.8 240.8 L116.5 237.2 L117.2 233.0 L120.4 232.8 L124.4 233.6 L128.1 232.7 L131.9 231.3 L135.4 230.0 L138.5 231.1 L139.9 234.7 L141.4 238.2 L143.1 241.4 L144.8 245.0 L144.4 247.8 L140.9 249.3 L137.6 250.3 L134.2 251.9 L130.4 253.4 L126.8 254.7 L123.1 256.1 L119.3 255.9 L115.5 255.4 L113.2 257.9 L112.5 262.2 L111.7 266.3 L111.2 270.3 L110.7 274.2 L111.9 277.7 L115.4 276.7 L118.7 275.0 L121.9 273.4 L125.3 271.6 L128.5 270.3 L132.0 268.6 L135.4 267.1 L138.7 265.5 L142.1 263.9 L145.6 262.3 L149.1 260.8 L152.6 259.8 L156.1 258.6 L159.4 257.0 L162.4 255.3 L165.6 253.6 L168.8 251.9 L172.4 250.0 L175.9 248.0 L179.5 246.0 L182.9 244.1 L186.1 242.5 L189.2 240.9 L192.6 239.0 L195.7 236.9 L198.9 234.8 L202.5 232.6 L205.7 230.9 L209.1 229.2 L212.5 227.2 L216.0 225.2 L219.6 223.3 L223.0 221.4 L226.3 219.8 L229.3 218.2 L232.8 216.3 L236.4 214.4 L240.0 212.4 L243.7 210.4 L247.2 208.3 L250.6 206.4 L253.8 204.6 L257.7 202.4 L261.5 200.2 L265.5 197.9 L268.6 195.9 L272.0 194.1 L275.7 191.9 L279.5 190.1 L283.4 188.1 L287.7 185.9 L287.2 188.3 L281.8 191.1 L277.2 193.6 L275.9 197.4 L278.3 202.1 L281.0 206.4 L283.1 210.8 L282.1 211.1"
+                stroke="#FF4E1F" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".25"/>
+              <path d="M275.1 207.3 L276.6 206.0 L278.7 204.4 L278.2 201.3 L275.4 195.5 L270.3 197.3 L265.9 199.8 L262.5 201.8 L259.2 203.8 L255.5 205.9 L251.9 207.9 L249.0 209.7 L245.7 211.6 L242.2 213.5 L238.8 215.4 L235.0 217.2 L231.4 219.3 L227.7 221.4 L224.5 223.3 L221.1 224.9 L217.6 226.7 L214.7 228.3 L211.4 230.1 L208.1 231.9 L204.7 233.9 L201.4 235.6 L197.8 237.2 L194.2 238.9 L191.1 240.6 L187.8 242.2 L184.6 243.8 L181.1 245.7 L177.9 247.4 L174.7 249.3 L171.3 251.1 L167.8 253.1 L164.4 255.0 L160.8 257.0 L157.1 258.9 L153.5 260.1 L149.6 261.2 L146.0 262.5 L142.6 263.9 L139.1 265.4 L135.5 267.3 L132.2 268.9 L128.7 270.4 L125.0 272.2 L121.5 273.9 L118.3 275.4 L113.3 277.7 L110.8 276.1 L110.7 272.0 L111.4 268.0 L112.0 263.8 L112.6 259.9 L113.3 255.9 L113.9 252.1 L114.6 248.1 L115.1 244.4 L115.8 240.8 L116.5 237.2 L117.2 233.0 L120.4 232.8 L124.4 233.6 L128.1 232.7 L131.9 231.3 L135.4 230.0 L138.5 231.1 L139.9 234.7 L141.4 238.2 L143.1 241.4 L144.8 245.0 L144.4 247.8 L140.9 249.3 L137.6 250.3 L134.2 251.9 L130.4 253.4 L126.8 254.7 L123.1 256.1 L119.3 255.9 L115.5 255.4 L113.2 257.9 L112.5 262.2 L111.7 266.3 L111.2 270.3 L110.7 274.2 L111.9 277.7 L115.4 276.7 L118.7 275.0 L121.9 273.4 L125.3 271.6 L128.5 270.3 L132.0 268.6 L135.4 267.1 L138.7 265.5 L142.1 263.9 L145.6 262.3 L149.1 260.8 L152.6 259.8 L156.1 258.6 L159.4 257.0 L162.4 255.3 L165.6 253.6 L168.8 251.9 L172.4 250.0 L175.9 248.0 L179.5 246.0 L182.9 244.1 L186.1 242.5 L189.2 240.9 L192.6 239.0 L195.7 236.9 L198.9 234.8 L202.5 232.6 L205.7 230.9 L209.1 229.2 L212.5 227.2 L216.0 225.2 L219.6 223.3 L223.0 221.4 L226.3 219.8 L229.3 218.2 L232.8 216.3 L236.4 214.4 L240.0 212.4 L243.7 210.4 L247.2 208.3 L250.6 206.4 L253.8 204.6 L257.7 202.4 L261.5 200.2 L265.5 197.9 L268.6 195.9 L272.0 194.1 L275.7 191.9 L279.5 190.1 L283.4 188.1 L287.7 185.9 L287.2 188.3 L281.8 191.1 L277.2 193.6 L275.9 197.4 L278.3 202.1 L281.0 206.4 L283.1 210.8 L282.1 211.1"
+                stroke="#EFEAE0" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </svg>
+          <!-- EVENING pins -->
+          <div class="route-pin-layer active" data-route="evening">
+            <div class="pin start" style="left:68.9%;top:68.7%"></div>
+            <div class="pin-label" style="left:68.9%;top:68.7%">START</div>
+            <div class="pin" style="left:53.9%;top:7.9%"></div>
+            <div class="pin-label hot" style="left:53.9%;top:7.9%">FAR PT</div>
+          </div>
+          <!-- NIGHT pins -->
+          <div class="route-pin-layer" data-route="night">
+            <div class="pin start" style="left:68.8%;top:69.1%"></div>
+            <div class="pin-label" style="left:68.8%;top:69.1%">START</div>
+            <div class="pin" style="left:27.7%;top:92%"></div>
+            <div class="pin-label hot" style="left:27.7%;top:92%">FAR PT</div>
+          </div>
+          <div class="map-attrib" id="route-attrib">// EVENING_RUN.GPX · 7.02 KM TOTAL</div>
+        </div>
+
+        <div class="route-stats">
+          <div class="ts"><div class="tn">3.0<small>km</small></div><div class="tl">Pemula</div></div>
+          <div class="ts"><div class="tn">5.0<small>km</small></div><div class="tl">Standar</div></div>
+          <div class="ts"><div class="tn">+18<small>m</small></div><div class="tl">Elevasi</div></div>
+          <div class="ts"><div class="tn">∞</div><div class="tl">Pace</div></div>
+        </div>
+
+        <div class="route-rolling-tag"><span class="dot"></span>Rolling tiap minggu — cek IG @runnersgerung untuk rute pekan ini</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="tentang" class="about">
+  <div class="wrap sec-pad">
+    <div class="eyebrow"><span class="num">/02</span>Tentang Komunitas</div>
+    <h2 class="section-title">Dari <em>Gerung</em>,<br>untuk <span class="out">semua</span><br>yang mau <span class="hot">lari.</span></h2>
+
+    <div class="about-grid">
+      <div class="about-text-cell">
+        <p class="lead">
+          Runger lahir dari kebiasaan sederhana — beberapa warga Gerung yang janjian lari
+          untuk <em>silaturrahmi</em> sebagai teman <em>SMP</em> dan <em>SMA</em>.
+        </p>
+        <p>Lama-lama yang ikut tambah banyak, dan jadilah komunitas ini. Kami percaya lari itu bukan soal seberapa cepat, tapi soal <strong>hadir</strong>.</p>
+        <p>Hadir buat diri sendiri, buat teman lari, dan buat kota Gerung yang malamnya jadi lebih hidup setiap akhir pekan. Tidak ada syarat khusus — bawa sepatu, bawa air, bawa niat.</p>
+
+        <div class="principles">
+          <div class="principle open">
+            <div class="pn">/01</div>
+            <div>
+              <div class="pt">All Pace Welcome</div>
+              <div class="pd">Pemula sampai sub-3 marathon, semuanya satu start line. Sweeper jaga pelari paling belakang — semua pulang bareng.</div>
+            </div>
+            <div class="ar">+</div>
+          </div>
+          <div class="principle">
+            <div class="pn">/02</div>
+            <div>
+              <div class="pt">Konsisten Tiap Minggu</div>
+              <div class="pd">Hujan atau cerah, Jumat malam tetap jalan. Konsistensi mengalahkan kecepatan.</div>
+            </div>
+            <div class="ar">+</div>
+          </div>
+          <div class="principle">
+            <div class="pn">/03</div>
+            <div>
+              <div class="pt">Bangga Lokal Gerung</div>
+              <div class="pd">Rute kita, kota kita, komunitas kita. Mengenalkan Gerung lewat sepatu lari.</div>
+            </div>
+            <div class="ar">+</div>
+          </div>
+          <div class="principle">
+            <div class="pn">/04</div>
+            <div>
+              <div class="pt">Silaturrahmi & Solid</div>
+              <div class="pd">Berawal dari teman SMP & SMA. Lari bareng, pulang bareng — tidak ada yang sendirian.</div>
+            </div>
+            <div class="ar">+</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-poster">
+        <div class="photo"></div>
+        <div class="ap-top"><span>RUNGER · POSTER</span><span>04.26 / NTB</span></div>
+        <div class="ap-mid">
+          <div class="big">400<em>++</em><br>RUNNERS<br>STRONG.</div>
+        </div>
+        <div class="ap-cap">
+          // Komunitas lari Kabupaten Lombok Barat. Berpusat di Kecamatan Gerung. Aktif setiap Jumat malam.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PENGURUS -->
+<section id="pengurus" class="pengurus">
+  <div class="wrap sec-pad">
+    <div class="eyebrow"><span class="num">/03</span>Struktur Pengurus</div>
+    <h2 class="section-title">Yang njagain<br><em>Runger</em> tetap <span class="hot">jalan.</span></h2>
+
+    <div class="pengurus-grid">
+      <div class="pengurus-poster-cell">
+        <div class="pp-tape">// COMMUNITY STRUCTURE</div>
+        <img src="assets/community-structure.jpeg" alt="Community Structure of Runners Gerung" />
+        <div class="pp-foot"><span>RUNNERS GERUNG</span><span>EST. 2024</span></div>
+      </div>
+
+      <div class="pengurus-roster-cell">
+        <div class="pr-head">
+          <div class="pr-stamp">8 ORANG · 1 RITME</div>
+          <p>Tim kecil yang ngejaga ritme komunitas — dari race day, latihan, sampai dokumentasi tiap edisi.</p>
+        </div>
+        <ol class="pr-list">
+          <li>
+            <span class="pr-i">01</span>
+            <span class="pr-r">Captain</span>
+            <span class="pr-n">Hairul Fahmi</span>
+          </li>
+          <li>
+            <span class="pr-i">02</span>
+            <span class="pr-r">Vice Captain</span>
+            <span class="pr-n">Zanul Harir</span>
+          </li>
+          <li>
+            <span class="pr-i">03</span>
+            <span class="pr-r">Secretary</span>
+            <span class="pr-n">Fahrudi Hy</span>
+          </li>
+          <li>
+            <span class="pr-i">04</span>
+            <span class="pr-r">Treasury</span>
+            <span class="pr-n">M. Zulpakar S</span>
+          </li>
+          <li>
+            <span class="pr-i">05</span>
+            <span class="pr-r">Co. Race</span>
+            <span class="pr-n">Wais Al Qorni</span>
+          </li>
+          <li>
+            <span class="pr-i">06</span>
+            <span class="pr-r">Co. Training</span>
+            <span class="pr-n">Fajri Ramadhan</span>
+          </li>
+          <li>
+            <span class="pr-i">07</span>
+            <span class="pr-r">Co. Humas</span>
+            <span class="pr-n">Hazril Tanwir</span>
+          </li>
+          <li>
+            <span class="pr-i">08</span>
+            <span class="pr-r">Co. Media</span>
+            <span class="pr-n">Izaq Rozali</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<section id="jadwal" class="schedule">
+  <div class="wrap sec-pad">
+    <div class="eyebrow"><span class="num">/04</span>Jadwal Mingguan</div>
+    <h2 class="section-title">Kapan kita <em>lari?</em></h2>
+
+    <div class="sched-grid">
+      <div class="sched-card feat">
+        <div class="sched-day"><span>Jumat</span><span class="star">★ Featured</span></div>
+        <div class="sched-title">Gerung<br><em>Night Run</em></div>
+        <div class="sched-desc">Kegiatan utama mingguan. Lari malam menyusuri kota Gerung dengan pilihan rute 3K untuk pemula dan 5K standar. All pace welcome.</div>
+        <div class="sched-when"><span>20.00 WITA</span><span>Kantor Bupati</span></div>
+      </div>
+      <div class="sched-card soon">
+        <div class="sched-day"><span>TBA</span><span class="star">SOON</span></div>
+        <div class="sched-title">Speed<br>Session</div>
+        <div class="sched-desc">Interval & tempo run untuk runner yang mau push pace. Detail jadwal & lokasi akan diumumkan via Instagram.</div>
+        <div class="sched-when"><span>—</span><span>Cooming Soon</span></div>
+      </div>
+      <div class="sched-card">
+        <div class="sched-day"><span>Minggu</span><span class="star">06</span></div>
+        <div class="sched-title">Long<br>Run</div>
+        <div class="sched-desc">Jarak tempuh lebih panjang, rolling rute. Persiapan race + kumpul pagi setelahnya. Jadwal & rute variatif tiap pekan.</div>
+        <div class="sched-when"><span>05.30 WITA</span><span>Variatif · IG</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="galeri" class="gallery">
+  <div class="wrap gallery-head">
+    <div class="eyebrow"><span class="num">/05</span>Dokumentasi</div>
+    <h2 class="section-title">Wajah <em>Jumat</em><br>malam.</h2>
+  </div>
+
+  <div class="gallery-strip">
+    <div class="g-cell real g1 feat">
+      <div class="meta hot">● COVER · GIRI MENANG</div>
+      <div class="cap">Squad finish Night Run — 400++ runners strong.</div>
+    </div>
+    <div class="g-cell real g3">
+      <div class="meta">Poster · Apr 2026</div>
+      <div class="cap">Gerung Night Run — 3K & 5K, 20.00 WITA.</div>
+    </div>
+    <div class="g-cell real g5">
+      <div class="meta">Tugu Giri Menang</div>
+      <div class="cap">After-run di landmark Gerung.</div>
+    </div>
+    <div class="g-cell real g7">
+      <div class="meta hot">● Lari Sehat</div>
+      <div class="cap">Sunset run di bukit Lombok Barat.</div>
+    </div>
+  </div>
+
+  <div class="gallery-strip">
+    <div class="g-cell real g4 feat">
+      <div class="meta">Squad · Gerung</div>
+      <div class="cap">Foto bareng setelah sesi lari di Kantor Bupati Lobar.</div>
+    </div>
+    <div class="g-cell real g6">
+      <div class="meta">Moon Lit</div>
+      <div class="cap">Lari malam di bawah bulan, Tugu Giri Menang.</div>
+    </div>
+    <div class="g-cell real g2">
+      <div class="meta">Finish Line</div>
+      <div class="cap">Squad bareng setelah finish, ornamen Sasak.</div>
+    </div>
+    <div class="g-cell real g8">
+      <div class="meta">Runger Flag</div>
+      <div class="cap">Flag Runger — Runners Gerung, lari bareng sehat bareng.</div>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section id="gabung" class="join">
+  <div class="join-mark">RUN</div>
+  <div class="wrap sec-pad">
+    <div class="join-grid">
+      <div>
+        <div class="eyebrow" style="background:var(--paper);color:var(--ink)"><span class="num">/06</span>Cara Gabung</div>
+        <h2>Nggak Perlu <em>Ribet.</em><br><span class="out">Datang.</span><br>Lari. <em>Sehat.</em></h2>
+        <p class="join-lead">
+          Runger gratis dan terbuka. Cukup datang Jumat malam ke
+          <strong>Kantor Bupati Lombok Barat</strong> pukul 19.45 WITA. Cari kaos biru bertuliskan Runger, salam dulu — sisanya lari bareng.
+        </p>
+      </div>
+
+      <div class="join-card">
+        <div class="label-row">
+          <div class="label">/ Step-by-step</div>
+          <div class="badge">Gratis</div>
+        </div>
+        <h3>4 langkah<br>mulai lari.</h3>
+
+        <div class="step blue">
+          <div class="n">1</div>
+          <div>
+            <div class="t">Follow IG @runnersgerung</div>
+            <div class="d">Update rute & info Night Run setiap Jumat. <a href="https://instagram.com/runnersgerung" target="_blank">@runnersgerung →</a></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <div>
+            <div class="t">Datang 19.45 WITA</div>
+            <div class="d">Kantor Bupati Lombok Barat, Gerung. Bawa air sendiri & sepatu lari.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <div>
+            <div class="t">Pemanasan & Start Bareng</div>
+            <div class="d">Kenalan dulu, peregangan, lalu start lari rute 3K atau 5K bareng.</div>
+          </div>
+        </div>
+        <div class="step hot">
+          <div class="n">4</div>
+          <div>
+            <div class="t">Track via Strava</div>
+            <div class="d">Catat lari kamu & gabung Strava komunitas. <a href="https://strava.app.link/jDbaVzyfC2b" target="_blank">strava.app.link/jDbaVzyfC2b ↗</a></div>
+          </div>
+        </div>
+
+        <a href="https://instagram.com/runnersgerung" target="_blank" class="cta">DM @runnersgerung di Instagram →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-top">
+    <div class="foot-brand">
+      <div class="logo-box"><img src="assets/runger-logo.png" alt="Runger"></div>
+      <p>Runners Gerung — komunitas lari Kabupaten Lombok Barat, berpusat di Kecamatan Gerung. Lari Bareng, Sehat Bareng di Gerung.</p>
+      <div class="mono" style="color:var(--hot);font-weight:700">● ACTIVE — JUMAT 20.00 WITA</div>
+    </div>
+    <div class="foot-col">
+      <h4>// Navigasi</h4>
+      <a href="#night">Night Run</a>
+      <a href="#tentang">Tentang</a>
+      <a href="#pengurus">Pengurus</a>
+      <a href="#jadwal">Jadwal</a>
+      <a href="#galeri">Galeri</a>
+      <a href="#gabung">Gabung</a>
+    </div>
+    <div class="foot-col">
+      <h4>// Sosial</h4>
+      <a href="https://instagram.com/runnersgerung" target="_blank">Instagram · @runnersgerung</a>
+      <a href="https://strava.app.link/jDbaVzyfC2b" target="_blank">Strava Club ↗</a>
+      <a href="#">WhatsApp Group</a>
+    </div>
+    <div class="foot-col">
+      <h4>// Tikum</h4>
+      <a href="#">Kantor Bupati Lobar</a>
+      <a href="#">Kec. Gerung</a>
+      <a href="#">Lombok Barat, NTB</a>
+      <a href="#">Buka di Maps →</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Runger · Runners Gerung</span>
+    <span>Made with sweat in <em>Gerung, Lombok Barat</em></span>
+    <span>v.04.26 · Brutalist Sport</span>
+  </div>
+</footer>
+
+<script>
+  // Live countdown to next Friday 20:00 WITA
+  function nextFriday1930(){
+    const now = new Date();
+    const witaNow = new Date(now.getTime() + (now.getTimezoneOffset()*60000) + (8*3600000));
+    const day = witaNow.getUTCDay();
+    let target = new Date(witaNow);
+    const daysUntilFri = (5 - day + 7) % 7;
+    target.setUTCDate(witaNow.getUTCDate() + daysUntilFri);
+    target.setUTCHours(20,0,0,0);
+    if (target <= witaNow) target.setUTCDate(target.getUTCDate()+7);
+    return new Date(target.getTime() - (8*3600000));
+  }
+  const target = nextFriday1930();
+  const elD=document.getElementById('cd-d'),elH=document.getElementById('cd-h'),
+        elM=document.getElementById('cd-m'),elS=document.getElementById('cd-s');
+  function pad(n){return String(Math.max(0,n)).padStart(2,'0')}
+  function tick(){
+    const diff = target - new Date();
+    const d=Math.floor(diff/86400000), h=Math.floor(diff/3600000)%24,
+          m=Math.floor(diff/60000)%60, s=Math.floor(diff/1000)%60;
+    elD.textContent=pad(d);elH.textContent=pad(h);elM.textContent=pad(m);elS.textContent=pad(s);
+  }
+  tick();setInterval(tick,1000);
+
+  // Accordion principles
+  document.querySelectorAll('.principle').forEach(p=>{
+    p.addEventListener('click',()=>p.classList.toggle('open'));
+  });
+
+  // Route tabs (rolling Evening/Night)
+  (function(){
+    const tabs = document.querySelectorAll('.route-tab');
+    const meta = {
+      evening:{title:'Evening Loop', sub:'// GPX · 7.02 KM · STRAVA VERIFIED', attrib:'// EVENING_RUN.GPX · 7.02 KM TOTAL'},
+      night:  {title:'Night Run',    sub:'// GPX · 5.02 KM · STRAVA VERIFIED', attrib:'// NIGHT_RUN.GPX · 5.02 KM TOTAL'}
+    };
+    tabs.forEach(t=>t.addEventListener('click',()=>{
+      const r = t.dataset.route;
+      tabs.forEach(x=>x.classList.toggle('active', x===t));
+      document.querySelectorAll('.route-svg-layer').forEach(g=>g.classList.toggle('active', g.dataset.route===r));
+      document.querySelectorAll('.route-pin-layer').forEach(g=>g.classList.toggle('active', g.dataset.route===r));
+      const m = meta[r];
+      document.getElementById('route-title').textContent = m.title;
+      document.getElementById('route-sub').textContent = m.sub;
+      document.getElementById('route-attrib').textContent = m.attrib;
+    }));
+  })();
+</script>
+
+</body>
+</html>
