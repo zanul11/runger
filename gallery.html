@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dokumentasi Runger — Galeri Lengkap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --runger-blue:#1B3FAE;
+    --runger-blue-deep:#0F2680;
+    --ink:#0A0F2C;
+    --bone:#F4F1EA;
+    --paper:#FAF8F3;
+    --line:rgba(10,15,44,0.12);
+    --volt:oklch(0.88 0.18 110);
+    --volt-rgb:226 240 84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--ink);color:var(--bone);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .display{font-family:'Bebas Neue',sans-serif;letter-spacing:.01em;line-height:.88}
+  .wrap{max-width:1400px;margin:0 auto}
+
+  /* TICKER */
+  .ticker{background:#000;color:var(--bone);overflow:hidden;white-space:nowrap;border-bottom:1px solid #000}
+  .ticker-track{display:inline-block;padding:10px 0;animation:tick 38s linear infinite;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+  .ticker-track span{margin:0 28px;opacity:.85}
+  .ticker-track span.dot{color:var(--volt);opacity:1}
+  @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* NAV */
+  nav.top{position:sticky;top:0;z-index:50;background:var(--runger-blue);color:var(--bone);border-bottom:1px solid rgba(255,255,255,.12)}
+  .nav-inner{max-width:1400px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:32px}
+  .nav-logo{height:34px}
+  .nav-links{display:flex;gap:28px;font-size:13px;font-weight:500;letter-spacing:.02em;margin-left:24px}
+  .nav-links a{opacity:.85;transition:opacity .2s;position:relative;padding:4px 0}
+  .nav-links a:hover{opacity:1}
+  .nav-links a.active{opacity:1}
+  .nav-links a.active::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--volt)}
+  .nav-links a:hover::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--volt)}
+  .nav-cta{margin-left:auto;display:flex;align-items:center;gap:14px}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;transition:transform .15s ease, background .2s}
+  .pill.solid{background:var(--volt);color:var(--ink)}
+  .pill.solid:hover{transform:translateY(-1px)}
+
+  /* PAGE HERO */
+  .page-hero{padding:80px 32px 56px;border-bottom:1px solid rgba(255,255,255,.1);position:relative;overflow:hidden}
+  .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(900px 400px at 100% 0%, rgba(var(--volt-rgb),.08), transparent 60%);pointer-events:none}
+  .page-hero .wrap{position:relative}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--volt);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+  .eyebrow::before{content:'';width:24px;height:1px;background:var(--volt)}
+  .page-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,9vw,140px);line-height:.9;letter-spacing:-.003em}
+  .page-hero h1 em{font-style:normal;color:var(--volt)}
+  .page-hero p.lead{margin-top:24px;max-width:640px;font-size:17px;line-height:1.6;opacity:.85;font-weight:300}
+  .back-link{display:inline-flex;align-items:center;gap:8px;margin-top:28px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone);opacity:.7;transition:opacity .15s, gap .2s}
+  .back-link:hover{opacity:1;gap:14px;color:var(--volt)}
+
+  /* TOOLBAR */
+  .g-toolbar{
+    max-width:1400px;margin:0 auto;padding:32px 32px 20px;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  }
+  .g-count{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.65}
+  .g-count .num{color:var(--volt);font-size:14px;font-weight:600;margin-right:4px}
+  .play-all{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--volt);color:var(--ink);border:none;cursor:pointer;
+    padding:12px 20px;border-radius:2px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;
+    transition:transform .15s, background .2s;
+  }
+  .play-all:hover{transform:translateY(-2px)}
+  .play-all .icon{font-size:10px}
+
+  /* GRID */
+  .g-section{padding:0 32px 96px}
+  .g-grid{
+    max-width:1400px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);
+  }
+  .g-grid .item{
+    aspect-ratio:1/1;background:#0a0f1f;position:relative;overflow:hidden;cursor:zoom-in;
+    transition:transform .35s ease;
+  }
+  .g-grid .item img{
+    width:100%;height:100%;object-fit:cover;
+    transition:transform .5s ease, filter .3s ease;
+    filter:saturate(.95);
+  }
+  .g-grid .item:hover img{transform:scale(1.05);filter:saturate(1.1) brightness(1.05)}
+  .g-grid .item .idx{
+    position:absolute;top:10px;left:10px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;
+    background:rgba(0,0,0,.55);padding:4px 8px;border:1px solid rgba(255,255,255,.15);
+    color:var(--bone);opacity:0;transition:opacity .25s;
+  }
+  .g-grid .item:hover .idx{opacity:1}
+  .g-grid .item:hover .idx{color:var(--volt);border-color:rgba(226,240,84,.4)}
+
+  @media (max-width:900px){
+    .nav-links{display:none}
+    .g-grid{grid-template-columns:repeat(3,1fr)}
+    .page-hero{padding:64px 24px 48px}
+  }
+  @media (max-width:600px){
+    .g-grid{grid-template-columns:repeat(2,1fr)}
+    .g-toolbar{padding:24px 20px 16px}
+  }
+
+  /* FOOTER */
+  footer{background:#000;color:var(--bone);padding:56px 32px 32px;border-top:1px solid rgba(255,255,255,.1)}
+  .foot-bottom{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.5;flex-wrap:wrap;gap:12px}
+
+  /* LIGHTBOX */
+  body.lightbox-open{overflow:hidden}
+  .lightbox{
+    position:fixed;inset:0;z-index:1000;background:rgba(5,8,20,.94);backdrop-filter:blur(10px);
+    display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .25s ease;
+  }
+  .lightbox.active{display:flex;opacity:1}
+  .lightbox-img-wrap{position:relative;max-width:92vw;max-height:88vh;display:flex;align-items:center;justify-content:center}
+  .lightbox-img{max-width:92vw;max-height:88vh;display:block;border-radius:2px;box-shadow:0 24px 80px rgba(0,0,0,.6);transition:opacity .2s}
+  .lightbox-img.loading{opacity:.25}
+  .lightbox-counter{position:fixed;top:22px;left:24px;color:var(--bone);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;opacity:.85}
+  .lightbox-counter .num{color:var(--volt);font-size:14px}
+  .lightbox-bar{position:fixed;top:14px;right:18px;display:flex;gap:10px;align-items:center;z-index:1002}
+  .lightbox-btn{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:var(--bone);
+    width:42px;height:42px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;transition:background .15s,color .15s,transform .25s;
+    font-family:inherit;line-height:1;
+  }
+  .lightbox-btn:hover{background:var(--volt);color:var(--ink)}
+  .lightbox-btn.playing{background:var(--volt);color:var(--ink)}
+  .lightbox-close:hover{transform:rotate(90deg)}
+  .lightbox-nav{
+    position:fixed;top:50%;transform:translateY(-50%);
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:var(--bone);
+    width:54px;height:54px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;transition:background .15s,color .15s;z-index:1001;line-height:1;
+  }
+  .lightbox-nav:hover{background:var(--volt);color:var(--ink)}
+  .lightbox-prev{left:28px}
+  .lightbox-next{right:28px}
+  .lightbox-progress{
+    position:fixed;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.1);z-index:1001;
+  }
+  .lightbox-progress-bar{
+    height:100%;background:var(--volt);width:0;transition:width .1s linear;
+  }
+  @media (max-width:600px){
+    .lightbox-nav{width:42px;height:42px;font-size:22px}
+    .lightbox-prev{left:8px}
+    .lightbox-next{right:8px}
+  }
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="dot">●</span><span>Lari Bareng, Sehat Bareng di Gerung</span>
+    <span class="dot">●</span><span>Gerung Night Run · Setiap Jumat · 20.00 WITA</span>
+    <span class="dot">●</span><span>Tikum: Kantor Bupati Lombok Barat</span>
+    <span class="dot">●</span><span>Dokumentasi Lengkap · Arsip Komunitas</span>
+    <span class="dot">●</span><span>Lari Bareng, Sehat Bareng di Gerung</span>
+    <span class="dot">●</span><span>Gerung Night Run · Setiap Jumat · 20.00 WITA</span>
+    <span class="dot">●</span><span>Tikum: Kantor Bupati Lombok Barat</span>
+    <span class="dot">●</span><span>Dokumentasi Lengkap · Arsip Komunitas</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="top">
+  <div class="nav-inner">
+    <a href="index.html"><img class="nav-logo" src="assets/runger-logo.png" alt="Runger"></a>
+    <div class="nav-links">
+      <a href="index.html#night">Night Run</a>
+      <a href="index.html#tentang">Tentang</a>
+      <a href="index.html#pengurus">Pengurus</a>
+      <a href="index.html#jadwal">Jadwal</a>
+      <a href="gallery.html" class="active">Galeri</a>
+      <a href="index.html#gabung">Gabung</a>
+    </div>
+    <div class="nav-cta">
+      <a class="pill solid" href="index.html#gabung">Gabung Lari →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<header class="page-hero">
+  <div class="wrap">
+    <div class="eyebrow">Dokumentasi · Arsip Lengkap</div>
+    <h1>DOKUMENTASI<br><em>RUNGER.</em></h1>
+    <p class="lead">
+      Kumpulan momen dari setiap edisi Gerung Night Run, latihan rutin, dan kebersamaan komunitas
+      Runners Gerung di Kabupaten Lombok Barat. Klik foto untuk melihat lebih besar, atau mulai slideshow.
+    </p>
+    <a class="back-link" href="index.html">← Kembali ke beranda</a>
+  </div>
+</header>
+
+<!-- TOOLBAR -->
+<div class="g-toolbar">
+  <div class="g-count"><span class="num" id="g-total">0</span>foto · arsip komunitas</div>
+  <button class="play-all" id="play-all" type="button">
+    <span class="icon">▶</span> MULAI SLIDESHOW
+  </button>
+</div>
+
+<!-- GRID -->
+<section class="g-section">
+  <div class="g-grid" id="g-grid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-bottom">
+    <div>© 2026 Runger · Runners Gerung</div>
+    <div>Made with sweat in Gerung, Lombok Barat 🏃</div>
+    <div>v.04.26</div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Galeri foto Runger">
+  <div class="lightbox-counter"><span class="num" id="lb-num">1</span> <span style="opacity:.5">/</span> <span id="lb-total">0</span></div>
+  <div class="lightbox-bar">
+    <button class="lightbox-btn lightbox-play" id="lb-play" aria-label="Putar slideshow" title="Putar slideshow (Space)">▶</button>
+    <button class="lightbox-btn lightbox-close" id="lb-close" aria-label="Tutup" title="Tutup (Esc)">✕</button>
+  </div>
+  <button class="lightbox-nav lightbox-prev" id="lb-prev" aria-label="Sebelumnya" title="Sebelumnya (←)">‹</button>
+  <button class="lightbox-nav lightbox-next" id="lb-next" aria-label="Berikutnya" title="Berikutnya (→)">›</button>
+  <div class="lightbox-img-wrap">
+    <img class="lightbox-img" id="lb-img" alt="" />
+  </div>
+  <div class="lightbox-progress"><div class="lightbox-progress-bar" id="lb-progress"></div></div>
+</div>
+
+<script>
+  // All photos in /gallery/ — sorted by capture time (filename timestamp)
+  const PHOTOS = [
+    'WhatsApp Image 2026-04-25 at 20.35.03.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.03 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.03 (2).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.04.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.04 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.04 (2).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.05.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.05 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.06.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.06 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.06 (2).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.07.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.07 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.08.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.09.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.09 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.10.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.10 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.10 (2).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.11.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.11 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.12.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.12 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.13.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.13 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.13 (2).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.15.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.15 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.15 (2).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.16.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.16 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.19.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.20.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.21.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.22.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.23.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.25.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.27.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.28.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.29.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.30.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.30 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.32.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.33.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.33 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.34.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.34 (1).jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.35.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.36.jpeg',
+    'WhatsApp Image 2026-04-25 at 20.35.36 (1).jpeg'
+  ];
+
+  const SLIDE_MS = 3500;
+  const GALLERY_PATH = 'gallery/';
+
+  // Render grid
+  const grid = document.getElementById('g-grid');
+  document.getElementById('g-total').textContent = PHOTOS.length;
+  document.getElementById('lb-total').textContent = PHOTOS.length;
+
+  PHOTOS.forEach((name, i) => {
+    const item = document.createElement('div');
+    item.className = 'item';
+    item.dataset.idx = i;
+    const src = GALLERY_PATH + encodeURI(name);
+    item.innerHTML = `
+      <img src="${src}" alt="Runger documentation ${i+1}" loading="lazy" />
+      <div class="idx">/ ${String(i+1).padStart(2,'0')}</div>
+    `;
+    grid.appendChild(item);
+  });
+
+  // Lightbox + slideshow
+  (function(){
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lb-img');
+    const lbNum = document.getElementById('lb-num');
+    const lbPlay = document.getElementById('lb-play');
+    const lbProgress = document.getElementById('lb-progress');
+
+    let idx = 0;
+    let playTimer = null;
+    let progressTimer = null;
+    let progressStart = 0;
+
+    function show(i){
+      idx = (i + PHOTOS.length) % PHOTOS.length;
+      lbImg.classList.add('loading');
+      const tmp = new Image();
+      tmp.onload = () => { lbImg.src = tmp.src; lbImg.classList.remove('loading'); };
+      tmp.onerror = () => lbImg.classList.remove('loading');
+      tmp.src = GALLERY_PATH + encodeURI(PHOTOS[idx]);
+      lbNum.textContent = idx + 1;
+      // Preload next
+      const next = new Image();
+      next.src = GALLERY_PATH + encodeURI(PHOTOS[(idx+1) % PHOTOS.length]);
+      if(playTimer) resetProgress();
+    }
+
+    function resetProgress(){
+      progressStart = Date.now();
+      lbProgress.style.transition = 'none';
+      lbProgress.style.width = '0%';
+      requestAnimationFrame(()=>{
+        lbProgress.style.transition = `width ${SLIDE_MS}ms linear`;
+        lbProgress.style.width = '100%';
+      });
+    }
+
+    function startPlay(){
+      lbPlay.textContent = '❚❚';
+      lbPlay.classList.add('playing');
+      lbPlay.setAttribute('aria-label', 'Jeda slideshow');
+      resetProgress();
+      playTimer = setInterval(()=>show(idx+1), SLIDE_MS);
+    }
+    function stopPlay(){
+      lbPlay.textContent = '▶';
+      lbPlay.classList.remove('playing');
+      lbPlay.setAttribute('aria-label', 'Putar slideshow');
+      lbProgress.style.transition = 'none';
+      lbProgress.style.width = '0%';
+      if(playTimer){ clearInterval(playTimer); playTimer = null; }
+    }
+    function togglePlay(){ playTimer ? stopPlay() : startPlay(); }
+
+    function open(i, autoplay){
+      show(i);
+      lb.classList.add('active');
+      lb.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('lightbox-open');
+      if(autoplay) startPlay();
+    }
+    function close(){
+      stopPlay();
+      lb.classList.remove('active');
+      lb.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('lightbox-open');
+    }
+
+    // Wire up grid clicks
+    grid.querySelectorAll('.item').forEach(el => {
+      el.addEventListener('click', () => open(parseInt(el.dataset.idx, 10), false));
+    });
+
+    // Slideshow start button
+    document.getElementById('play-all').addEventListener('click', () => open(0, true));
+
+    document.getElementById('lb-prev').addEventListener('click', ()=>show(idx-1));
+    document.getElementById('lb-next').addEventListener('click', ()=>show(idx+1));
+    document.getElementById('lb-close').addEventListener('click', close);
+    lbPlay.addEventListener('click', togglePlay);
+    lb.addEventListener('click', e => { if(e.target === lb) close(); });
+
+    document.addEventListener('keydown', e => {
+      if(!lb.classList.contains('active')) return;
+      if(e.key === 'Escape') close();
+      else if(e.key === 'ArrowLeft') show(idx-1);
+      else if(e.key === 'ArrowRight') show(idx+1);
+      else if(e.key === ' '){ e.preventDefault(); togglePlay(); }
+    });
+
+    // Touch swipe
+    let touchX = null;
+    lb.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, {passive:true});
+    lb.addEventListener('touchend', e => {
+      if(touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      if(Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1));
+      touchX = null;
+    }, {passive:true});
+
+    // Deep link: gallery.html#3 opens lightbox at photo 3
+    if(location.hash){
+      const n = parseInt(location.hash.slice(1), 10);
+      if(!isNaN(n) && n >= 1 && n <= PHOTOS.length){
+        open(n - 1, false);
+      }
+    }
+  })();
+</script>
+
+</body>
+</html>
