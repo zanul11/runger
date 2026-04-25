@@ -488,8 +488,15 @@
     .hero-grid,.nightrun-grid,.about-grid,.join-grid,.pengurus-grid{grid-template-columns:1fr;gap:40px}
     .hero-bottom{grid-template-columns:1fr 1fr}
     .hero-bottom .stat:nth-child(2){border-right:none}
-    .sched-row{grid-template-columns:60px 1fr;gap:14px}
-    .sched-row .desc,.sched-row .time,.sched-row .meet,.sched-row .arrow{display:none}
+    .sched-row{display:grid !important;grid-template-columns:60px 1fr !important;gap:0 14px !important;padding:20px 8px !important;align-items:start !important}
+    .sched-row:hover{padding-left:14px !important}
+    .sched-row .day{grid-column:1 !important;grid-row:1 / span 4 !important;font-size:36px !important;align-self:start !important;line-height:1}
+    .sched-row .name{grid-column:2 !important;grid-row:1 !important;font-size:22px !important;line-height:1.1;display:block !important}
+    .sched-row .desc{grid-column:2 !important;grid-row:2 !important;display:block !important;font-size:13px !important;line-height:1.45 !important;opacity:.75 !important;margin-top:6px !important}
+    .sched-row .time{grid-column:2 !important;grid-row:3 !important;display:block !important;font-size:12px !important;opacity:.9 !important;margin-top:10px !important;letter-spacing:.06em}
+    .sched-row .meet{grid-column:2 !important;grid-row:4 !important;display:block !important;font-size:12px !important;opacity:.9 !important;margin-top:4px !important;letter-spacing:.06em}
+    .sched-row .meet small{display:inline !important;margin-right:8px !important;margin-bottom:0 !important;font-size:10px !important;opacity:.6}
+    .sched-row .arrow{display:none !important}
     .gallery-strip{grid-template-columns:1fr 1fr}
     .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
     .values{grid-template-columns:1fr}
