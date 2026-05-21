@@ -99,7 +99,7 @@
   }
   .info-row{
     display:flex;align-items:center;gap:16px;padding:16px 18px;
-    border-bottom:1px solid var(--line);
+    border-bottom:1px solid var(--line);flex-wrap:wrap;
   }
   .info-row:last-child{border-bottom:none}
   .info-ic{
@@ -115,6 +115,17 @@
   }
   .info-val{font-size:15px;color:#fff;font-weight:500;line-height:1.35}
   .info-val small{display:block;font-size:12px;font-weight:400;opacity:.7;margin-top:2px}
+
+  .sponsor-chip{
+    display:inline-flex;align-items:center;gap:14px;flex-shrink:0;
+    padding:12px 20px 12px 22px;background:#fff;border-radius:999px;
+    border:1px solid rgba(255,255,255,.4);box-shadow:0 6px 20px rgba(0,0,0,.3);
+  }
+  .sponsor-chip .by{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;
+    text-transform:uppercase;color:#0A0F2C;font-weight:700;
+  }
+  .sponsor-chip img{height:36px;width:auto;display:block}
 
   /* Actions */
   .ticket-actions{display:flex;gap:10px;flex-wrap:wrap}
@@ -360,6 +371,10 @@
             <div class="info-content">
               <div class="info-lbl">Bonus</div>
               <div class="info-val"><strong style="color:var(--volt)">Free Refreshment</strong> setelah lari<small>Lego lego bareng squad 🔥</small></div>
+            </div>
+            <div class="sponsor-chip" title="Refreshment sponsored by Pocari Sweat">
+              <span class="by">Powered by</span>
+              <img src="assets/pocari.png" alt="Pocari Sweat">
             </div>
           </div>
         </div>
