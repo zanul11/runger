@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gerung Trail Run 2026 — 1st Edition · Runger Anniversary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Black+Ops+One&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Photography-led palette, BTR-inspired */
+    --white:#FFFFFF;
+    --ivory:#FAF8F3;
+    --paper:#F2EFE6;
+    --line:#E2DED2;
+    --ink:#0B0B0B;
+    --charcoal:#1A1A1A;
+    --mid:#3F3F3F;
+    --soft:#707070;
+    --muted:#9A9A9A;
+
+    --forest:#1B4332;
+    --forest-deep:#0F2A1F;
+    --moss:#2D5A40;
+    --ember:#B23A2C;
+    --ember-deep:#8A2A1E;
+    --sand:#D6CBB3;
+    --sand-soft:#EAE1C9;
+
+    --gtr-red:#E53935;
+    --runger-blue:#1B3FAE;
+    --volt:oklch(0.88 0.18 110);
+    --bone:#F4F1EA;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{
+    background:var(--ivory);color:var(--ink);
+    font-family:'Plus Jakarta Sans','Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  img,svg{display:block;max-width:100%}
+  .wrap{max-width:1320px;margin:0 auto;padding:0 32px}
+
+  /* TOP META BAR */
+  .meta-bar{
+    background:var(--ink);color:#fff;
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  }
+  .meta-inner{max-width:1320px;margin:0 auto;padding:10px 32px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .meta-inner span{opacity:.75}
+  .meta-inner b{color:var(--ember);font-weight:600;opacity:1;letter-spacing:.16em}
+
+  /* NAV */
+  nav.top{position:sticky;top:0;z-index:50;background:#fff;color:var(--ink);border-bottom:1px solid var(--line)}
+  .nav-inner{max-width:1320px;margin:0 auto;padding:18px 32px;display:flex;align-items:center;gap:32px}
+  .nav-logo{height:32px}
+  .nav-links{display:flex;gap:32px;font-size:13px;font-weight:600;letter-spacing:.04em;margin-left:32px;text-transform:uppercase;font-family:'Archivo',sans-serif}
+  .nav-links a{color:var(--mid);transition:color .15s;position:relative;padding:6px 0}
+  .nav-links a:hover{color:var(--ember)}
+  .nav-cta{margin-left:auto;display:flex;align-items:center;gap:14px}
+  .nav-cta .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:var(--ember);color:#fff;
+    font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    transition:background .2s, transform .15s;
+  }
+  .nav-cta .btn:hover{background:var(--ember-deep);transform:translateY(-1px)}
+
+  /* HERO — full-bleed photo */
+  .hero{
+    position:relative;min-height:88vh;color:#fff;overflow:hidden;
+    display:flex;align-items:flex-end;
+    background:
+      linear-gradient(180deg, rgba(11,11,11,0) 0%, rgba(11,11,11,.3) 50%, rgba(11,11,11,.92) 100%),
+      url('assets/g-sunset.jpeg');
+    background-size:cover;background-position:center;
+  }
+  .hero::before{
+    content:'';position:absolute;inset:0;
+    background:
+      linear-gradient(90deg, rgba(11,11,11,.55) 0%, rgba(11,11,11,.15) 50%, rgba(11,11,11,0) 100%);
+  }
+  .hero-inner{position:relative;z-index:2;width:100%;padding:60px 32px}
+  .hero-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;margin-bottom:80px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+  .hero-top .meta-row{display:flex;gap:36px;flex-wrap:wrap;opacity:.85}
+  .hero-top .meta-row b{color:var(--ember);font-weight:600;letter-spacing:.18em}
+  .anniv-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);
+    font-weight:600;letter-spacing:.18em;backdrop-filter:blur(8px);
+  }
+  .anniv-badge .dot{width:6px;height:6px;background:var(--ember);border-radius:50%;animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  .hero-eye{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:24px;display:inline-flex;align-items:center;gap:10px}
+  .hero-eye::before{content:'';width:24px;height:2px;background:var(--ember)}
+  .hero-title{
+    font-family:'Archivo',sans-serif;font-weight:900;
+    font-size:clamp(48px,9vw,140px);line-height:.92;letter-spacing:-.025em;text-transform:uppercase;
+    margin-bottom:24px;max-width:1100px;
+  }
+  .hero-title .accent{color:var(--ember)}
+  .hero-sub{font-size:18px;line-height:1.55;max-width:620px;opacity:.85;margin-bottom:36px;font-weight:300}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn-primary{
+    display:inline-flex;align-items:center;gap:10px;padding:18px 32px;
+    background:var(--ember);color:#fff;
+    font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    transition:background .2s, transform .15s;
+  }
+  .btn-primary:hover{background:var(--ember-deep);transform:translateY(-2px)}
+  .btn-ghost{
+    display:inline-flex;align-items:center;gap:10px;padding:18px 32px;
+    background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);
+    font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    transition:background .2s, border-color .2s;
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,.1);border-color:#fff}
+  .btn .arr{transition:transform .2s}
+  .btn:hover .arr,.btn-primary:hover .arr,.btn-ghost:hover .arr{transform:translateX(4px)}
+
+  /* MARQUEE STRIP */
+  .marquee{
+    background:var(--ember);color:#fff;overflow:hidden;border-bottom:1px solid var(--ember-deep);
+  }
+  .marquee-track{display:inline-flex;padding:14px 0;animation:scroll 28s linear infinite;font-family:'Archivo',sans-serif;font-size:14px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;white-space:nowrap}
+  .marquee-track span{margin:0 32px;display:inline-flex;align-items:center;gap:24px}
+  .marquee-track i{font-style:normal;color:rgba(255,255,255,.5);font-size:10px}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* INTRO */
+  .intro{padding:120px 0;background:var(--ivory)}
+  .intro-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start}
+  .intro-eye{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:10px}
+  .intro-eye::before{content:'';width:24px;height:2px;background:var(--ember)}
+  .intro-heading{
+    font-family:'Archivo',sans-serif;font-weight:900;font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);
+  }
+  .intro-text p{font-family:'Plus Jakarta Sans',sans-serif;font-size:21px;line-height:1.55;color:var(--charcoal);margin-bottom:24px;font-weight:400}
+  .intro-text p:first-of-type{font-size:26px;font-weight:500;color:var(--ink);line-height:1.45}
+  .intro-text p:first-of-type::first-letter{
+    font-family:'Archivo',sans-serif;font-weight:900;font-size:78px;line-height:.85;float:left;color:var(--ember);margin:6px 12px 0 -2px;
+  }
+
+  /* SECTION SCAFFOLD */
+  section{padding:120px 0;position:relative}
+  .section-eye{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:10px}
+  .section-eye::before{content:'';width:24px;height:2px;background:var(--ember)}
+  .section-title{
+    font-family:'Archivo',sans-serif;font-weight:900;
+    font-size:clamp(40px,6vw,84px);line-height:.95;letter-spacing:-.022em;text-transform:uppercase;color:var(--ink);
+  }
+  .section-title .accent{color:var(--ember)}
+  .section-sub{font-size:17px;line-height:1.6;color:var(--mid);max-width:640px;margin-top:24px;font-weight:400}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;margin-bottom:64px}
+
+  /* CATEGORIES — image cards */
+  .categories{background:var(--paper)}
+  .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)}
+  .cat-card{
+    position:relative;background:#fff;padding:0;cursor:pointer;
+    transition:transform .35s ease;overflow:hidden;
+  }
+  .cat-card .cat-img{
+    aspect-ratio:4/3;background-size:cover;background-position:center;position:relative;
+    transition:transform .6s ease;
+  }
+  .cat-card .cat-img::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.55) 100%);
+  }
+  .cat-card:hover .cat-img{transform:scale(1.05)}
+  .cat-card .cat-tier{
+    position:absolute;top:18px;left:18px;z-index:2;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:#fff;background:rgba(0,0,0,.55);padding:6px 10px;border:1px solid rgba(255,255,255,.3);
+  }
+  .cat-card .cat-name{
+    position:absolute;bottom:20px;left:24px;z-index:2;
+    font-family:'Archivo',sans-serif;font-weight:900;font-size:88px;line-height:.85;color:#fff;letter-spacing:-.03em;
+  }
+  .cat-card .cat-name small{font-size:32px;font-weight:700;color:var(--ember);letter-spacing:.02em}
+  .cat-body{padding:28px 24px;background:#fff;border-top:3px solid var(--ember);transition:border-color .25s}
+  .cat-card:hover .cat-body{border-color:var(--ink)}
+  .cat-body .cat-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);margin-bottom:16px;font-weight:600}
+  .cat-body dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:13px}
+  .cat-body dt{color:var(--soft);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding-top:2px}
+  .cat-body dd{color:var(--ink);font-weight:600}
+  .cat-card.featured .cat-body{border-color:var(--ember-deep);background:linear-gradient(180deg,#fff 0%, var(--sand-soft) 100%)}
+
+  /* COURSE SHOWCASE */
+  .course{background:var(--ivory)}
+  .course-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .course-cell{
+    position:relative;aspect-ratio:3/4;overflow:hidden;cursor:pointer;
+    background-size:cover;background-position:center;
+  }
+  .course-cell::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.75) 100%);
+    transition:background .3s;
+  }
+  .course-cell:hover::after{background:linear-gradient(180deg, rgba(178,58,44,.2) 0%, rgba(0,0,0,.85) 100%)}
+  .course-cell .label{
+    position:absolute;left:20px;bottom:20px;right:20px;z-index:2;color:#fff;
+  }
+  .course-cell .label .ord{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--ember);font-weight:700}
+  .course-cell .label .name{font-family:'Archivo',sans-serif;font-weight:900;font-size:24px;line-height:1.05;text-transform:uppercase;letter-spacing:-.01em;margin-top:4px}
+  .course-cell .label .desc{font-size:12px;line-height:1.45;margin-top:6px;opacity:.85;font-weight:400}
+
+  /* RACE SPECS TABLE */
+  .specs{background:var(--ink);color:#fff;padding:120px 0}
+  .specs .section-title{color:#fff}
+  .specs .section-title .accent{color:var(--ember)}
+  .specs-table{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid rgba(255,255,255,.15)}
+  .specs-table > div{padding:32px 24px;border-bottom:1px solid rgba(255,255,255,.15);border-right:1px solid rgba(255,255,255,.15)}
+  .specs-table > div:nth-child(3n){border-right:none}
+  .specs-table .lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:12px}
+  .specs-table .val{font-family:'Archivo',sans-serif;font-weight:800;font-size:32px;line-height:1.05;letter-spacing:-.01em}
+  .specs-table .val small{display:block;margin-top:6px;font-size:12px;font-weight:500;opacity:.65;letter-spacing:.04em;font-family:'Plus Jakarta Sans',sans-serif;text-transform:none}
+
+  /* ANNIVERSARY STORY — text-led, no playful decoration */
+  .anniv{background:var(--forest);color:#fff;padding:120px 0;position:relative;overflow:hidden}
+  .anniv::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 800px 400px at 100% 0%, rgba(178,58,44,.18), transparent 60%);
+    pointer-events:none;
+  }
+  .anniv .wrap{position:relative}
+  .anniv-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+  .anniv-eye{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:10px}
+  .anniv-eye::before{content:'';width:24px;height:2px;background:var(--ember)}
+  .anniv-title{font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(36px,5vw,68px);line-height:.98;letter-spacing:-.02em;text-transform:uppercase;color:#fff;margin-bottom:28px}
+  .anniv-title .accent{color:var(--ember)}
+  .anniv-text{font-size:17px;line-height:1.7;color:#fff;opacity:.85;margin-bottom:20px;max-width:560px;font-weight:400}
+  .anniv-stats{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,.2);margin-top:24px}
+  .anniv-stats .stat{padding:0}
+  .anniv-stats .num{font-family:'Archivo',sans-serif;font-weight:900;font-size:64px;line-height:.9;color:var(--ember);letter-spacing:-.02em}
+  .anniv-stats .num small{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;color:#fff;opacity:.7;font-weight:500;margin-left:6px}
+  .anniv-stats .lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-top:10px;color:#fff}
+  .anniv-list{margin-top:24px;list-style:none}
+  .anniv-list li{padding:16px 0;border-bottom:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:80px 1fr;gap:24px;font-size:15px}
+  .anniv-list li .mark{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--ember);font-weight:700;padding-top:2px}
+  .anniv-list li span{color:#fff;opacity:.85;line-height:1.5}
+
+  /* SCHEDULE */
+  .schedule{background:var(--paper);padding:120px 0}
+  .sched-list{margin-top:48px;border-top:2px solid var(--ink)}
+  .sched-row{
+    display:grid;grid-template-columns:160px 1fr 1fr auto;gap:32px;
+    padding:28px 8px;border-bottom:1px solid var(--line);align-items:center;
+    transition:background .2s, padding .2s;
+  }
+  .sched-row:hover{background:#fff;padding-left:18px}
+  .sched-time{font-family:'Archivo',sans-serif;font-weight:900;font-size:32px;color:var(--ember);line-height:1;letter-spacing:-.01em}
+  .sched-name{font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;letter-spacing:.005em;text-transform:uppercase;color:var(--ink)}
+  .sched-desc{font-size:14px;color:var(--mid);line-height:1.5}
+  .sched-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ember);font-weight:700;padding:6px 12px;border:1px solid var(--ember);justify-self:end}
+
+  /* CTA */
+  .cta{position:relative;padding:140px 0;color:#fff;overflow:hidden;
+    background:
+      linear-gradient(180deg, rgba(11,11,11,.6) 0%, rgba(11,11,11,.85) 100%),
+      url('assets/g-tugu-moon1.jpeg');
+    background-size:cover;background-position:center;
+  }
+  .cta-title{font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(48px,7vw,120px);line-height:.92;letter-spacing:-.025em;text-transform:uppercase;margin-bottom:24px}
+  .cta-title .accent{color:var(--ember)}
+  .cta-sub{font-size:18px;max-width:640px;opacity:.85;margin-bottom:36px;line-height:1.55;font-weight:300}
+  .cta-actions{display:flex;gap:14px;flex-wrap:wrap}
+
+  /* FOOTER */
+  footer{background:var(--ink);color:#fff;padding:64px 0 32px}
+  .foot-grid{max-width:1320px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:48px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.1)}
+  .foot-brand{font-family:'Archivo',sans-serif;font-weight:900;font-size:28px;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:12px}
+  .foot-brand .accent{color:var(--ember)}
+  .foot-brand-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.6}
+  .foot-col h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.5;margin-bottom:18px;font-weight:600}
+  .foot-col a{display:block;font-size:14px;padding:6px 0;opacity:.85;transition:opacity .2s, color .2s;font-family:'Plus Jakarta Sans',sans-serif}
+  .foot-col a:hover{opacity:1;color:var(--ember)}
+  .foot-bottom{max-width:1320px;margin:0 auto;padding:32px 32px 0;display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.5;flex-wrap:wrap;gap:12px}
+
+  /* RESPONSIVE */
+  @media (max-width:1000px){
+    .nav-links{display:none}
+    .hero{min-height:auto;padding:0}
+    .hero-inner{padding:40px 24px}
+    .hero-top{margin-bottom:48px}
+    .hero-title{font-size:clamp(40px,12vw,72px)}
+    .intro-grid{grid-template-columns:1fr;gap:32px}
+    .cat-grid{grid-template-columns:1fr}
+    .course-grid{grid-template-columns:1fr 1fr;gap:8px}
+    .specs-table{grid-template-columns:1fr}
+    .specs-table > div{border-right:none}
+    .anniv-grid{grid-template-columns:1fr;gap:48px}
+    .sched-row{grid-template-columns:80px 1fr;gap:16px;padding:20px 8px}
+    .sched-time{font-size:24px}
+    .sched-tag,.sched-desc{grid-column:2;align-self:start}
+    .sched-tag{justify-self:start;margin-top:4px}
+    section,.intro{padding:80px 0}
+    .anniv,.cta,.specs,.schedule{padding:80px 0}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP META BAR -->
+<div class="meta-bar">
+  <div class="meta-inner">
+    <span>30 Agustus 2026 · Gerung, Lombok Barat</span>
+    <span><b>● 1ST EDITION</b> · Runger Anniversary</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="top">
+  <div class="nav-inner">
+    <a href="index.html"><img class="nav-logo" src="assets/runger-logo.png" alt="Runger"></a>
+    <div class="nav-links">
+      <a href="#race">The Race</a>
+      <a href="#course">Course</a>
+      <a href="#anniversary">Anniversary</a>
+      <a href="#schedule">Schedule</a>
+      <a href="agenda.html">Agenda</a>
+      <a href="gallery.html">Gallery</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn" href="#register">Register Now</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-top wrap">
+      <div class="meta-row">
+        <span><b>● LIVE</b> · Edisi Perdana</span>
+        <span>5K · 12K · 21K Ultra</span>
+        <span>500m+ Elevation</span>
+      </div>
+      <div class="anniv-badge"><span class="dot"></span>1ST ANNIVERSARY · RUNGER</div>
+    </div>
+
+    <div class="wrap">
+      <div class="hero-eye">Trail Race · Lombok Barat</div>
+      <h1 class="hero-title">Gerung<br>Trail Run<br><span class="accent">2026.</span></h1>
+      <p class="hero-sub">
+        Race trail perdana di Lombok Barat — menyusuri perbukitan Gerung,
+        hutan rendah, dan pesisir Sekotong saat matahari terbit.
+        Sebuah perjalanan, bukan sekadar kompetisi.
+      </p>
+      <div class="hero-cta">
+        <a class="btn-primary" href="#register">Register Now <span class="arr">→</span></a>
+        <a class="btn-ghost" href="#course">Explore the Course <span class="arr">→</span></a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MARQUEE STRIP -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>Gerung Trail Run 2026 <i>✦</i></span>
+    <span>1st Edition <i>✦</i></span>
+    <span>Runger Anniversary <i>✦</i></span>
+    <span>30 August 2026 <i>✦</i></span>
+    <span>5K · 12K · 21K Ultra <i>✦</i></span>
+    <span>Sunrise Start <i>✦</i></span>
+    <span>Gerung Trail Run 2026 <i>✦</i></span>
+    <span>1st Edition <i>✦</i></span>
+    <span>Runger Anniversary <i>✦</i></span>
+    <span>30 August 2026 <i>✦</i></span>
+    <span>5K · 12K · 21K Ultra <i>✦</i></span>
+    <span>Sunrise Start <i>✦</i></span>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section class="intro" id="race">
+  <div class="wrap">
+    <div class="intro-grid">
+      <div>
+        <div class="intro-eye">About The Race</div>
+        <h2 class="intro-heading">Edisi Perdana<br>Trail Race<br>Lombok Barat.</h2>
+      </div>
+      <div class="intro-text">
+        <p>
+          Race trail pertama yang digelar Runners Gerung — dirancang bersama komunitas
+          lari Lombok Barat untuk memperkenalkan jalur lintas alam Gerung yang selama ini
+          jadi rute latihan rahasia member.
+        </p>
+        <p>
+          Rute melewati punggung perbukitan utara Gerung, jalan setapak hutan rendah,
+          persawahan Banyumulek, dan finish di garis pantai Sekotong dengan view selat Lombok.
+          Tiga kategori — dirancang ramah pemula sampai menantang untuk ultra-runner.
+        </p>
+        <p>
+          Bertepatan dengan hari jadi pertama Runger — kado komunitas untuk Gerung,
+          dan undangan terbuka untuk siapa pun yang mau ikut menulis tahun kedua bersama.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="categories" id="categories">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eye">Race Categories · 002</div>
+        <h2 class="section-title">Pilih <span class="accent">jarakmu.</span></h2>
+      </div>
+      <p class="section-sub">Tiga kategori — dari yang baru pertama mencoba trail sampai ultra-distance untuk pelari berpengalaman.</p>
+    </div>
+
+    <div class="cat-grid">
+      <article class="cat-card">
+        <div class="cat-img" style="background-image:url('assets/g-grup-archway.jpeg')"></div>
+        <div class="cat-tier">Kategori 01</div>
+        <div class="cat-name">5<small>K</small></div>
+        <div class="cat-body">
+          <div class="cat-sub">Trail Pemula · Family Run</div>
+          <dl>
+            <dt>Terrain</dt><dd>Trail ringan</dd>
+            <dt>Elevasi</dt><dd>± 80 m</dd>
+            <dt>Cut-off</dt><dd>1 jam 30</dd>
+            <dt>Untuk</dt><dd>Semua usia</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="cat-card featured">
+        <div class="cat-img" style="background-image:url('assets/g-tugu1.jpeg')"></div>
+        <div class="cat-tier">Kategori 02 · Favorit</div>
+        <div class="cat-name">12<small>K</small></div>
+        <div class="cat-body">
+          <div class="cat-sub">Trail Mid · Race Standar</div>
+          <dl>
+            <dt>Terrain</dt><dd>Hill &amp; forest</dd>
+            <dt>Elevasi</dt><dd>± 280 m</dd>
+            <dt>Cut-off</dt><dd>3 jam</dd>
+            <dt>Untuk</dt><dd>Intermediate</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="cat-card">
+        <div class="cat-img" style="background-image:url('assets/g-sunset.jpeg')"></div>
+        <div class="cat-tier">Kategori 03</div>
+        <div class="cat-name">21<small>K</small></div>
+        <div class="cat-body">
+          <div class="cat-sub">Trail Ultra · Race Utama</div>
+          <dl>
+            <dt>Terrain</dt><dd>Hill + Pesisir</dd>
+            <dt>Elevasi</dt><dd>± 500 m</dd>
+            <dt>Cut-off</dt><dd>5 jam</dd>
+            <dt>Untuk</dt><dd>Advanced</dd>
+          </dl>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- COURSE SHOWCASE -->
+<section class="course" id="course">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eye">The Course · 003</div>
+        <h2 class="section-title">Empat <span class="accent">lanskap.</span><br>Satu garis finish.</h2>
+      </div>
+      <p class="section-sub">Rute didesain melewati empat karakter lanskap khas Gerung & Lombok Barat — dari elevasi sampai pesisir.</p>
+    </div>
+
+    <div class="course-grid">
+      <div class="course-cell" style="background-image:url('assets/g-tugu1.jpeg')">
+        <div class="label">
+          <div class="ord">/ 01 START</div>
+          <div class="name">Tugu Giri Menang</div>
+          <div class="desc">Tikum &amp; flag-off — landmark Gerung di jantung kota.</div>
+        </div>
+      </div>
+      <div class="course-cell" style="background-image:url('assets/g-sunset.jpeg')">
+        <div class="label">
+          <div class="ord">/ 02 KM 3–8</div>
+          <div class="name">Perbukitan Aren</div>
+          <div class="desc">Climb pertama — punggung bukit dengan view persawahan.</div>
+        </div>
+      </div>
+      <div class="course-cell" style="background-image:url('assets/g-grup-archway.jpeg')">
+        <div class="label">
+          <div class="ord">/ 03 KM 9–15</div>
+          <div class="name">Hutan Rendah</div>
+          <div class="desc">Single-track teduh — jalan setapak antar pohon.</div>
+        </div>
+      </div>
+      <div class="course-cell" style="background-image:url('assets/g-tugu-moon1.jpeg')">
+        <div class="label">
+          <div class="ord">/ 04 FINISH</div>
+          <div class="name">Pesisir Sekotong</div>
+          <div class="desc">Final stretch &amp; finish — selat Lombok di garis akhir.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RACE SPECS -->
+<section class="specs">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eye" style="color:var(--ember)">Race Specs · 004</div>
+        <h2 class="section-title">Detail <span class="accent">teknis.</span></h2>
+      </div>
+    </div>
+    <div class="specs-table">
+      <div>
+        <div class="lab">Date</div>
+        <div class="val">30 AGU 2026<small>Sabtu pagi</small></div>
+      </div>
+      <div>
+        <div class="lab">Start Time</div>
+        <div class="val">05.30 WITA<small>Sunrise flag-off · 21K Ultra</small></div>
+      </div>
+      <div>
+        <div class="lab">Location</div>
+        <div class="val">GERUNG<small>Lombok Barat · NTB · Indonesia</small></div>
+      </div>
+      <div>
+        <div class="lab">Categories</div>
+        <div class="val">3 RUTE<small>5K · 12K · 21K Ultra</small></div>
+      </div>
+      <div>
+        <div class="lab">Max Elevation</div>
+        <div class="val">500 M+<small>Cumulative gain · 21K route</small></div>
+      </div>
+      <div>
+        <div class="lab">Cut-off</div>
+        <div class="val">5 JAM<small>Untuk kategori utama (21K)</small></div>
+      </div>
+      <div>
+        <div class="lab">Support</div>
+        <div class="val">FULL<small>Water station · medic · marshal · sweeper</small></div>
+      </div>
+      <div>
+        <div class="lab">Race Pack</div>
+        <div class="val">PREMIUM<small>BIB · jersey · medali edisi anniversary</small></div>
+      </div>
+      <div>
+        <div class="lab">Format</div>
+        <div class="val">TIMED<small>Chip timing · e-certificate</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANNIVERSARY -->
+<section class="anniv" id="anniversary">
+  <div class="wrap">
+    <div class="anniv-grid">
+      <div>
+        <div class="anniv-eye">Runger Anniversary · 005</div>
+        <h2 class="anniv-title">Satu <span class="accent">tahun</span>. Banyak langkah. Banyak teman.</h2>
+        <p class="anniv-text">
+          Runners Gerung lahir Agustus 2025 dari niat sederhana — menjaga silaturrahmi
+          teman-teman SMP &amp; SMA Lombok Barat lewat aktivitas yang sehat.
+        </p>
+        <p class="anniv-text">
+          Setahun kemudian, kami punya rute mingguan tetap, 400++ anggota,
+          dan ratusan sepatu yang sudah aus bareng-bareng di jalanan Gerung.
+          Trail Race ini cara kami merayakannya — dengan lari, bukan dengan kata.
+        </p>
+        <div class="anniv-stats">
+          <div class="stat">
+            <div class="num">1<small>thn</small></div>
+            <div class="lab">Berjalan</div>
+          </div>
+          <div class="stat">
+            <div class="num">400<small>++</small></div>
+            <div class="lab">Anggota</div>
+          </div>
+          <div class="stat">
+            <div class="num">52<small>+</small></div>
+            <div class="lab">Night Run</div>
+          </div>
+          <div class="stat">
+            <div class="num">∞</div>
+            <div class="lab">Kenangan</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="anniv-eye">Anniversary Perks</div>
+        <h2 class="anniv-title" style="font-size:clamp(28px,3.5vw,42px)">Eksklusif untuk edisi perdana.</h2>
+        <ul class="anniv-list">
+          <li><span class="mark">/ 01</span><span><strong style="color:#fff">Medali Edisi Anniversary</strong> — desain khusus 1st Edition, tidak diproduksi ulang.</span></li>
+          <li><span class="mark">/ 02</span><span><strong style="color:#fff">Jersey Race Eksklusif</strong> — warna warm earth dengan tag "1st Edition".</span></li>
+          <li><span class="mark">/ 03</span><span><strong style="color:#fff">Early Bird Diskon 30%</strong> — untuk anggota aktif Runger &amp; 50 pendaftar pertama.</span></li>
+          <li><span class="mark">/ 04</span><span><strong style="color:#fff">After Party + Tumpeng</strong> — perayaan hari jadi di area tikum pasca race.</span></li>
+          <li><span class="mark">/ 05</span><span><strong style="color:#fff">Live Acoustic</strong> — musisi lokal Lombok Barat mengisi after party.</span></li>
+          <li><span class="mark">/ 06</span><span><strong style="color:#fff">Free Photo Set</strong> — foto official dari rute &amp; finish line, gratis didownload.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<section class="schedule" id="schedule">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eye">Race Day · 006</div>
+        <h2 class="section-title">Rundown <span class="accent">hari-H.</span></h2>
+      </div>
+      <p class="section-sub">Sabtu, 30 Agustus 2026 — bertepatan dengan hari jadi pertama Runger.</p>
+    </div>
+    <div class="sched-list">
+      <div class="sched-row">
+        <div class="sched-time">04.30</div>
+        <div class="sched-name">BIB Collection &amp; Final Briefing</div>
+        <div class="sched-desc">Cek BIB, pemanasan, briefing keselamatan + rute.</div>
+        <div class="sched-tag">All</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-time">05.15</div>
+        <div class="sched-name">Start Gate Preparation</div>
+        <div class="sched-desc">Peserta berkumpul di start gate, final stretching.</div>
+        <div class="sched-tag">All</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-time">05.30</div>
+        <div class="sched-name">Flag-Off · 21K Ultra</div>
+        <div class="sched-desc">Kategori 21K start duluan — sunrise di rute.</div>
+        <div class="sched-tag">21K</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-time">05.45</div>
+        <div class="sched-name">Flag-Off · 12K</div>
+        <div class="sched-desc">Kategori menengah — trail hutan &amp; punggung bukit.</div>
+        <div class="sched-tag">12K</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-time">06.00</div>
+        <div class="sched-name">Flag-Off · 5K</div>
+        <div class="sched-desc">Kategori pemula &amp; family — trail ringan.</div>
+        <div class="sched-tag">5K</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-time">10.30</div>
+        <div class="sched-name">Awarding · Tumpeng · After Party</div>
+        <div class="sched-desc">Podium, potong tumpeng hari jadi Runger, live acoustic.</div>
+        <div class="sched-tag">Celebrate</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="register">
+  <div class="wrap">
+    <div class="section-eye" style="color:var(--ember)">Registration</div>
+    <h2 class="cta-title">Lebih dari sekadar <span class="accent">race.</span><br>Ini perjalanan.</h2>
+    <p class="cta-sub">
+      Edisi perdana dengan slot terbatas. Pantau Instagram @runnersgerung untuk pengumuman
+      tanggal pembukaan registrasi &amp; link daftar.
+    </p>
+    <div class="cta-actions">
+      <a class="btn-primary" href="https://www.instagram.com/runnersgerung/" target="_blank" rel="noopener">Notify via Instagram <span class="arr">→</span></a>
+      <a class="btn-ghost" href="agenda.html">Lihat Agenda Lain <span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-grid">
+    <div>
+      <div class="foot-brand">Gerung<br>Trail Run <span class="accent">2026.</span></div>
+      <div class="foot-brand-sub">1st Edition · Runger Anniversary</div>
+    </div>
+    <div class="foot-col">
+      <h4>Race</h4>
+      <a href="#race">About</a>
+      <a href="#categories">Categories</a>
+      <a href="#course">Course</a>
+      <a href="#schedule">Schedule</a>
+    </div>
+    <div class="foot-col">
+      <h4>Connect</h4>
+      <a href="https://www.instagram.com/runnersgerung/" target="_blank" rel="noopener">@runnersgerung</a>
+      <a href="agenda.html">Agenda</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="index.html">Runger.id</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div>© 2026 Runger · Gerung Trail Run</div>
+    <div>Gerung, Lombok Barat · NTB</div>
+    <div>v.1st Edition</div>
+  </div>
+</footer>
+
+</body>
+</html>

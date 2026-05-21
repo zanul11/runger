@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agenda Runger — Daftar Event & Long Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --runger-blue:#1B3FAE;
+    --ink:#0A0F2C;
+    --bone:#F4F1EA;
+    --volt:oklch(0.88 0.18 110);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--ink);color:var(--bone);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+
+  /* NAV */
+  nav.top{position:sticky;top:0;z-index:50;background:var(--runger-blue);border-bottom:1px solid rgba(255,255,255,.12)}
+  .nav-inner{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:24px}
+  .nav-logo{height:30px}
+  .nav-links{display:flex;gap:24px;font-size:13px;font-weight:500;letter-spacing:.02em;margin-left:16px}
+  .nav-links a{opacity:.85;transition:opacity .15s;padding:4px 0;position:relative}
+  .nav-links a:hover{opacity:1}
+  .nav-links a.active{opacity:1}
+  .nav-links a.active::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--volt)}
+  .nav-cta{margin-left:auto}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:var(--volt);color:var(--ink);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+
+  /* HEADER */
+  .page-head{padding:48px 24px 32px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .ph-inner{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .ph-eye{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--volt);margin-bottom:12px;display:inline-flex;align-items:center;gap:10px}
+  .ph-eye::before{content:'';width:24px;height:1px;background:var(--volt)}
+  .ph-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,7vw,80px);line-height:.92;letter-spacing:-.005em}
+  .ph-title em{font-style:normal;color:var(--volt)}
+  .ph-sub{margin-top:8px;font-size:14px;opacity:.7;font-weight:300;max-width:560px}
+  .ph-stats{display:flex;gap:24px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+  .ph-stat .num{display:block;font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;color:var(--volt);letter-spacing:0;margin-bottom:2px}
+  .ph-stat .lab{opacity:.6}
+
+  /* TABLE */
+  .agenda-wrap{max-width:1180px;margin:0 auto;padding:24px 24px 80px}
+  .agenda-table{
+    width:100%;border-collapse:collapse;
+    font-family:'Inter',sans-serif;font-size:14px;
+  }
+  .agenda-table thead th{
+    text-align:left;padding:14px 16px;
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--volt);font-weight:600;
+    border-bottom:1px solid rgba(226,240,84,.3);
+  }
+  .agenda-table tbody tr{
+    border-bottom:1px solid rgba(255,255,255,.08);transition:background .15s;cursor:pointer;
+  }
+  .agenda-table tbody tr.disabled{cursor:default}
+  .agenda-table tbody tr:hover{background:rgba(255,255,255,.03)}
+  .agenda-table tbody tr.disabled:hover{background:transparent}
+  .agenda-table tbody td{padding:18px 16px;vertical-align:middle}
+  .agenda-table tbody tr:hover .arrow{transform:translateX(4px);color:var(--volt)}
+  .agenda-table tbody tr.disabled:hover .arrow{transform:none;color:rgba(255,255,255,.4)}
+  .arrow.muted{color:rgba(255,255,255,.35);font-weight:500}
+
+  /* DATE column */
+  .col-date{width:160px}
+  .date-block{display:flex;flex-direction:column;gap:2px}
+  .date-block .day{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.55}
+  .date-block .num{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:#fff;letter-spacing:0}
+  .date-block .num em{font-style:normal;color:var(--volt)}
+  .date-block .mon{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.7;font-weight:600}
+  .date-block.soon .num{color:var(--volt);font-size:22px;letter-spacing:.02em}
+
+  /* EVENT column */
+  .ev-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.005em;color:#fff;line-height:1;margin-bottom:6px}
+  .ev-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;opacity:.7;line-height:1.5}
+  .ev-meta b{color:#fff;font-weight:500}
+
+  /* DISTANCE column */
+  .col-dist{width:120px;text-align:center}
+  .dist-pill{
+    display:inline-block;padding:8px 14px;border-radius:2px;
+    background:rgba(226,240,84,.1);color:var(--volt);
+    border:1px solid rgba(226,240,84,.3);
+    font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.08em;
+  }
+  .dist-pill.tba{background:rgba(255,255,255,.04);color:#fff;opacity:.5;border-color:rgba(255,255,255,.18)}
+
+  /* STATUS column */
+  .col-status{width:150px}
+  .status-pill{
+    display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+  }
+  .status-pill .dot{width:6px;height:6px;border-radius:50%;animation:pulse 1.6s infinite}
+  .status-pill.upcoming{background:rgba(226,240,84,.12);color:var(--volt);border:1px solid rgba(226,240,84,.35)}
+  .status-pill.upcoming .dot{background:var(--volt)}
+  .status-pill.soon{background:rgba(255,255,255,.05);color:#fff;border:1px solid rgba(255,255,255,.25)}
+  .status-pill.soon .dot{background:#fff;opacity:.6}
+  .status-pill.past{background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.15)}
+  .status-pill.past .dot{background:rgba(255,255,255,.4);animation:none}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* ACTION column */
+  .col-action{width:110px;text-align:right}
+  .arrow{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:rgba(255,255,255,.7);font-weight:600;
+    transition:transform .2s, color .2s;
+  }
+
+  /* Featured row highlight */
+  .agenda-table tbody tr.featured{background:linear-gradient(90deg, rgba(226,240,84,.04) 0%, transparent 70%)}
+  .agenda-table tbody tr.featured:hover{background:linear-gradient(90deg, rgba(226,240,84,.08) 0%, transparent 70%)}
+
+  /* Mobile cards */
+  .mobile-list{display:none}
+  .m-card{
+    display:flex;flex-direction:column;gap:14px;
+    padding:20px;border:1px solid rgba(255,255,255,.1);
+    border-radius:4px;margin-bottom:14px;background:rgba(255,255,255,.02);
+    transition:border-color .15s, transform .15s;cursor:pointer;
+  }
+  .m-card:hover,.m-card:focus-within{border-color:rgba(226,240,84,.35)}
+  .m-card.featured{border-color:rgba(226,240,84,.25)}
+  .m-card.disabled{cursor:default;opacity:.95}
+  .m-card.disabled:hover{border-color:rgba(255,255,255,.1)}
+  .m-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .m-card-date .num{font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:.95;color:var(--volt);letter-spacing:0}
+  .m-card-date.soon .num{font-size:24px;color:var(--volt);letter-spacing:.04em}
+  .m-card-date .mon{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;opacity:.7}
+  .m-card-title{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;margin-top:4px;color:#fff}
+  .m-card-meta{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;opacity:.7;letter-spacing:.04em}
+  .m-card-meta b{color:#fff;font-weight:500}
+  .m-card-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);gap:10px}
+
+  /* EMPTY */
+  .empty{
+    text-align:center;padding:60px 20px;
+    font-family:'JetBrains Mono',monospace;font-size:13px;
+    opacity:.55;letter-spacing:.08em;
+    border:1px dashed rgba(255,255,255,.15);
+  }
+
+  /* FOOTER */
+  footer{background:#000;border-top:1px solid rgba(255,255,255,.08);padding:24px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+  .foot-inner{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+  @media (max-width:820px){
+    .nav-links{display:none}
+    .page-head{padding:36px 20px 24px}
+    .ph-stats{gap:18px;width:100%}
+    .ph-stat .num{font-size:28px}
+    .agenda-wrap{padding:20px 20px 64px}
+    .agenda-table{display:none}
+    .mobile-list{display:block}
+    .foot-inner{justify-content:center;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="nav-inner">
+    <a href="index.html"><img class="nav-logo" src="assets/runger-logo.png" alt="Runger"></a>
+    <div class="nav-links">
+      <a href="index.html#night">Night Run</a>
+      <a href="index.html#tentang">Tentang</a>
+      <a href="index.html#jadwal">Jadwal</a>
+      <a href="agenda.html" class="active">Agenda</a>
+      <a href="gallery.html">Galeri</a>
+    </div>
+    <div class="nav-cta">
+      <a class="pill" href="index.html#gabung">Gabung Lari →</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-head">
+  <div class="ph-inner">
+    <div>
+      <div class="ph-eye">Agenda Runger</div>
+      <h1 class="ph-title">DAFTAR <em>EVENT.</em></h1>
+      <p class="ph-sub">Semua event dan long run terjadwal. Klik baris untuk detail.</p>
+    </div>
+    <div class="ph-stats">
+      <div class="ph-stat"><span class="num" id="stat-up">0</span><span class="lab">Upcoming</span></div>
+      <div class="ph-stat"><span class="num" id="stat-soon">0</span><span class="lab">Coming Soon</span></div>
+      <div class="ph-stat"><span class="num" id="stat-total">0</span><span class="lab">Total</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="agenda-wrap">
+
+  <!-- Desktop table -->
+  <table class="agenda-table" id="agenda-table">
+    <thead>
+      <tr>
+        <th class="col-date">Tanggal</th>
+        <th>Event</th>
+        <th class="col-dist">Jarak</th>
+        <th class="col-status">Status</th>
+        <th class="col-action"></th>
+      </tr>
+    </thead>
+    <tbody id="agenda-tbody"></tbody>
+  </table>
+
+  <!-- Mobile cards -->
+  <div class="mobile-list" id="agenda-mobile"></div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <span>© 2026 Runger · Runners Gerung</span>
+    <span>Gerung, Lombok Barat</span>
+  </div>
+</footer>
+
+<script>
+  const EVENTS = [
+    {
+      id:'long-run-10k-may',
+      date:'2026-05-24',
+      time:'05:30',
+      title:'LONG RUN 10K',
+      subtitle:'Lari Bareng Sehat Bareng',
+      tikum:'Depan Kantor Bupati Lobar',
+      distance:'10K',
+      href:'long-run-10k.html',
+      featured:true
+    },
+    {
+      id:'gerung-trail-run',
+      date:'2026-08-30',
+      time:'05:30',
+      title:'GERUNG TRAIL RUN',
+      subtitle:'Edisi Hari Jadi · 1 Tahun Runger',
+      tikum:'TBA — Lombok Barat',
+      distance:'TBA',
+      href:null,
+      comingSoon:true,
+      featured:true
+    }
+  ];
+
+  const MONTHS_ID = ['JAN','FEB','MAR','APR','MEI','JUN','JUL','AGU','SEP','OKT','NOV','DES'];
+  const DAYS_ID = ['MIN','SEN','SEL','RAB','KAM','JUM','SAB'];
+
+  function parseDate(e){
+    const [y,m,d] = e.date.split('-').map(Number);
+    return new Date(Date.UTC(y, m-1, d, parseInt(e.time.split(':')[0]), parseInt(e.time.split(':')[1])) - 8*3600000);
+  }
+
+  function dateParts(e){
+    const [y,m,d] = e.date.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    return {num:d, mon:MONTHS_ID[m-1], day:DAYS_ID[dt.getDay()], year:y};
+  }
+
+  function statusOf(e){
+    if(e.comingSoon) return 'soon';
+    const now = new Date();
+    if(parseDate(e) < now) return 'past';
+    return 'upcoming';
+  }
+
+  function statusLabel(s){
+    return {upcoming:'Upcoming', soon:'Coming Soon', past:'Selesai'}[s];
+  }
+
+  // Sort: upcoming first (by nearest), then soon, then past
+  const order = {upcoming:0, soon:1, past:2};
+  const sorted = [...EVENTS].sort((a,b) => {
+    const sa = order[statusOf(a)], sb = order[statusOf(b)];
+    if(sa !== sb) return sa - sb;
+    return parseDate(a) - parseDate(b);
+  });
+
+  // Stats
+  const counts = {upcoming:0, soon:0};
+  sorted.forEach(e => { const s = statusOf(e); if(counts[s] !== undefined) counts[s]++; });
+  document.getElementById('stat-up').textContent = counts.upcoming;
+  document.getElementById('stat-soon').textContent = counts.soon;
+  document.getElementById('stat-total').textContent = sorted.length;
+
+  const tbody = document.getElementById('agenda-tbody');
+  const mlist = document.getElementById('agenda-mobile');
+
+  if(sorted.length === 0){
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Belum ada event terjadwal · Pantau @runnersgerung</div></td></tr>';
+    mlist.innerHTML = '<div class="empty">Belum ada event terjadwal</div>';
+  } else {
+    sorted.forEach((e,i) => {
+      const status = statusOf(e);
+      const dp = dateParts(e);
+      const isSoon = status === 'soon';
+
+      const hasDetail = !!e.href;
+      const arrowHtml = hasDetail
+        ? `<span class="arrow">Detail →</span>`
+        : `<span class="arrow muted">Belum tersedia</span>`;
+
+      // Desktop row
+      const tr = document.createElement('tr');
+      if(e.featured) tr.classList.add('featured');
+      if(!hasDetail) tr.classList.add('disabled');
+      tr.innerHTML = `
+        <td class="col-date">
+          <div class="date-block ${isSoon ? 'soon' : ''}">
+            <span class="day">${dp.day}</span>
+            <span class="num">${isSoon ? 'TBA' : dp.num}</span>
+            <span class="mon">${dp.mon} ${dp.year}</span>
+          </div>
+        </td>
+        <td>
+          <div class="ev-title">${e.title}</div>
+          <div class="ev-meta">${e.subtitle} · <b>${isSoon ? 'TBA' : e.time.replace(':','.')+' WITA'}</b> · ${e.tikum}</div>
+        </td>
+        <td class="col-dist">
+          <span class="dist-pill ${e.distance === 'TBA' ? 'tba' : ''}">${e.distance}</span>
+        </td>
+        <td class="col-status">
+          <span class="status-pill ${status}"><span class="dot"></span>${statusLabel(status)}</span>
+        </td>
+        <td class="col-action">
+          ${arrowHtml}
+        </td>
+      `;
+      if(hasDetail){
+        tr.addEventListener('click', () => { window.location.href = e.href; });
+      }
+      tbody.appendChild(tr);
+
+      // Mobile card
+      const card = document.createElement(hasDetail ? 'a' : 'div');
+      if(hasDetail) card.href = e.href;
+      card.className = 'm-card' + (e.featured ? ' featured' : '') + (hasDetail ? '' : ' disabled');
+      card.innerHTML = `
+        <div class="m-card-head">
+          <div class="m-card-date ${isSoon ? 'soon' : ''}">
+            <div class="num">${isSoon ? 'TBA' : dp.num}</div>
+            <div class="mon">${dp.mon} ${dp.year} · ${dp.day}</div>
+          </div>
+          <span class="status-pill ${status}"><span class="dot"></span>${statusLabel(status)}</span>
+        </div>
+        <div>
+          <div class="m-card-title">${e.title}</div>
+          <div class="m-card-meta" style="margin-top:6px">${e.subtitle}</div>
+        </div>
+        <div class="m-card-meta">
+          <div>📅 <b>${isSoon ? 'TBA' : e.time.replace(':','.')+' WITA'}</b></div>
+          <div>📍 ${e.tikum}</div>
+          <div>🏃 Jarak: <b>${e.distance}</b></div>
+        </div>
+        <div class="m-card-foot">
+          <span class="dist-pill ${e.distance === 'TBA' ? 'tba' : ''}">${e.distance}</span>
+          ${arrowHtml}
+        </div>
+      `;
+      mlist.appendChild(card);
+    });
+  }
+</script>
+
+</body>
+</html>
