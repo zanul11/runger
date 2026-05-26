@@ -6,675 +6,841 @@
 <title>Gerung Trail Run 2026 — 1st Edition · Runger Anniversary</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Black+Ops+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* Photography-led palette, BTR-inspired */
-    --white:#FFFFFF;
-    --ivory:#FAF8F3;
-    --paper:#F2EFE6;
-    --line:#E2DED2;
-    --ink:#0B0B0B;
-    --charcoal:#1A1A1A;
-    --mid:#3F3F3F;
-    --soft:#707070;
-    --muted:#9A9A9A;
-
-    --forest:#1B4332;
-    --forest-deep:#0F2A1F;
-    --moss:#2D5A40;
-    --ember:#B23A2C;
-    --ember-deep:#8A2A1E;
-    --sand:#D6CBB3;
-    --sand-soft:#EAE1C9;
-
-    --gtr-red:#E53935;
-    --runger-blue:#1B3FAE;
-    --volt:oklch(0.88 0.18 110);
-    --bone:#F4F1EA;
+    --bg:#0A0A0A;
+    --bg-soft:#141414;
+    --card:#1A1A1A;
+    --card-2:#222222;
+    --line:rgba(255,255,255,.08);
+    --line-strong:rgba(255,255,255,.18);
+    --text:#FFFFFF;
+    --text-soft:#B4B4B4;
+    --text-mute:#7A7A7A;
+    --red:#E53935;
+    --red-deep:#C62828;
+    --red-soft:rgba(229,57,53,.12);
   }
-  *{box-sizing:border-box;margin:0;padding:0}
+  *{box-sizing:border-box;margin:0;padding:0;min-width:0}
   html,body{
-    background:var(--ivory);color:var(--ink);
-    font-family:'Plus Jakarta Sans','Inter',sans-serif;
-    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+    background:var(--bg);color:var(--text);
+    font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
   }
   a{color:inherit;text-decoration:none}
-  img,svg{display:block;max-width:100%}
-  .wrap{max-width:1320px;margin:0 auto;padding:0 32px}
+  img,video{display:block;max-width:100%}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  .wrap{max-width:1320px;margin:0 auto;padding:0 16px;width:100%}
 
-  /* TOP META BAR */
-  .meta-bar{
-    background:var(--ink);color:#fff;
-    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
-  }
-  .meta-inner{max-width:1320px;margin:0 auto;padding:10px 32px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
-  .meta-inner span{opacity:.75}
-  .meta-inner b{color:var(--ember);font-weight:600;opacity:1;letter-spacing:.16em}
+  /* ===== MOBILE-FIRST BASE ===== */
 
   /* NAV */
-  nav.top{position:sticky;top:0;z-index:50;background:#fff;color:var(--ink);border-bottom:1px solid var(--line)}
-  .nav-inner{max-width:1320px;margin:0 auto;padding:18px 32px;display:flex;align-items:center;gap:32px}
-  .nav-logo{height:32px}
-  .nav-links{display:flex;gap:32px;font-size:13px;font-weight:600;letter-spacing:.04em;margin-left:32px;text-transform:uppercase;font-family:'Archivo',sans-serif}
-  .nav-links a{color:var(--mid);transition:color .15s;position:relative;padding:6px 0}
-  .nav-links a:hover{color:var(--ember)}
-  .nav-cta{margin-left:auto;display:flex;align-items:center;gap:14px}
-  .nav-cta .btn{
-    display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:var(--ember);color:#fff;
-    font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  nav.top{
+    position:fixed;top:0;left:0;right:0;z-index:80;
+    background:rgba(10,10,10,.78);backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .nav-inner{
+    max-width:1320px;margin:0 auto;padding:14px 16px;
+    display:flex;align-items:center;gap:12px;justify-content:space-between;
+  }
+  .nav-logo{display:flex;align-items:center;gap:8px}
+  .nav-logo img{height:32px;width:auto;border-radius:4px}
+  .nav-divider{width:1px;height:22px;background:rgba(255,255,255,.2);display:inline-block}
+  .nav-by{
+    font-family:'Archivo',sans-serif;font-size:9px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--text-mute);font-weight:600;
+  }
+  .nav-runger{height:24px !important;border-radius:0 !important;opacity:.95}
+  .nav-links{display:none}
+  .nav-cta{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:10px 16px;border-radius:999px;
+    background:var(--red);color:#fff;
+    font-family:'Archivo',sans-serif;font-weight:700;
+    font-size:11px;letter-spacing:.08em;text-transform:uppercase;
     transition:background .2s, transform .15s;
   }
-  .nav-cta .btn:hover{background:var(--ember-deep);transform:translateY(-1px)}
+  .nav-cta:hover{background:var(--red-deep);transform:translateY(-1px)}
+  .nav-cta .arr{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:18px;height:18px;background:#fff;color:var(--red);
+    border-radius:50%;font-size:11px;font-weight:800;
+  }
+  .nav-burger{
+    width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,.18);border-radius:50%;color:#fff;
+  }
+  .nav-burger span{display:block;width:14px;height:1.5px;background:#fff;position:relative}
+  .nav-burger span::before,.nav-burger span::after{
+    content:'';position:absolute;left:0;width:14px;height:1.5px;background:#fff;
+  }
+  .nav-burger span::before{top:-4px}
+  .nav-burger span::after{top:4px}
 
-  /* HERO — full-bleed photo */
+  /* Mobile menu drawer */
+  .nav-drawer{
+    position:fixed;inset:0;z-index:90;background:rgba(10,10,10,.96);backdrop-filter:blur(16px);
+    display:none;flex-direction:column;padding:80px 24px 24px;
+  }
+  .nav-drawer.open{display:flex}
+  .nav-drawer-close{
+    position:absolute;top:14px;right:16px;width:38px;height:38px;
+    display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,.18);border-radius:50%;color:#fff;font-size:20px;
+  }
+  .nav-drawer a{
+    padding:18px 0;border-bottom:1px solid var(--line);
+    font-family:'Archivo',sans-serif;font-weight:700;
+    font-size:18px;letter-spacing:.02em;text-transform:uppercase;color:#fff;
+  }
+  .nav-drawer a.active{color:var(--red)}
+  .nav-drawer .nav-cta{margin-top:24px;align-self:flex-start}
+
+  /* HERO */
   .hero{
-    position:relative;min-height:88vh;color:#fff;overflow:hidden;
+    position:relative;min-height:100vh;color:#fff;overflow:hidden;
     display:flex;align-items:flex-end;
-    background:
-      linear-gradient(180deg, rgba(11,11,11,0) 0%, rgba(11,11,11,.3) 50%, rgba(11,11,11,.92) 100%),
-      url('assets/g-sunset.jpeg');
-    background-size:cover;background-position:center;
+  }
+  .hero-video{
+    position:absolute;inset:0;width:100%;height:100%;z-index:1;
+    object-fit:cover;
   }
   .hero::before{
-    content:'';position:absolute;inset:0;
+    content:'';position:absolute;inset:0;z-index:2;
     background:
-      linear-gradient(90deg, rgba(11,11,11,.55) 0%, rgba(11,11,11,.15) 50%, rgba(11,11,11,0) 100%);
+      linear-gradient(180deg, rgba(0,0,0,.5) 0%, rgba(0,0,0,.2) 40%, rgba(0,0,0,.85) 100%);
   }
-  .hero-inner{position:relative;z-index:2;width:100%;padding:60px 32px}
-  .hero-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;margin-bottom:80px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase}
-  .hero-top .meta-row{display:flex;gap:36px;flex-wrap:wrap;opacity:.85}
-  .hero-top .meta-row b{color:var(--ember);font-weight:600;letter-spacing:.18em}
-  .anniv-badge{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:8px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);
-    font-weight:600;letter-spacing:.18em;backdrop-filter:blur(8px);
+  .hero-inner{
+    position:relative;z-index:3;width:100%;padding:120px 16px 56px;
   }
-  .anniv-badge .dot{width:6px;height:6px;background:var(--ember);border-radius:50%;animation:pulse 1.6s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-  .hero-eye{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:24px;display:inline-flex;align-items:center;gap:10px}
-  .hero-eye::before{content:'';width:24px;height:2px;background:var(--ember)}
+  .hero-eye{
+    font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--red);font-weight:700;
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;
+  }
+  .hero-eye::before{content:'';width:24px;height:2px;background:var(--red)}
+  .presented-by{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:8px 14px 8px 12px;border-radius:999px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);
+    backdrop-filter:blur(8px);margin-bottom:22px;
+  }
+  .presented-by .pb-lab{
+    font-family:'Archivo',sans-serif;font-size:9.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:rgba(255,255,255,.7);font-weight:600;
+  }
+  .presented-by img{height:20px}
   .hero-title{
     font-family:'Archivo',sans-serif;font-weight:900;
-    font-size:clamp(48px,9vw,140px);line-height:.92;letter-spacing:-.025em;text-transform:uppercase;
-    margin-bottom:24px;max-width:1100px;
+    font-size:48px;line-height:.95;letter-spacing:-.02em;text-transform:uppercase;
+    margin-bottom:20px;
   }
-  .hero-title .accent{color:var(--ember)}
-  .hero-sub{font-size:18px;line-height:1.55;max-width:620px;opacity:.85;margin-bottom:36px;font-weight:300}
-  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .hero-title .accent{color:var(--red)}
+  .hero-sub{
+    font-size:15px;line-height:1.6;color:rgba(255,255,255,.85);
+    font-weight:400;max-width:520px;margin-bottom:28px;
+  }
+  .hero-cta{display:flex;gap:10px;flex-wrap:wrap}
   .btn-primary{
-    display:inline-flex;align-items:center;gap:10px;padding:18px 32px;
-    background:var(--ember);color:#fff;
-    font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    display:inline-flex;align-items:center;gap:10px;
+    padding:15px 22px;border-radius:999px;
+    background:var(--red);color:#fff;
+    font-family:'Archivo',sans-serif;font-weight:700;
+    font-size:12px;letter-spacing:.1em;text-transform:uppercase;
     transition:background .2s, transform .15s;
   }
-  .btn-primary:hover{background:var(--ember-deep);transform:translateY(-2px)}
+  .btn-primary:hover{background:var(--red-deep);transform:translateY(-2px)}
+  .btn-primary .arr{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;background:#fff;color:var(--red);
+    border-radius:50%;font-size:12px;font-weight:800;
+  }
   .btn-ghost{
-    display:inline-flex;align-items:center;gap:10px;padding:18px 32px;
-    background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);
-    font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    display:inline-flex;align-items:center;gap:10px;
+    padding:15px 22px;border-radius:999px;
+    background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);
+    font-family:'Archivo',sans-serif;font-weight:700;
+    font-size:12px;letter-spacing:.1em;text-transform:uppercase;
     transition:background .2s, border-color .2s;
   }
-  .btn-ghost:hover{background:rgba(255,255,255,.1);border-color:#fff}
-  .btn .arr{transition:transform .2s}
-  .btn:hover .arr,.btn-primary:hover .arr,.btn-ghost:hover .arr{transform:translateX(4px)}
+  .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:#fff}
 
-  /* MARQUEE STRIP */
-  .marquee{
-    background:var(--ember);color:#fff;overflow:hidden;border-bottom:1px solid var(--ember-deep);
+  /* OVERVIEW */
+  .overview{padding:64px 0 56px;background:var(--bg)}
+  .ov-grid{display:flex;flex-direction:column;gap:32px}
+  .ov-head .eye{
+    font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:14px;
   }
-  .marquee-track{display:inline-flex;padding:14px 0;animation:scroll 28s linear infinite;font-family:'Archivo',sans-serif;font-size:14px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;white-space:nowrap}
-  .marquee-track span{margin:0 32px;display:inline-flex;align-items:center;gap:24px}
-  .marquee-track i{font-style:normal;color:rgba(255,255,255,.5);font-size:10px}
-  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .ov-head h2{
+    font-family:'Archivo',sans-serif;font-weight:900;
+    font-size:42px;line-height:.95;letter-spacing:-.02em;text-transform:uppercase;
+    margin-bottom:20px;
+  }
+  .ov-head p{
+    font-size:14.5px;line-height:1.65;color:var(--text-soft);margin-bottom:14px;
+  }
 
-  /* INTRO */
-  .intro{padding:120px 0;background:var(--ivory)}
-  .intro-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start}
-  .intro-eye{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:10px}
-  .intro-eye::before{content:'';width:24px;height:2px;background:var(--ember)}
-  .intro-heading{
-    font-family:'Archivo',sans-serif;font-weight:900;font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);
+  .ov-photos{
+    display:grid;grid-template-columns:1.5fr 1fr;grid-template-rows:1fr 1fr;
+    gap:10px;height:360px;
   }
-  .intro-text p{font-family:'Plus Jakarta Sans',sans-serif;font-size:21px;line-height:1.55;color:var(--charcoal);margin-bottom:24px;font-weight:400}
-  .intro-text p:first-of-type{font-size:26px;font-weight:500;color:var(--ink);line-height:1.45}
-  .intro-text p:first-of-type::first-letter{
-    font-family:'Archivo',sans-serif;font-weight:900;font-size:78px;line-height:.85;float:left;color:var(--ember);margin:6px 12px 0 -2px;
+  .ov-photo{
+    border-radius:18px;overflow:hidden;background:#222;
+    background-size:cover;background-position:center;
   }
+  .ov-photo.big{grid-row:1 / span 2}
+
+  /* INFO STRIP */
+  .info-strip{
+    margin-top:36px;padding:24px 18px;border-radius:18px;
+    background:var(--card);border:1px solid var(--line);
+    display:flex;flex-direction:column;gap:24px;
+  }
+  .info-block{display:flex;align-items:center;gap:14px}
+  .info-block .ic{
+    width:44px;height:44px;flex-shrink:0;border-radius:10px;
+    background:var(--red-soft);color:var(--red);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .info-block .ic svg{width:22px;height:22px}
+  .info-block .lab{
+    font-family:'Archivo',sans-serif;font-size:10.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--text-mute);font-weight:600;margin-bottom:3px;
+  }
+  .info-block .val{font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;color:#fff;line-height:1.2}
+  .info-block .sub{font-size:12px;color:var(--text-mute);margin-top:2px}
+
+  .countdown-block{display:flex;flex-direction:column;gap:8px;flex:1}
+  .cd-row{display:flex;align-items:center;gap:14px}
+  .cd-row .ic{
+    width:44px;height:44px;flex-shrink:0;border-radius:10px;
+    background:var(--red-soft);color:var(--red);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .cd-row .lab{
+    font-family:'Archivo',sans-serif;font-size:10.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--text-mute);font-weight:600;
+  }
+  .cd-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px;
+  }
+  .cd-cell{text-align:center}
+  .cd-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:30px;line-height:1;color:var(--red)}
+  .cd-lab{font-family:'Archivo',sans-serif;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-mute);margin-top:4px;font-weight:600}
 
   /* SECTION SCAFFOLD */
-  section{padding:120px 0;position:relative}
-  .section-eye{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:10px}
-  .section-eye::before{content:'';width:24px;height:2px;background:var(--ember)}
-  .section-title{
+  section.block{padding:64px 0;background:var(--bg)}
+  .block-head{text-align:center;margin-bottom:32px}
+  .block-head .eye{
+    font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:12px;
+  }
+  .block-head h2{
     font-family:'Archivo',sans-serif;font-weight:900;
-    font-size:clamp(40px,6vw,84px);line-height:.95;letter-spacing:-.022em;text-transform:uppercase;color:var(--ink);
+    font-size:36px;line-height:.95;letter-spacing:-.02em;
+    margin-bottom:14px;
   }
-  .section-title .accent{color:var(--ember)}
-  .section-sub{font-size:17px;line-height:1.6;color:var(--mid);max-width:640px;margin-top:24px;font-weight:400}
-  .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;margin-bottom:64px}
+  .block-head p{font-size:14.5px;line-height:1.6;color:var(--text-soft);max-width:560px;margin:0 auto}
 
-  /* CATEGORIES — image cards */
-  .categories{background:var(--paper)}
-  .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)}
+  /* CATEGORIES */
+  .cat-grid{display:flex;flex-direction:column;gap:18px}
   .cat-card{
-    position:relative;background:#fff;padding:0;cursor:pointer;
-    transition:transform .35s ease;overflow:hidden;
+    position:relative;background:var(--card);border-radius:24px;overflow:hidden;
+    border:1px solid var(--line);
+    display:flex;flex-direction:column;
   }
-  .cat-card .cat-img{
-    aspect-ratio:4/3;background-size:cover;background-position:center;position:relative;
-    transition:transform .6s ease;
+  .cat-img{
+    position:relative;aspect-ratio:16/10;background-size:cover;background-position:center;
   }
-  .cat-card .cat-img::after{
+  .cat-img::after{
     content:'';position:absolute;inset:0;
-    background:linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.55) 100%);
+    background:linear-gradient(180deg, rgba(0,0,0,.3) 0%, rgba(0,0,0,.85) 100%);
   }
-  .cat-card:hover .cat-img{transform:scale(1.05)}
-  .cat-card .cat-tier{
-    position:absolute;top:18px;left:18px;z-index:2;
-    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
-    color:#fff;background:rgba(0,0,0,.55);padding:6px 10px;border:1px solid rgba(255,255,255,.3);
+  .cat-img-top{
+    position:absolute;top:14px;left:14px;right:14px;z-index:2;
+    display:flex;justify-content:space-between;align-items:flex-start;gap:8px;
   }
-  .cat-card .cat-name{
-    position:absolute;bottom:20px;left:24px;z-index:2;
-    font-family:'Archivo',sans-serif;font-weight:900;font-size:88px;line-height:.85;color:#fff;letter-spacing:-.03em;
+  .cat-diff{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 10px;background:rgba(0,0,0,.55);
+    border:1px solid rgba(255,255,255,.18);border-radius:999px;
+    font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;
   }
-  .cat-card .cat-name small{font-size:32px;font-weight:700;color:var(--ember);letter-spacing:.02em}
-  .cat-body{padding:28px 24px;background:#fff;border-top:3px solid var(--ember);transition:border-color .25s}
-  .cat-card:hover .cat-body{border-color:var(--ink)}
-  .cat-body .cat-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);margin-bottom:16px;font-weight:600}
-  .cat-body dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:13px}
-  .cat-body dt{color:var(--soft);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding-top:2px}
-  .cat-body dd{color:var(--ink);font-weight:600}
-  .cat-card.featured .cat-body{border-color:var(--ember-deep);background:linear-gradient(180deg,#fff 0%, var(--sand-soft) 100%)}
+  .cat-diff .dot{width:8px;height:8px;border-radius:50%}
+  .cat-diff .dot.lv1{background:#22c55e}
+  .cat-diff .dot.lv2{background:#fbbf24}
+  .cat-diff .dot.lv3{background:#ef4444}
+  .cat-diff .sep{opacity:.4;margin:0 2px}
+  .cat-name-pill{
+    display:inline-block;padding:6px 12px;background:var(--red);color:#fff;
+    border-radius:999px;font-family:'Archivo',sans-serif;font-size:11px;
+    font-weight:700;letter-spacing:.04em;
+  }
+  .cat-img-bottom{
+    position:absolute;left:18px;right:18px;bottom:18px;z-index:2;
+  }
+  .cat-dist{
+    font-family:'Archivo',sans-serif;font-weight:900;
+    font-size:46px;line-height:.95;letter-spacing:-.01em;color:#fff;
+  }
+  .cat-desc{
+    font-size:13px;color:rgba(255,255,255,.85);margin-top:8px;line-height:1.4;
+  }
+  .cat-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:0}
+  .cat-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 0;border-bottom:1px solid var(--line);
+  }
+  .cat-row:last-of-type{border-bottom:none}
+  .cat-row .k{font-size:13px;color:var(--text-mute)}
+  .cat-row .v{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px}
+  .cat-btn{
+    margin-top:14px;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    padding:14px 18px;border-radius:999px;
+    background:linear-gradient(180deg, #FF5450 0%, var(--red) 60%, var(--red-deep) 100%);color:#fff;
+    font-family:'Archivo',sans-serif;font-weight:700;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    transition:transform .15s, filter .2s;
+  }
+  .cat-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .cat-btn .arr{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:20px;height:20px;background:#fff;color:var(--red);
+    border-radius:50%;font-size:11px;font-weight:800;
+  }
 
-  /* COURSE SHOWCASE */
-  .course{background:var(--ivory)}
-  .course-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-  .course-cell{
-    position:relative;aspect-ratio:3/4;overflow:hidden;cursor:pointer;
-    background-size:cover;background-position:center;
+  /* ENTRY LIST + RESULTS — table placeholder */
+  .placeholder{
+    background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:32px 22px;text-align:center;
   }
-  .course-cell::after{
-    content:'';position:absolute;inset:0;
-    background:linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.75) 100%);
-    transition:background .3s;
+  .placeholder .ph-icon{
+    width:54px;height:54px;margin:0 auto 16px;border-radius:14px;
+    background:var(--red-soft);color:var(--red);
+    display:flex;align-items:center;justify-content:center;
   }
-  .course-cell:hover::after{background:linear-gradient(180deg, rgba(178,58,44,.2) 0%, rgba(0,0,0,.85) 100%)}
-  .course-cell .label{
-    position:absolute;left:20px;bottom:20px;right:20px;z-index:2;color:#fff;
+  .placeholder .ph-icon svg{width:26px;height:26px}
+  .placeholder .ph-title{
+    font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;
+    letter-spacing:.01em;text-transform:uppercase;margin-bottom:8px;
   }
-  .course-cell .label .ord{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--ember);font-weight:700}
-  .course-cell .label .name{font-family:'Archivo',sans-serif;font-weight:900;font-size:24px;line-height:1.05;text-transform:uppercase;letter-spacing:-.01em;margin-top:4px}
-  .course-cell .label .desc{font-size:12px;line-height:1.45;margin-top:6px;opacity:.85;font-weight:400}
+  .placeholder .ph-sub{font-size:13.5px;color:var(--text-soft);line-height:1.5;max-width:420px;margin:0 auto 18px}
+  .placeholder .ph-badge{
+    display:inline-flex;align-items:center;gap:8px;padding:7px 14px;
+    background:rgba(229,57,53,.12);color:var(--red);
+    border:1px solid rgba(229,57,53,.35);border-radius:999px;
+    font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:.16em;text-transform:uppercase;
+  }
+  .placeholder .ph-badge .pulse{
+    width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.6s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-  /* RACE SPECS TABLE */
-  .specs{background:var(--ink);color:#fff;padding:120px 0}
-  .specs .section-title{color:#fff}
-  .specs .section-title .accent{color:var(--ember)}
-  .specs-table{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid rgba(255,255,255,.15)}
-  .specs-table > div{padding:32px 24px;border-bottom:1px solid rgba(255,255,255,.15);border-right:1px solid rgba(255,255,255,.15)}
-  .specs-table > div:nth-child(3n){border-right:none}
-  .specs-table .lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:12px}
-  .specs-table .val{font-family:'Archivo',sans-serif;font-weight:800;font-size:32px;line-height:1.05;letter-spacing:-.01em}
-  .specs-table .val small{display:block;margin-top:6px;font-size:12px;font-weight:500;opacity:.65;letter-spacing:.04em;font-family:'Plus Jakarta Sans',sans-serif;text-transform:none}
-
-  /* ANNIVERSARY STORY — text-led, no playful decoration */
-  .anniv{background:var(--forest);color:#fff;padding:120px 0;position:relative;overflow:hidden}
-  .anniv::before{
-    content:'';position:absolute;inset:0;
-    background:radial-gradient(ellipse 800px 400px at 100% 0%, rgba(178,58,44,.18), transparent 60%);
-    pointer-events:none;
+  /* RULES */
+  .rules-list{display:flex;flex-direction:column;gap:12px}
+  .rule{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:18px 18px;display:flex;gap:14px;align-items:flex-start;
   }
-  .anniv .wrap{position:relative}
-  .anniv-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
-  .anniv-eye{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:10px}
-  .anniv-eye::before{content:'';width:24px;height:2px;background:var(--ember)}
-  .anniv-title{font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(36px,5vw,68px);line-height:.98;letter-spacing:-.02em;text-transform:uppercase;color:#fff;margin-bottom:28px}
-  .anniv-title .accent{color:var(--ember)}
-  .anniv-text{font-size:17px;line-height:1.7;color:#fff;opacity:.85;margin-bottom:20px;max-width:560px;font-weight:400}
-  .anniv-stats{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,.2);margin-top:24px}
-  .anniv-stats .stat{padding:0}
-  .anniv-stats .num{font-family:'Archivo',sans-serif;font-weight:900;font-size:64px;line-height:.9;color:var(--ember);letter-spacing:-.02em}
-  .anniv-stats .num small{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;color:#fff;opacity:.7;font-weight:500;margin-left:6px}
-  .anniv-stats .lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-top:10px;color:#fff}
-  .anniv-list{margin-top:24px;list-style:none}
-  .anniv-list li{padding:16px 0;border-bottom:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:80px 1fr;gap:24px;font-size:15px}
-  .anniv-list li .mark{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--ember);font-weight:700;padding-top:2px}
-  .anniv-list li span{color:#fff;opacity:.85;line-height:1.5}
-
-  /* SCHEDULE */
-  .schedule{background:var(--paper);padding:120px 0}
-  .sched-list{margin-top:48px;border-top:2px solid var(--ink)}
-  .sched-row{
-    display:grid;grid-template-columns:160px 1fr 1fr auto;gap:32px;
-    padding:28px 8px;border-bottom:1px solid var(--line);align-items:center;
-    transition:background .2s, padding .2s;
+  .rule .num{
+    width:34px;height:34px;flex-shrink:0;border-radius:50%;
+    background:var(--red-soft);color:var(--red);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;
   }
-  .sched-row:hover{background:#fff;padding-left:18px}
-  .sched-time{font-family:'Archivo',sans-serif;font-weight:900;font-size:32px;color:var(--ember);line-height:1;letter-spacing:-.01em}
-  .sched-name{font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;letter-spacing:.005em;text-transform:uppercase;color:var(--ink)}
-  .sched-desc{font-size:14px;color:var(--mid);line-height:1.5}
-  .sched-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ember);font-weight:700;padding:6px 12px;border:1px solid var(--ember);justify-self:end}
-
-  /* CTA */
-  .cta{position:relative;padding:140px 0;color:#fff;overflow:hidden;
-    background:
-      linear-gradient(180deg, rgba(11,11,11,.6) 0%, rgba(11,11,11,.85) 100%),
-      url('assets/g-tugu-moon1.jpeg');
-    background-size:cover;background-position:center;
+  .rule h4{
+    font-family:'Archivo',sans-serif;font-weight:800;font-size:14.5px;
+    letter-spacing:.01em;text-transform:uppercase;margin-bottom:5px;color:#fff;
   }
-  .cta-title{font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(48px,7vw,120px);line-height:.92;letter-spacing:-.025em;text-transform:uppercase;margin-bottom:24px}
-  .cta-title .accent{color:var(--ember)}
-  .cta-sub{font-size:18px;max-width:640px;opacity:.85;margin-bottom:36px;line-height:1.55;font-weight:300}
-  .cta-actions{display:flex;gap:14px;flex-wrap:wrap}
+  .rule p{font-size:13.5px;line-height:1.55;color:var(--text-soft)}
+
+  /* SPONSOR / CONTACT */
+  .sponsor-section{
+    position:relative;padding:80px 0 88px;overflow:hidden;
+    background:radial-gradient(ellipse 600px 300px at 20% 0%, rgba(229,57,53,.18), transparent 70%);
+  }
+  .sponsor-inner{text-align:center}
+  .sponsor-inner h2{
+    font-family:'Archivo',sans-serif;font-weight:900;
+    font-size:34px;line-height:.95;letter-spacing:-.02em;color:#fff;margin-bottom:28px;
+  }
+  .sponsor-row{
+    display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;
+    margin:24px 0 36px;opacity:.65;
+  }
+  .sponsor-slot{
+    padding:14px 26px;border:1px dashed rgba(255,255,255,.2);border-radius:14px;
+    font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--text-mute);font-weight:600;
+  }
+  .sponsor-cta{
+    margin-top:24px;padding:26px 22px;background:var(--card);border:1px solid var(--line);
+    border-radius:18px;
+  }
+  .sponsor-cta h3{
+    font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;
+    margin-bottom:8px;
+  }
+  .sponsor-cta p{font-size:13.5px;color:var(--text-soft);line-height:1.55;margin-bottom:18px}
+  .sponsor-cta .btn-primary{justify-content:center}
+
+  /* CONTACT INFO */
+  .contact-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:24px}
+  .contact-item{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;display:flex;align-items:center;gap:14px;
+  }
+  .contact-item .ic{
+    width:40px;height:40px;flex-shrink:0;border-radius:10px;
+    background:var(--red-soft);color:var(--red);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .contact-item .ic svg{width:18px;height:18px}
+  .contact-item .lab{
+    font-family:'Archivo',sans-serif;font-size:10.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--text-mute);font-weight:600;margin-bottom:3px;
+  }
+  .contact-item .val{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:#fff}
 
   /* FOOTER */
-  footer{background:var(--ink);color:#fff;padding:64px 0 32px}
-  .foot-grid{max-width:1320px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:48px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.1)}
-  .foot-brand{font-family:'Archivo',sans-serif;font-weight:900;font-size:28px;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:12px}
-  .foot-brand .accent{color:var(--ember)}
-  .foot-brand-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.6}
-  .foot-col h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.5;margin-bottom:18px;font-weight:600}
-  .foot-col a{display:block;font-size:14px;padding:6px 0;opacity:.85;transition:opacity .2s, color .2s;font-family:'Plus Jakarta Sans',sans-serif}
-  .foot-col a:hover{opacity:1;color:var(--ember)}
-  .foot-bottom{max-width:1320px;margin:0 auto;padding:32px 32px 0;display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.5;flex-wrap:wrap;gap:12px}
+  footer{
+    background:#050505;border-top:1px solid var(--line);
+    padding:36px 16px 24px;
+  }
+  .foot-grid{
+    max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:24px;
+    padding-bottom:24px;border-bottom:1px solid var(--line);
+  }
+  .foot-brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .foot-brand > img{height:42px;border-radius:6px}
+  .foot-brand-text{
+    font-family:'Archivo',sans-serif;font-weight:900;font-size:18px;line-height:1;text-transform:uppercase;
+  }
+  .foot-brand-text .accent{color:var(--red)}
+  .foot-brand-sub{font-size:11px;color:var(--text-mute);letter-spacing:.16em;text-transform:uppercase;margin-top:4px;font-family:'Archivo',sans-serif;font-weight:600}
+  .foot-by{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 12px;border-left:1px solid var(--line);
+  }
+  .foot-by .lab{
+    font-family:'Archivo',sans-serif;font-size:9px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--text-mute);font-weight:600;
+  }
+  .foot-by img{height:26px;opacity:.95}
+  .foot-nav{display:flex;flex-wrap:wrap;gap:18px}
+  .foot-nav a{
+    font-family:'Archivo',sans-serif;font-size:12px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--text-soft);font-weight:600;
+    transition:color .2s;
+  }
+  .foot-nav a:hover{color:var(--red)}
+  .foot-bottom{
+    max-width:1320px;margin:0 auto;padding-top:18px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+    font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--text-mute);font-weight:500;
+  }
 
-  /* RESPONSIVE */
-  @media (max-width:1000px){
-    .nav-links{display:none}
-    .hero{min-height:auto;padding:0}
-    .hero-inner{padding:40px 24px}
-    .hero-top{margin-bottom:48px}
-    .hero-title{font-size:clamp(40px,12vw,72px)}
-    .intro-grid{grid-template-columns:1fr;gap:32px}
-    .cat-grid{grid-template-columns:1fr}
-    .course-grid{grid-template-columns:1fr 1fr;gap:8px}
-    .specs-table{grid-template-columns:1fr}
-    .specs-table > div{border-right:none}
-    .anniv-grid{grid-template-columns:1fr;gap:48px}
-    .sched-row{grid-template-columns:80px 1fr;gap:16px;padding:20px 8px}
-    .sched-time{font-size:24px}
-    .sched-tag,.sched-desc{grid-column:2;align-self:start}
-    .sched-tag{justify-self:start;margin-top:4px}
-    section,.intro{padding:80px 0}
-    .anniv,.cta,.specs,.schedule{padding:80px 0}
-    .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
+  /* ===== DESKTOP (≥820px) ===== */
+  @media (min-width:820px){
+    .wrap{padding:0 32px}
+    .nav-inner{padding:18px 32px}
+    .nav-logo img{height:42px}
+    .nav-burger{display:none}
+    .nav-links{
+      display:flex;gap:32px;font-family:'Archivo',sans-serif;
+      font-size:13px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;
+    }
+    .nav-links a{
+      color:var(--text-soft);transition:color .15s;position:relative;padding:6px 0;
+    }
+    .nav-links a:hover{color:#fff}
+    .nav-links a.active{color:#fff}
+    .nav-links a.active::after{
+      content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--red);
+    }
+    .nav-cta{padding:12px 22px;font-size:12px}
+    .nav-cta .arr{width:22px;height:22px;font-size:12px}
+
+    .hero-inner{padding:0 32px 80px}
+    .hero-title{font-size:clamp(64px,9vw,140px)}
+    .hero-sub{font-size:18px;max-width:620px}
+    .btn-primary,.btn-ghost{padding:18px 30px;font-size:13px}
+
+    /* Overview — side-by-side */
+    .overview{padding:120px 0 100px}
+    .ov-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:60px;align-items:center}
+    .ov-head h2{font-size:clamp(48px,6vw,72px);margin-bottom:28px}
+    .ov-head p{font-size:16px;margin-bottom:18px}
+    .ov-photos{height:540px;gap:14px}
+
+    /* Info strip side-by-side */
+    .info-strip{
+      flex-direction:row;align-items:stretch;justify-content:space-between;
+      padding:26px 32px;gap:32px;margin-top:48px;
+    }
+    .info-block,.countdown-block{flex:1}
+    .countdown-block{flex:1.4}
+    .cd-grid{margin-top:6px}
+    .cd-num{font-size:38px}
+
+    /* Sections */
+    section.block{padding:120px 0}
+    .block-head{margin-bottom:48px}
+    .block-head h2{font-size:clamp(40px,5vw,60px);margin-bottom:18px}
+    .block-head p{font-size:16px}
+
+    /* Categories — 3 columns */
+    .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    .cat-card{height:100%}
+    .cat-img{aspect-ratio:5/4}
+    .cat-dist{font-size:56px}
+
+    /* Rules — 2 cols */
+    .rules-list{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+    /* Contact */
+    .contact-grid{grid-template-columns:repeat(3,1fr);gap:16px}
+
+    /* Sponsor */
+    .sponsor-section{padding:140px 0}
+    .sponsor-inner h2{font-size:clamp(40px,5vw,58px)}
+    .sponsor-cta{padding:32px 28px;max-width:540px;margin:24px auto 0}
+
+    /* Footer */
+    footer{padding:48px 32px 24px}
+    .foot-grid{flex-direction:row;align-items:center;justify-content:space-between;gap:32px;padding-bottom:32px}
   }
 </style>
 </head>
 <body>
 
-<!-- TOP META BAR -->
-<div class="meta-bar">
-  <div class="meta-inner">
-    <span>30 Agustus 2026 · Gerung, Lombok Barat</span>
-    <span><b>● 1ST EDITION</b> · Runger Anniversary</span>
-  </div>
-</div>
-
 <!-- NAV -->
 <nav class="top">
   <div class="nav-inner">
-    <a href="index.html"><img class="nav-logo" src="assets/runger-logo.png" alt="Runger"></a>
+    <a class="nav-logo" href="#home">
+      <img src="assets/gtr/logo.jpeg" alt="Gerung Trail Run">
+      <span class="nav-divider"></span>
+      <img class="nav-runger" src="assets/gtr/logo-white.png" alt="Runger · Runners Gerung">
+    </a>
     <div class="nav-links">
-      <a href="#race">The Race</a>
-      <a href="#course">Course</a>
-      <a href="#anniversary">Anniversary</a>
-      <a href="#schedule">Schedule</a>
-      <a href="agenda.html">Agenda</a>
-      <a href="gallery.html">Gallery</a>
+      <a href="#home" class="active">Home</a>
+      <a href="#category">Category</a>
+      <a href="#entry-list">Entry List</a>
+      <a href="#results">Results</a>
+      <a href="#rules">Rules And Regulation</a>
+      <a href="#contact">Contact</a>
     </div>
-    <div class="nav-cta">
-      <a class="btn" href="#register">Register Now</a>
-    </div>
+    <a class="nav-cta" href="#register">Register Now <span class="arr">→</span></a>
+    <button class="nav-burger" id="nav-burger" aria-label="Open menu"><span></span></button>
   </div>
 </nav>
 
-<!-- HERO -->
-<header class="hero">
-  <div class="hero-inner">
-    <div class="hero-top wrap">
-      <div class="meta-row">
-        <span><b>● LIVE</b> · Edisi Perdana</span>
-        <span>5K · 12K · 21K Ultra</span>
-        <span>500m+ Elevation</span>
-      </div>
-      <div class="anniv-badge"><span class="dot"></span>1ST ANNIVERSARY · RUNGER</div>
-    </div>
+<!-- MOBILE DRAWER -->
+<div class="nav-drawer" id="nav-drawer" aria-hidden="true">
+  <button class="nav-drawer-close" id="nav-close" aria-label="Close menu">×</button>
+  <a href="#home" class="active">Home</a>
+  <a href="#category">Category</a>
+  <a href="#entry-list">Entry List</a>
+  <a href="#results">Results</a>
+  <a href="#rules">Rules And Regulation</a>
+  <a href="#contact">Contact</a>
+  <a class="nav-cta" href="#register">Register Now <span class="arr">→</span></a>
+</div>
 
-    <div class="wrap">
-      <div class="hero-eye">Trail Race · Lombok Barat</div>
-      <h1 class="hero-title">Gerung<br>Trail Run<br><span class="accent">2026.</span></h1>
-      <p class="hero-sub">
-        Race trail perdana di Lombok Barat — menyusuri perbukitan Gerung,
-        hutan rendah, dan pesisir Sekotong saat matahari terbit.
-        Sebuah perjalanan, bukan sekadar kompetisi.
-      </p>
-      <div class="hero-cta">
-        <a class="btn-primary" href="#register">Register Now <span class="arr">→</span></a>
-        <a class="btn-ghost" href="#course">Explore the Course <span class="arr">→</span></a>
-      </div>
+<!-- HERO -->
+<header class="hero" id="home">
+  <video class="hero-video" autoplay muted loop playsinline poster="assets/g-sunset.jpeg">
+    <source src="assets/gtr/video-gtr.mp4" type="video/mp4">
+  </video>
+  <div class="hero-inner wrap">
+    <div class="presented-by">
+      <span class="pb-lab">Presented by</span>
+      <img src="assets/gtr/logo-white.png" alt="Runger">
+    </div>
+    <div class="hero-eye">1st Edition · Bukit Keteri Trail</div>
+    <h1 class="hero-title">Gerung<br>Trail Run<br><span class="accent">2026.</span></h1>
+    <p class="hero-sub">
+      Race trail perdana di Lombok Barat — menyusuri punggung Bukit Keteri,
+      hutan rendah, dan jalur pedesaan Gerung saat matahari terbit. Sebuah perjalanan, bukan sekadar kompetisi.
+    </p>
+    <div class="hero-cta">
+      <a class="btn-primary" href="#register">Register Now <span class="arr">→</span></a>
+      <a class="btn-ghost" href="#category">Explore Course</a>
     </div>
   </div>
 </header>
 
-<!-- MARQUEE STRIP -->
-<div class="marquee">
-  <div class="marquee-track">
-    <span>Gerung Trail Run 2026 <i>✦</i></span>
-    <span>1st Edition <i>✦</i></span>
-    <span>Runger Anniversary <i>✦</i></span>
-    <span>30 August 2026 <i>✦</i></span>
-    <span>5K · 12K · 21K Ultra <i>✦</i></span>
-    <span>Sunrise Start <i>✦</i></span>
-    <span>Gerung Trail Run 2026 <i>✦</i></span>
-    <span>1st Edition <i>✦</i></span>
-    <span>Runger Anniversary <i>✦</i></span>
-    <span>30 August 2026 <i>✦</i></span>
-    <span>5K · 12K · 21K Ultra <i>✦</i></span>
-    <span>Sunrise Start <i>✦</i></span>
-  </div>
-</div>
-
-<!-- INTRO -->
-<section class="intro" id="race">
+<!-- OVERVIEW -->
+<section class="overview">
   <div class="wrap">
-    <div class="intro-grid">
-      <div>
-        <div class="intro-eye">About The Race</div>
-        <h2 class="intro-heading">Edisi Perdana<br>Trail Race<br>Lombok Barat.</h2>
+    <div class="ov-grid">
+      <div class="ov-head">
+        <div class="eye">Event Overview</div>
+        <h2>Gerung Trail Run 2026</h2>
+        <p>
+          Edisi perdana race trail yang digelar Runners Gerung di <strong style="color:#fff">Bukit Keteri</strong>,
+          Gerung. Rute melintasi punggung bukit, hutan rendah, dan jalur pedesaan dengan panorama
+          Lombok Barat saat matahari terbit.
+        </p>
+        <p>
+          Tiga kategori dirancang untuk semua level — dari pemula yang ingin mencoba trail
+          pertamanya, sampai ultra-runner yang mencari tantangan elevasi & jarak.
+        </p>
       </div>
-      <div class="intro-text">
-        <p>
-          Race trail pertama yang digelar Runners Gerung — dirancang bersama komunitas
-          lari Lombok Barat untuk memperkenalkan jalur lintas alam Gerung yang selama ini
-          jadi rute latihan rahasia member.
-        </p>
-        <p>
-          Rute melewati punggung perbukitan utara Gerung, jalan setapak hutan rendah,
-          persawahan Banyumulek, dan finish di garis pantai Sekotong dengan view selat Lombok.
-          Tiga kategori — dirancang ramah pemula sampai menantang untuk ultra-runner.
-        </p>
-        <p>
-          Bertepatan dengan hari jadi pertama Runger — kado komunitas untuk Gerung,
-          dan undangan terbuka untuk siapa pun yang mau ikut menulis tahun kedua bersama.
-        </p>
+
+      <div class="ov-photos">
+        <div class="ov-photo big" style="background-image:url('assets/g-grup-archway.jpeg')"></div>
+        <div class="ov-photo" style="background-image:url('assets/g-tugu1.jpeg')"></div>
+        <div class="ov-photo" style="background-image:url('assets/g-sunset.jpeg')"></div>
+      </div>
+    </div>
+
+    <!-- INFO STRIP -->
+    <div class="info-strip">
+      <div class="info-block">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div>
+          <div class="lab">Race Day</div>
+          <div class="val">29 November 2026</div>
+          <div class="sub">Minggu · Sunrise Start</div>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <div>
+          <div class="lab">Location</div>
+          <div class="val">Bukit Keteri</div>
+          <div class="sub">Gerung, Lombok Barat, NTB</div>
+        </div>
+      </div>
+
+      <div class="countdown-block">
+        <div class="cd-row">
+          <div class="ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="lab">Countdown To Race</div>
+        </div>
+        <div class="cd-grid">
+          <div class="cd-cell"><div class="cd-num" id="cd-d">--</div><div class="cd-lab">Days</div></div>
+          <div class="cd-cell"><div class="cd-num" id="cd-h">--</div><div class="cd-lab">Hrs</div></div>
+          <div class="cd-cell"><div class="cd-num" id="cd-m">--</div><div class="cd-lab">Min</div></div>
+          <div class="cd-cell"><div class="cd-num" id="cd-s">--</div><div class="cd-lab">Sec</div></div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- CATEGORIES -->
-<section class="categories" id="categories">
+<section class="block" id="category">
   <div class="wrap">
-    <div class="section-head">
-      <div>
-        <div class="section-eye">Race Categories · 002</div>
-        <h2 class="section-title">Pilih <span class="accent">jarakmu.</span></h2>
-      </div>
-      <p class="section-sub">Tiga kategori — dari yang baru pertama mencoba trail sampai ultra-distance untuk pelari berpengalaman.</p>
+    <div class="block-head">
+      <div class="eye">Race Categories</div>
+      <h2>Choose Your Categories</h2>
+      <p>Dari pelari trail pemula hingga ultra-runner berpengalaman — setiap kategori menawarkan tantangan elevasi dan karakter rute yang berbeda.</p>
     </div>
 
     <div class="cat-grid">
       <article class="cat-card">
-        <div class="cat-img" style="background-image:url('assets/g-grup-archway.jpeg')"></div>
-        <div class="cat-tier">Kategori 01</div>
-        <div class="cat-name">5<small>K</small></div>
-        <div class="cat-body">
-          <div class="cat-sub">Trail Pemula · Family Run</div>
-          <dl>
-            <dt>Terrain</dt><dd>Trail ringan</dd>
-            <dt>Elevasi</dt><dd>± 80 m</dd>
-            <dt>Cut-off</dt><dd>1 jam 30</dd>
-            <dt>Untuk</dt><dd>Semua usia</dd>
-          </dl>
+        <div class="cat-img" style="background-image:url('assets/g-grup-archway.jpeg')">
+          <div class="cat-img-top">
+            <span class="cat-diff"><span class="dot lv1"></span>Lv 0<span class="sep">|</span>5K</span>
+            <span class="cat-name-pill">Sukawana Trail Run</span>
+          </div>
+          <div class="cat-img-bottom">
+            <div class="cat-dist">5 KM</div>
+            <div class="cat-desc">Rute pendek dan ramah pemula, cocok untuk family run atau pelari yang baru kenal trail.</div>
+          </div>
         </div>
-      </article>
-
-      <article class="cat-card featured">
-        <div class="cat-img" style="background-image:url('assets/g-tugu1.jpeg')"></div>
-        <div class="cat-tier">Kategori 02 · Favorit</div>
-        <div class="cat-name">12<small>K</small></div>
         <div class="cat-body">
-          <div class="cat-sub">Trail Mid · Race Standar</div>
-          <dl>
-            <dt>Terrain</dt><dd>Hill &amp; forest</dd>
-            <dt>Elevasi</dt><dd>± 280 m</dd>
-            <dt>Cut-off</dt><dd>3 jam</dd>
-            <dt>Untuk</dt><dd>Intermediate</dd>
-          </dl>
+          <div class="cat-row"><span class="k">Start Time</span><span class="v">06:00 WITA</span></div>
+          <div class="cat-row"><span class="k">Duration</span><span class="v">1.5 Jam</span></div>
+          <div class="cat-row"><span class="k">Elevation Gain</span><span class="v">+80 M</span></div>
+          <a class="cat-btn" href="#register">Detail Category <span class="arr">→</span></a>
         </div>
       </article>
 
       <article class="cat-card">
-        <div class="cat-img" style="background-image:url('assets/g-sunset.jpeg')"></div>
-        <div class="cat-tier">Kategori 03</div>
-        <div class="cat-name">21<small>K</small></div>
+        <div class="cat-img" style="background-image:url('assets/g-tugu1.jpeg')">
+          <div class="cat-img-top">
+            <span class="cat-diff"><span class="dot lv2"></span>Lv 1<span class="sep">|</span>12K</span>
+            <span class="cat-name-pill">Banyumulek Trail Run</span>
+          </div>
+          <div class="cat-img-bottom">
+            <div class="cat-dist">12 KM</div>
+            <div class="cat-desc">Dynamic intro ke mountain racing — elevasi nyata, real challenge dengan rute punggung bukit.</div>
+          </div>
+        </div>
         <div class="cat-body">
-          <div class="cat-sub">Trail Ultra · Race Utama</div>
-          <dl>
-            <dt>Terrain</dt><dd>Hill + Pesisir</dd>
-            <dt>Elevasi</dt><dd>± 500 m</dd>
-            <dt>Cut-off</dt><dd>5 jam</dd>
-            <dt>Untuk</dt><dd>Advanced</dd>
-          </dl>
+          <div class="cat-row"><span class="k">Start Time</span><span class="v">05:45 WITA</span></div>
+          <div class="cat-row"><span class="k">Duration</span><span class="v">3 Jam</span></div>
+          <div class="cat-row"><span class="k">Elevation Gain</span><span class="v">+280 M</span></div>
+          <a class="cat-btn" href="#register">Detail Category <span class="arr">→</span></a>
+        </div>
+      </article>
+
+      <article class="cat-card">
+        <div class="cat-img" style="background-image:url('assets/g-sunset.jpeg')">
+          <div class="cat-img-top">
+            <span class="cat-diff"><span class="dot lv3"></span>Lv 2<span class="sep">|</span>21K</span>
+            <span class="cat-name-pill">Sekotong Trail Ultra</span>
+          </div>
+          <div class="cat-img-bottom">
+            <div class="cat-dist">21 KM</div>
+            <div class="cat-desc">Test of endurance, elevation, dan race strategy — kategori utama dengan finish di pesisir Sekotong.</div>
+          </div>
+        </div>
+        <div class="cat-body">
+          <div class="cat-row"><span class="k">Start Time</span><span class="v">05:30 WITA</span></div>
+          <div class="cat-row"><span class="k">Duration</span><span class="v">5 Jam</span></div>
+          <div class="cat-row"><span class="k">Elevation Gain</span><span class="v">+500 M</span></div>
+          <a class="cat-btn" href="#register">Detail Category <span class="arr">→</span></a>
         </div>
       </article>
     </div>
   </div>
 </section>
 
-<!-- COURSE SHOWCASE -->
-<section class="course" id="course">
+<!-- ENTRY LIST -->
+<section class="block" id="entry-list" style="padding-top:0">
   <div class="wrap">
-    <div class="section-head">
-      <div>
-        <div class="section-eye">The Course · 003</div>
-        <h2 class="section-title">Empat <span class="accent">lanskap.</span><br>Satu garis finish.</h2>
-      </div>
-      <p class="section-sub">Rute didesain melewati empat karakter lanskap khas Gerung & Lombok Barat — dari elevasi sampai pesisir.</p>
+    <div class="block-head">
+      <div class="eye">Registered Runners</div>
+      <h2>Entry List</h2>
+      <p>Daftar peserta yang sudah terdaftar akan ditampilkan di sini setelah pendaftaran resmi dibuka.</p>
     </div>
-
-    <div class="course-grid">
-      <div class="course-cell" style="background-image:url('assets/g-tugu1.jpeg')">
-        <div class="label">
-          <div class="ord">/ 01 START</div>
-          <div class="name">Tugu Giri Menang</div>
-          <div class="desc">Tikum &amp; flag-off — landmark Gerung di jantung kota.</div>
-        </div>
+    <div class="placeholder">
+      <div class="ph-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
       </div>
-      <div class="course-cell" style="background-image:url('assets/g-sunset.jpeg')">
-        <div class="label">
-          <div class="ord">/ 02 KM 3–8</div>
-          <div class="name">Perbukitan Aren</div>
-          <div class="desc">Climb pertama — punggung bukit dengan view persawahan.</div>
-        </div>
-      </div>
-      <div class="course-cell" style="background-image:url('assets/g-grup-archway.jpeg')">
-        <div class="label">
-          <div class="ord">/ 03 KM 9–15</div>
-          <div class="name">Hutan Rendah</div>
-          <div class="desc">Single-track teduh — jalan setapak antar pohon.</div>
-        </div>
-      </div>
-      <div class="course-cell" style="background-image:url('assets/g-tugu-moon1.jpeg')">
-        <div class="label">
-          <div class="ord">/ 04 FINISH</div>
-          <div class="name">Pesisir Sekotong</div>
-          <div class="desc">Final stretch &amp; finish — selat Lombok di garis akhir.</div>
-        </div>
-      </div>
+      <div class="ph-title">Belum Ada Peserta Terdaftar</div>
+      <div class="ph-sub">Pendaftaran resmi belum dibuka. Entry list akan diperbarui real-time setelah registrasi launch.</div>
+      <div class="ph-badge"><span class="pulse"></span>Opening Soon</div>
     </div>
   </div>
 </section>
 
-<!-- RACE SPECS -->
-<section class="specs">
+<!-- RESULTS -->
+<section class="block" id="results" style="padding-top:0">
   <div class="wrap">
-    <div class="section-head">
-      <div>
-        <div class="section-eye" style="color:var(--ember)">Race Specs · 004</div>
-        <h2 class="section-title">Detail <span class="accent">teknis.</span></h2>
-      </div>
+    <div class="block-head">
+      <div class="eye">Race Results</div>
+      <h2>Results</h2>
+      <p>Hasil resmi dan klasemen akhir akan diumumkan di sini setelah race day.</p>
     </div>
-    <div class="specs-table">
-      <div>
-        <div class="lab">Date</div>
-        <div class="val">30 AGU 2026<small>Sabtu pagi</small></div>
+    <div class="placeholder">
+      <div class="ph-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+        </svg>
       </div>
-      <div>
-        <div class="lab">Start Time</div>
-        <div class="val">05.30 WITA<small>Sunrise flag-off · 21K Ultra</small></div>
-      </div>
-      <div>
-        <div class="lab">Location</div>
-        <div class="val">GERUNG<small>Lombok Barat · NTB · Indonesia</small></div>
-      </div>
-      <div>
-        <div class="lab">Categories</div>
-        <div class="val">3 RUTE<small>5K · 12K · 21K Ultra</small></div>
-      </div>
-      <div>
-        <div class="lab">Max Elevation</div>
-        <div class="val">500 M+<small>Cumulative gain · 21K route</small></div>
-      </div>
-      <div>
-        <div class="lab">Cut-off</div>
-        <div class="val">5 JAM<small>Untuk kategori utama (21K)</small></div>
-      </div>
-      <div>
-        <div class="lab">Support</div>
-        <div class="val">FULL<small>Water station · medic · marshal · sweeper</small></div>
-      </div>
-      <div>
-        <div class="lab">Race Pack</div>
-        <div class="val">PREMIUM<small>BIB · jersey · medali edisi anniversary</small></div>
-      </div>
-      <div>
-        <div class="lab">Format</div>
-        <div class="val">TIMED<small>Chip timing · e-certificate</small></div>
-      </div>
+      <div class="ph-title">Race Belum Dimulai</div>
+      <div class="ph-sub">Klasemen finisher, chip time, dan medali certificate akan tersedia online dalam 24 jam setelah race day.</div>
+      <div class="ph-badge"><span class="pulse"></span>29 Nov 2026</div>
     </div>
   </div>
 </section>
 
-<!-- ANNIVERSARY -->
-<section class="anniv" id="anniversary">
+<!-- RULES AND REGULATION -->
+<section class="block" id="rules" style="padding-top:0">
   <div class="wrap">
-    <div class="anniv-grid">
-      <div>
-        <div class="anniv-eye">Runger Anniversary · 005</div>
-        <h2 class="anniv-title">Satu <span class="accent">tahun</span>. Banyak langkah. Banyak teman.</h2>
-        <p class="anniv-text">
-          Runners Gerung lahir Agustus 2025 dari niat sederhana — menjaga silaturrahmi
-          teman-teman SMP &amp; SMA Lombok Barat lewat aktivitas yang sehat.
-        </p>
-        <p class="anniv-text">
-          Setahun kemudian, kami punya rute mingguan tetap, 400++ anggota,
-          dan ratusan sepatu yang sudah aus bareng-bareng di jalanan Gerung.
-          Trail Race ini cara kami merayakannya — dengan lari, bukan dengan kata.
-        </p>
-        <div class="anniv-stats">
-          <div class="stat">
-            <div class="num">1<small>thn</small></div>
-            <div class="lab">Berjalan</div>
-          </div>
-          <div class="stat">
-            <div class="num">400<small>++</small></div>
-            <div class="lab">Anggota</div>
-          </div>
-          <div class="stat">
-            <div class="num">52<small>+</small></div>
-            <div class="lab">Night Run</div>
-          </div>
-          <div class="stat">
-            <div class="num">∞</div>
-            <div class="lab">Kenangan</div>
-          </div>
+    <div class="block-head">
+      <div class="eye">Race Guidelines</div>
+      <h2>Rules And Regulation</h2>
+      <p>Aturan dasar yang wajib dipatuhi seluruh peserta. Detail teknis lengkap akan dibagikan saat technical meeting.</p>
+    </div>
+    <div class="rules-list">
+      <div class="rule"><div class="num">01</div><div><h4>Usia Minimum</h4><p>5K: 12 tahun · 12K: 16 tahun · 21K Ultra: 18 tahun, dengan persetujuan orang tua / wali untuk kategori 5K & 12K.</p></div></div>
+      <div class="rule"><div class="num">02</div><div><h4>Mandatory Gear</h4><p>Hidrasi minimal 500ml (5K), 1L (12K), 2L (21K), peluit, headlamp untuk start sebelum sunrise, sepatu trail wajib.</p></div></div>
+      <div class="rule"><div class="num">03</div><div><h4>BIB Collection</h4><p>BIB diambil sehari sebelum race (28 November) di race center sekitar Bukit Keteri. Wajib bawa ID & bukti registrasi. Tidak ada race day BIB.</p></div></div>
+      <div class="rule"><div class="num">04</div><div><h4>Cut-Off Time</h4><p>5K: 1.5 jam · 12K: 3 jam · 21K: 5 jam dari flag-off masing-masing kategori. Peserta lewat COT diarahkan sweeper.</p></div></div>
+      <div class="rule"><div class="num">05</div><div><h4>Water Station</h4><p>WS tersedia setiap 3–5 km untuk semua kategori. Isi botol pribadi — single use plastic dilarang di seluruh rute.</p></div></div>
+      <div class="rule"><div class="num">06</div><div><h4>Litter & Environment</h4><p>Buang sampah pada drop point WS. Peserta tertangkap littering akan DQ otomatis. Leave No Trace policy.</p></div></div>
+      <div class="rule"><div class="num">07</div><div><h4>Safety & Medic</h4><p>Tim medis siaga di tiap WS dan finish line. Peserta diperbolehkan retire kapan saja — hubungi marshal terdekat.</p></div></div>
+      <div class="rule"><div class="num">08</div><div><h4>Transfer & Refund</h4><p>Transfer BIB diperbolehkan sampai H-14. Refund hanya untuk pembatalan event resmi oleh panitia.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SPONSORS -->
+<section class="sponsor-section">
+  <div class="wrap sponsor-inner">
+    <h2>Official Sponsors</h2>
+    <div class="sponsor-row">
+      <div class="sponsor-slot">Slot Sponsor</div>
+      <div class="sponsor-slot">Slot Sponsor</div>
+      <div class="sponsor-slot">Slot Sponsor</div>
+      <div class="sponsor-slot">Slot Sponsor</div>
+    </div>
+    <div class="sponsor-cta">
+      <h3>Interested in Becoming a Sponsor?</h3>
+      <p>Jadilah bagian dari edisi perdana Gerung Trail Run dan terhubung dengan komunitas trail running yang berdedikasi di Lombok Barat.</p>
+      <a class="btn-primary" href="#contact">Contact Us <span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="block" id="contact" style="padding-top:40px">
+  <div class="wrap">
+    <div class="block-head">
+      <div class="eye">Get In Touch</div>
+      <h2>Contact</h2>
+      <p>Hubungi kami untuk informasi sponsor, media partnership, atau pertanyaan seputar event.</p>
+    </div>
+    <div class="contact-grid">
+      <a class="contact-item" href="https://www.instagram.com/runnersgerung/" target="_blank" rel="noopener">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/>
+          </svg>
         </div>
-      </div>
-
-      <div>
-        <div class="anniv-eye">Anniversary Perks</div>
-        <h2 class="anniv-title" style="font-size:clamp(28px,3.5vw,42px)">Eksklusif untuk edisi perdana.</h2>
-        <ul class="anniv-list">
-          <li><span class="mark">/ 01</span><span><strong style="color:#fff">Medali Edisi Anniversary</strong> — desain khusus 1st Edition, tidak diproduksi ulang.</span></li>
-          <li><span class="mark">/ 02</span><span><strong style="color:#fff">Jersey Race Eksklusif</strong> — warna warm earth dengan tag "1st Edition".</span></li>
-          <li><span class="mark">/ 03</span><span><strong style="color:#fff">Early Bird Diskon 30%</strong> — untuk anggota aktif Runger &amp; 50 pendaftar pertama.</span></li>
-          <li><span class="mark">/ 04</span><span><strong style="color:#fff">After Party + Tumpeng</strong> — perayaan hari jadi di area tikum pasca race.</span></li>
-          <li><span class="mark">/ 05</span><span><strong style="color:#fff">Live Acoustic</strong> — musisi lokal Lombok Barat mengisi after party.</span></li>
-          <li><span class="mark">/ 06</span><span><strong style="color:#fff">Free Photo Set</strong> — foto official dari rute &amp; finish line, gratis didownload.</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SCHEDULE -->
-<section class="schedule" id="schedule">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <div class="section-eye">Race Day · 006</div>
-        <h2 class="section-title">Rundown <span class="accent">hari-H.</span></h2>
-      </div>
-      <p class="section-sub">Sabtu, 30 Agustus 2026 — bertepatan dengan hari jadi pertama Runger.</p>
-    </div>
-    <div class="sched-list">
-      <div class="sched-row">
-        <div class="sched-time">04.30</div>
-        <div class="sched-name">BIB Collection &amp; Final Briefing</div>
-        <div class="sched-desc">Cek BIB, pemanasan, briefing keselamatan + rute.</div>
-        <div class="sched-tag">All</div>
-      </div>
-      <div class="sched-row">
-        <div class="sched-time">05.15</div>
-        <div class="sched-name">Start Gate Preparation</div>
-        <div class="sched-desc">Peserta berkumpul di start gate, final stretching.</div>
-        <div class="sched-tag">All</div>
-      </div>
-      <div class="sched-row">
-        <div class="sched-time">05.30</div>
-        <div class="sched-name">Flag-Off · 21K Ultra</div>
-        <div class="sched-desc">Kategori 21K start duluan — sunrise di rute.</div>
-        <div class="sched-tag">21K</div>
-      </div>
-      <div class="sched-row">
-        <div class="sched-time">05.45</div>
-        <div class="sched-name">Flag-Off · 12K</div>
-        <div class="sched-desc">Kategori menengah — trail hutan &amp; punggung bukit.</div>
-        <div class="sched-tag">12K</div>
-      </div>
-      <div class="sched-row">
-        <div class="sched-time">06.00</div>
-        <div class="sched-name">Flag-Off · 5K</div>
-        <div class="sched-desc">Kategori pemula &amp; family — trail ringan.</div>
-        <div class="sched-tag">5K</div>
-      </div>
-      <div class="sched-row">
-        <div class="sched-time">10.30</div>
-        <div class="sched-name">Awarding · Tumpeng · After Party</div>
-        <div class="sched-desc">Podium, potong tumpeng hari jadi Runger, live acoustic.</div>
-        <div class="sched-tag">Celebrate</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta" id="register">
-  <div class="wrap">
-    <div class="section-eye" style="color:var(--ember)">Registration</div>
-    <h2 class="cta-title">Lebih dari sekadar <span class="accent">race.</span><br>Ini perjalanan.</h2>
-    <p class="cta-sub">
-      Edisi perdana dengan slot terbatas. Pantau Instagram @runnersgerung untuk pengumuman
-      tanggal pembukaan registrasi &amp; link daftar.
-    </p>
-    <div class="cta-actions">
-      <a class="btn-primary" href="https://www.instagram.com/runnersgerung/" target="_blank" rel="noopener">Notify via Instagram <span class="arr">→</span></a>
-      <a class="btn-ghost" href="agenda.html">Lihat Agenda Lain <span class="arr">→</span></a>
+        <div>
+          <div class="lab">Instagram</div>
+          <div class="val">@runnersgerung</div>
+        </div>
+      </a>
+      <a class="contact-item" href="https://wa.me/" target="_blank" rel="noopener">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="lab">WhatsApp</div>
+          <div class="val">Chat Panitia</div>
+        </div>
+      </a>
+      <a class="contact-item" href="mailto:info@runnersgerung.id">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <div>
+          <div class="lab">Email</div>
+          <div class="val">info@runnersgerung.id</div>
+        </div>
+      </a>
     </div>
   </div>
 </section>
@@ -682,31 +848,96 @@
 <!-- FOOTER -->
 <footer>
   <div class="foot-grid">
-    <div>
-      <div class="foot-brand">Gerung<br>Trail Run <span class="accent">2026.</span></div>
-      <div class="foot-brand-sub">1st Edition · Runger Anniversary</div>
+    <div class="foot-brand">
+      <img src="assets/gtr/logo.jpeg" alt="Gerung Trail Run">
+      <div>
+        <div class="foot-brand-text">Gerung Trail Run <span class="accent">2026.</span></div>
+        <div class="foot-brand-sub">1st Edition · Bukit Keteri Trail</div>
+      </div>
+      <div class="foot-by">
+        <span class="lab">Presented by</span>
+        <img src="assets/gtr/logo-white.png" alt="Runger · Runners Gerung">
+      </div>
     </div>
-    <div class="foot-col">
-      <h4>Race</h4>
-      <a href="#race">About</a>
-      <a href="#categories">Categories</a>
-      <a href="#course">Course</a>
-      <a href="#schedule">Schedule</a>
-    </div>
-    <div class="foot-col">
-      <h4>Connect</h4>
-      <a href="https://www.instagram.com/runnersgerung/" target="_blank" rel="noopener">@runnersgerung</a>
-      <a href="agenda.html">Agenda</a>
-      <a href="gallery.html">Gallery</a>
-      <a href="index.html">Runger.id</a>
+    <div class="foot-nav">
+      <a href="#home">Home</a>
+      <a href="#category">Category</a>
+      <a href="#entry-list">Entry List</a>
+      <a href="#results">Results</a>
+      <a href="#rules">Rules</a>
+      <a href="#contact">Contact</a>
     </div>
   </div>
   <div class="foot-bottom">
     <div>© 2026 Runger · Gerung Trail Run</div>
-    <div>Gerung, Lombok Barat · NTB</div>
-    <div>v.1st Edition</div>
+    <div>Gerung, Lombok Barat · NTB · Indonesia</div>
   </div>
 </footer>
+
+<script>
+  // Mobile drawer toggle
+  const burger = document.getElementById('nav-burger');
+  const drawer = document.getElementById('nav-drawer');
+  const closeBtn = document.getElementById('nav-close');
+  burger?.addEventListener('click', () => drawer.classList.add('open'));
+  closeBtn?.addEventListener('click', () => drawer.classList.remove('open'));
+  drawer?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => drawer.classList.remove('open')));
+
+  // Countdown to 29 Nov 2026, 05:30 WITA
+  const EVENT_UTC = Date.UTC(2026, 10, 29, 5, 30) - 8*3600000;
+  const target = new Date(EVENT_UTC);
+  function pad(n){ return String(Math.max(0,n)).padStart(2,'0'); }
+  function tick(){
+    const diff = target - new Date();
+    if(diff <= 0){
+      ['cd-d','cd-h','cd-m','cd-s'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '00'; });
+      return;
+    }
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor(diff/3600000) % 24;
+    const m = Math.floor(diff/60000) % 60;
+    const s = Math.floor(diff/1000) % 60;
+    document.getElementById('cd-d').textContent = pad(d);
+    document.getElementById('cd-h').textContent = pad(h);
+    document.getElementById('cd-m').textContent = pad(m);
+    document.getElementById('cd-s').textContent = pad(s);
+  }
+  tick(); setInterval(tick, 1000);
+
+  // Active nav based on scroll
+  const sections = ['home','category','entry-list','results','rules','contact'];
+  const linkSels = document.querySelectorAll('nav.top .nav-links a');
+  function onScroll(){
+    let cur = 'home';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      const r = el.getBoundingClientRect();
+      if(r.top <= 120) cur = id;
+    });
+    linkSels.forEach(a => {
+      const href = a.getAttribute('href');
+      a.classList.toggle('active', href === '#' + cur);
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // Smooth-scroll anchor offset for sticky nav
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const href = a.getAttribute('href');
+      if(href.length > 1){
+        const el = document.querySelector(href);
+        if(el){
+          e.preventDefault();
+          const y = el.getBoundingClientRect().top + window.pageYOffset - 70;
+          window.scrollTo({top:y, behavior:'smooth'});
+        }
+      }
+    });
+  });
+</script>
 
 </body>
 </html>
