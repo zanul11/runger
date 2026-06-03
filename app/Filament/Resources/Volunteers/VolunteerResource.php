@@ -73,6 +73,12 @@ class VolunteerResource extends Resource
                     ->label('Alasan Ingin Jadi Volunteer')
                     ->required()
                     ->columnSpanFull(),
+                Textarea::make('experience')
+                    ->label('Pengalaman Jadi Panitia / Volunteer')
+                    ->columnSpanFull(),
+                Textarea::make('skills')
+                    ->label('Keahlian')
+                    ->columnSpanFull(),
                 Select::make('status')
                     ->options(self::$statuses)
                     ->default('pending')
@@ -97,6 +103,14 @@ class VolunteerResource extends Resource
                     ->formatStateUsing(fn ($state) => Volunteer::INTERESTS[$state] ?? $state),
                 TextEntry::make('reason')
                     ->label('Alasan')
+                    ->columnSpanFull(),
+                TextEntry::make('experience')
+                    ->label('Pengalaman Jadi Panitia / Volunteer')
+                    ->placeholder('-')
+                    ->columnSpanFull(),
+                TextEntry::make('skills')
+                    ->label('Keahlian')
+                    ->placeholder('-')
                     ->columnSpanFull(),
                 TextEntry::make('status')
                     ->badge()

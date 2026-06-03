@@ -169,6 +169,18 @@
     </div>
 
     <div class="fld">
+      <label for="experience">Pengalaman Jadi Panitia / Volunteer <span class="hint">— opsional</span></label>
+      <textarea id="experience" name="experience" placeholder="Ceritakan pengalaman kamu jadi panitia/volunteer sebelumnya (kosongkan kalau belum ada)">{{ old('experience') }}</textarea>
+      @error('experience')<span class="err">{{ $message }}</span>@enderror
+    </div>
+
+    <div class="fld">
+      <label for="skills">Keahlian <span class="hint">— opsional</span></label>
+      <input type="text" id="skills" name="skills" value="{{ old('skills') }}" placeholder="Contoh: desain grafis, fotografi, MC, P3K, sosmed">
+      @error('skills')<span class="err">{{ $message }}</span>@enderror
+    </div>
+
+    <div class="fld">
       <label for="reason">Alasan Ingin Jadi Volunteer <span class="req">*</span></label>
       <textarea id="reason" name="reason" placeholder="Ceritakan kenapa kamu mau gabung jadi volunteer GTR" required>{{ old('reason') }}</textarea>
       @error('reason')<span class="err">{{ $message }}</span>@enderror

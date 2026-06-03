@@ -60,6 +60,8 @@ class PageController extends Controller
             'interests' => ['required', 'array', 'min:1', 'max:2'],
             'interests.*' => ['in:' . implode(',', array_keys(Volunteer::INTERESTS))],
             'reason' => ['required', 'string', 'max:2000'],
+            'experience' => ['nullable', 'string', 'max:2000'],
+            'skills' => ['nullable', 'string', 'max:1000'],
         ], [
             'name.required' => 'Nama wajib diisi.',
             'phone.required' => 'No. HP wajib diisi.',
