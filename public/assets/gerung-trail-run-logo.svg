@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 200" role="img" aria-label="Gerung Trail Run">
+  <defs>
+    <filter id="gtr-rough" x="-2%" y="-2%" width="104%" height="104%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2"/>
+    </filter>
+    <style>
+      .gtr-text { font-family: 'Black Ops One', 'Bebas Neue', Impact, sans-serif; fill: currentColor; }
+      .gtr-sub  { font-family: 'JetBrains Mono', ui-monospace, monospace; fill: currentColor; font-weight: 600; }
+    </style>
+  </defs>
+
+  <!-- MOUNTAIN / CLIFF ICON (red with carved negative-space steps) -->
+  <g filter="url(#gtr-rough)">
+    <path fill="#E53935" fill-rule="evenodd" d="
+      M 30 192
+      L 5 162
+      L 5 90
+      L 28 90
+      L 28 64
+      L 55 28
+      L 80 64
+      L 96 50
+      L 124 96
+      L 142 76
+      L 156 102
+      L 170 192
+      Z
+      M 12 152 L 26 152 L 26 134 L 12 134 Z
+      M 30 174 L 50 174 L 50 192 L 30 192 Z
+      M 56 132 L 74 132 L 74 116 L 56 116 Z
+      M 56 158 L 72 158 L 72 174 L 56 174 Z
+      M 88 100 L 104 100 L 104 84 L 88 84 Z
+      M 106 142 L 124 142 L 124 158 L 106 158 Z
+      M 132 122 L 148 122 L 148 108 L 132 108 Z
+    "/>
+  </g>
+
+  <!-- TEXT -->
+  <g filter="url(#gtr-rough)">
+    <text class="gtr-text" x="200" y="68" font-size="62" letter-spacing="-1">GERUNG</text>
+    <text class="gtr-text" x="200" y="132" font-size="62" letter-spacing="-1">TRAIL RUN</text>
+  </g>
+  <text class="gtr-sub" x="202" y="168" font-size="14" letter-spacing="5">LOMBOK BARAT · NTB</text>
+</svg>
