@@ -442,6 +442,27 @@
     .lightbox-cap .cap-text{font-size:12px;padding:0 16px}
   }
 
+  /* ========= VOLUNTEER GTR ========= */
+  .gtr{background:var(--runger-blue-dark);color:var(--bone);position:relative;overflow:hidden}
+  .gtr::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(900px 500px at 100% 0%, rgba(var(--volt-rgb),.14), transparent 60%);
+    pointer-events:none;
+  }
+  .gtr .wrap{position:relative;z-index:1}
+  .gtr-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:72px;align-items:center}
+  .gtr-logo-wrap{display:flex;justify-content:center;align-items:center}
+  .gtr-logo{width:100%;max-width:300px;height:auto;filter:drop-shadow(0 12px 40px rgba(0,0,0,.4))}
+  .gtr .eyebrow::before{background:var(--volt)}
+  .gtr .section-title em{color:var(--volt)}
+  .gtr-lead{font-size:18px;line-height:1.6;opacity:.9;max-width:560px;margin-top:28px;font-weight:300}
+  .gtr-lead strong{font-weight:600;color:var(--volt)}
+  .gtr-divs{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .gtr-chip{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    padding:9px 14px;border:1px solid rgba(255,255,255,.25);border-radius:999px;opacity:.9;
+  }
+
   /* ========= JOIN ========= */
   .join{
     background:var(--runger-blue);color:var(--bone);
@@ -485,7 +506,8 @@
 
   @media (max-width: 900px){
     .nav-links{display:none}
-    .hero-grid,.nightrun-grid,.about-grid,.join-grid,.pengurus-grid{grid-template-columns:1fr;gap:40px}
+    .hero-grid,.nightrun-grid,.about-grid,.join-grid,.pengurus-grid,.gtr-grid{grid-template-columns:1fr;gap:40px}
+    .gtr-logo{max-width:200px}
     .hero-bottom{grid-template-columns:1fr 1fr}
     .hero-bottom .stat:nth-child(2){border-right:none}
     .sched-row{display:grid !important;grid-template-columns:60px 1fr !important;gap:0 14px !important;padding:20px 8px !important;align-items:start !important}
@@ -532,10 +554,11 @@
       <a href="#jadwal">Jadwal</a>
       <a href="{{ route('agenda') }}">Agenda</a>
       <a href="#galeri">Galeri</a>
+      <a href="#gtr">Volunteer GTR</a>
       <a href="#gabung">Gabung</a>
     </div>
     <div class="nav-cta">
-      
+      <a class="pill ghost" href="{{ route('volunteer') }}">Volunteer GTR</a>
       <a class="pill solid" href="#gabung">Gabung Lari →</a>
     </div>
   </div>
@@ -837,6 +860,33 @@
   </div>
 </section>
 
+<!-- VOLUNTEER GTR -->
+<section id="gtr" class="gtr">
+  <div class="wrap">
+    <div class="gtr-grid">
+      <div class="gtr-logo-wrap">
+        <img src="{{ asset('gtr/logo-white.png') }}" alt="GTR — Gerung Trail Run" class="gtr-logo">
+      </div>
+      <div class="gtr-body">
+        <div class="eyebrow" style="color:var(--volt)">Open Recruitment · 006</div>
+        <h2 class="section-title" style="font-size:clamp(48px,7vw,96px)">JADI <em>VOLUNTEER</em> ACARA GTR.</h2>
+        <p class="gtr-lead">
+          GTR butuh kamu. Gabung jadi panitia — pilih bidang yang kamu minati:
+          <strong>Acara, Humas, Perlengkapan,</strong> atau <strong>Pubdekdok</strong>.
+          Isi formulir pendataan, sisanya tim kami yang hubungi kamu.
+        </p>
+        <div class="gtr-divs">
+          <span class="gtr-chip">Acara</span>
+          <span class="gtr-chip">Humas</span>
+          <span class="gtr-chip">Perlengkapan</span>
+          <span class="gtr-chip">Pubdekdok</span>
+        </div>
+        <a href="{{ route('volunteer') }}" class="btn btn-volt" style="margin-top:36px">Daftar Volunteer <span class="arr">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- JOIN -->
 <section id="gabung" class="join">
   <div class="wrap">
@@ -904,6 +954,7 @@
       <a href="#jadwal">Jadwal Mingguan</a>
       <a href="{{ route('agenda') }}">Agenda</a>
       <a href="#galeri">Galeri</a>
+      <a href="{{ route('volunteer') }}">Volunteer GTR</a>
       <a href="#gabung">Gabung</a>
     </div>
     <div class="foot-col">

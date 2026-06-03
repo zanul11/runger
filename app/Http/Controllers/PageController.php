@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\GalleryItem;
+use App\Models\Volunteer;
+use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
@@ -42,6 +44,34 @@ class PageController extends Controller
     {
         $items = GalleryItem::orderBy('sort_order')->get();
         return view('pages.gallery', compact('items'));
+    }
+
+    public function volunteer()
+    {
+        return view('pages.volunteer');
+    }
+
+    public function volunteerStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:30'],
+            'address' => ['required', 'string', 'max:1000'],
+            'interests' => ['required', 'array', 'min:1', 'max:2'],
+            'interests.*' => ['in:' . implode(',', array_keys(Volunteer::INTERESTS))],
+            'reason' => ['required', 'string', 'max:2000'],
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'phone.required' => 'No. HP wajib diisi.',
+            'address.required' => 'Alamat wajib diisi.',
+            'interests.required' => 'Pilih minimal 1 minat kepanitiaan.',
+            'interests.max' => 'Maksimal pilih 2 minat kepanitiaan.',
+            'reason.required' => 'Alasan wajib diisi.',
+        ]);
+
+        Volunteer::create($validated);
+
+        return redirect()->route('volunteer')->with('success', 'Terima kasih! Pendaftaran volunteer GTR kamu sudah kami terima. 🙌');
     }
 
     public function eventDetail(string $slug)
