@@ -9,6 +9,7 @@ use App\Filament\Resources\GalleryItems\Pages\ViewGalleryItem;
 use App\Models\GalleryItem;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -115,6 +116,7 @@ class GalleryItemResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

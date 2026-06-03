@@ -9,6 +9,7 @@ use App\Filament\Resources\RaceCategories\Pages\ViewRaceCategory;
 use App\Models\RaceCategory;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -187,6 +188,7 @@ class RaceCategoryResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
