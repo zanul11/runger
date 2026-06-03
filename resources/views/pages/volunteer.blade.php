@@ -114,7 +114,7 @@
 <header class="ph">
   <div class="ph-inner">
     <span class="ph-logo-badge">
-      <img class="ph-logo" src="{{ asset('gtr/logo-gtr.jpeg') }}" alt="GTR — Gerung Trail Run">
+      <img class="ph-logo" src="{{ asset('gtr/logo-gtr2.png') }}" alt="GTR — Gerung Trail Run">
     </span>
     <span class="ph-pill"><span class="dot"></span>Open Recruitment</span>
     <h1 class="ph-title">VOLUNTEER <em>GTR</em></h1>
