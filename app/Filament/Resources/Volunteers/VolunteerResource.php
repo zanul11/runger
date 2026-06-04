@@ -127,14 +127,35 @@ class VolunteerResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->label('Nama')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('phone')
                     ->label('No. HP')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('address')
+                    ->label('Alamat')
+                    ->wrap()
+                    ->limit(40)
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('interests')
                     ->label('Minat')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => Volunteer::INTERESTS[$state] ?? $state),
+                    ->formatStateUsing(fn ($state) => Volunteer::INTERESTS[$state] ?? $state)
+                    ->toggleable(),
+                TextColumn::make('skills')
+                    ->label('Keahlian')
+                    ->wrap()
+                    ->limit(40)
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('experience')
+                    ->label('Pengalaman')
+                    ->wrap()
+                    ->limit(40)
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn ($state) => self::$statuses[$state] ?? $state)
@@ -142,11 +163,13 @@ class VolunteerResource extends Resource
                         'accepted' => 'success',
                         'rejected' => 'danger',
                         default => 'gray',
-                    }),
+                    })
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label('Mendaftar')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
