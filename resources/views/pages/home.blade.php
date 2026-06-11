@@ -554,7 +554,7 @@
       <a href="#jadwal">Jadwal</a>
       <a href="{{ route('agenda') }}">Agenda</a>
       <a href="#galeri">Galeri</a>
-      <a href="{{ route('gtr') }}">GTR</a>
+      <!-- <a href="{{ route('gtr') }}">GTR</a> -->
       <a href="{{ route('volunteer') }}">Volunteer GTR</a>
       <a href="#gabung">Gabung</a>
     </div>
@@ -1006,7 +1006,7 @@
       <a href="#jadwal">Jadwal Mingguan</a>
       <a href="{{ route('agenda') }}">Agenda</a>
       <a href="#galeri">Galeri</a>
-      <a href="{{ route('gtr') }}">GTR</a>
+      <!-- <a href="{{ route('gtr') }}">GTR</a> -->
       <a href="{{ route('volunteer') }}">Volunteer GTR</a>
       <a href="#gabung">Gabung</a>
     </div>

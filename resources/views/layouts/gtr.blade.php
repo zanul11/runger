@@ -150,6 +150,37 @@
     position:absolute;inset:0;width:100%;height:100%;z-index:1;
     object-fit:cover;object-position:center;background:#000;
   }
+  .hero-overlay{
+    position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.15) 30%, rgba(0,0,0,.25) 70%, rgba(0,0,0,.78) 100%);
+  }
+  .hero-eye{
+    font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:#fff;font-weight:700;display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;opacity:.92;
+  }
+  .hero-eye::before{content:'';width:24px;height:2px;background:var(--red)}
+  .hero-title{
+    font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(46px,10vw,120px);
+    line-height:.9;letter-spacing:-.02em;text-transform:uppercase;color:#fff;
+    text-shadow:0 6px 30px rgba(0,0,0,.45);
+  }
+  .hero-title .accent{color:var(--red)}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .hero-meta .hm{
+    display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.42);
+    border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);
+    padding:9px 14px;border-radius:999px;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;color:#fff;
+  }
+  .hero-meta .hm svg{width:15px;height:15px;color:var(--red);flex-shrink:0}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+  .btn-ghost{
+    display:inline-flex;align-items:center;gap:10px;padding:15px 22px;border-radius:999px;
+    background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);
+    font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    transition:background .2s, border-color .2s;
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,.1);border-color:#fff}
+  .hero-inner{position:relative;z-index:3;width:100%;padding:120px 16px 60px}
   .hero-logos{
     position:absolute;top:70px;right:16px;z-index:3;
     display:flex;align-items:center;gap:12px;
