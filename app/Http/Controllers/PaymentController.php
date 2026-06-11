@@ -62,6 +62,7 @@ class PaymentController extends Controller
             'callbacks' => [
                 'finish' => route('gtr.payment.finish'),
             ],
+            'enabled_payments' => ['other_qris'],
         ];
 
         try {

@@ -38,12 +38,12 @@ class RunnerResource extends Resource
             TextEntry::make('first_name')->label('Nama Depan'),
             TextEntry::make('last_name')->label('Nama Belakang')->placeholder('-'),
             TextEntry::make('email'),
-            TextEntry::make('phone')->label('No. HP')->formatStateUsing(fn ($s, $r) => $s ? $r->phone_country . ' ' . $s : '-'),
+            TextEntry::make('phone')->label('No. HP')->formatStateUsing(fn ($state, $record) => $state ? ($record?->phone_country . ' ' . $state) : '-'),
             TextEntry::make('nationality')->placeholder('-'),
             TextEntry::make('birthdate')->date()->placeholder('-'),
             TextEntry::make('gender')->placeholder('-'),
             TextEntry::make('address')->placeholder('-')->columnSpanFull(),
-            TextEntry::make('registrations_count')->label('Jumlah Pendaftaran')->state(fn ($r) => $r->registrations()->count()),
+            TextEntry::make('registrations_count')->label('Jumlah Pendaftaran')->state(fn ($record) => $record->registrations()->count()),
             TextEntry::make('created_at')->label('Bergabung')->dateTime(),
         ]);
     }
@@ -52,8 +52,7 @@ class RunnerResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('first_name')->label('Nama')
-                    ->formatStateUsing(fn ($s, $r) => trim($s . ' ' . $r->last_name))
+                TextColumn::make('full_name')->label('Nama')
                     ->searchable(['first_name', 'last_name']),
                 TextColumn::make('email')->searchable(),
                 TextColumn::make('phone')->label('No. HP')->toggleable(),

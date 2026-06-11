@@ -25,6 +25,9 @@
   .agree input{margin-top:3px;width:18px;height:18px;accent-color:var(--blue)}
   .agree label{font-size:12.5px;color:var(--soft);line-height:1.5}
   .agree strong{color:var(--text) !important}
+  .pay-fixed{display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid #D7DDEA;border-radius:10px;background:#F4F7FD}
+  .pay-dot{font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;color:#fff;background:var(--blue);padding:6px 12px;border-radius:8px;letter-spacing:.04em}
+  .pay-note{font-size:12px;color:var(--soft)}
   .rf-submit{width:100%;background:var(--blue);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:15px;border-radius:12px;border:none;cursor:pointer;transition:background .2s,transform .15s}
   .rf-submit:hover{background:var(--blue-deep);transform:translateY(-1px)}
   .alert-err{background:#FEF3F2;border:1px solid #FECDCA;color:#B42318;padding:12px 14px;border-radius:12px;font-size:13px;margin-bottom:16px}
@@ -156,12 +159,12 @@
   <div class="rf-h">Pembayaran</div>
 
   <div class="fld">
-    <label for="pay">Metode Pembayaran <span class="req">*</span></label>
-    <select class="inp" id="pay" name="pay" required>
-      @foreach(['Transfer Bank', 'QRIS', 'Virtual Account'] as $opt)
-        <option value="{{ $opt }}" @selected(old('pay', 'Transfer Bank') === $opt)>{{ $opt }}</option>
-      @endforeach
-    </select>
+    <label>Metode Pembayaran <span class="req">*</span></label>
+    <div class="pay-fixed">
+      <span class="pay-dot">QRIS</span>
+      <span class="pay-note">Scan & bayar pakai aplikasi e-wallet / m-banking apa pun</span>
+    </div>
+    <input type="hidden" name="pay" value="QRIS">
     @error('pay')<div class="err">{{ $message }}</div>@enderror
   </div>
 

@@ -81,10 +81,10 @@ class GtrRegistrationResource extends Resource
     {
         return $schema->components([
             TextEntry::make('nomor_registrasi'),
-            TextEntry::make('payment_status')->badge()->formatStateUsing(fn ($s) => self::$statuses[$s] ?? $s)
-                ->color(fn ($s) => match ($s) { 'paid' => 'success', 'cancelled' => 'danger', default => 'warning' }),
+            TextEntry::make('payment_status')->badge()->formatStateUsing(fn ($state) => self::$statuses[$state] ?? $state)
+                ->color(fn ($state) => match ($state) { 'paid' => 'success', 'cancelled' => 'danger', default => 'warning' }),
             TextEntry::make('bib_number')->label('BIB')->placeholder('-'),
-            TextEntry::make('category.distance')->label('Kategori')->formatStateUsing(fn ($s, $r) => trim(($s ?? '') . ' · ' . ($r->category->name ?? ''))),
+            TextEntry::make('category.distance')->label('Kategori')->formatStateUsing(fn ($state, $record) => trim(($state ?? '') . ' · ' . ($record->category->name ?? ''))),
             TextEntry::make('full_name')->label('Nama'),
             TextEntry::make('nik')->label('NIK'),
             TextEntry::make('size')->label('Jersey'),
@@ -111,13 +111,13 @@ class GtrRegistrationResource extends Resource
                 TextColumn::make('nomor_registrasi')->label('No. Reg')->searchable()->copyable(),
                 TextColumn::make('full_name')->label('Nama')->searchable(),
                 TextColumn::make('category.distance')->label('Kategori')
-                    ->formatStateUsing(fn ($s, $r) => trim(($s ?? '') . ' · ' . ($r->category->name ?? '')))
+                    ->formatStateUsing(fn ($state, $record) => trim(($state ?? '') . ' · ' . ($record->category->name ?? '')))
                     ->toggleable(),
                 TextColumn::make('size')->label('Jersey')->badge()->toggleable(),
                 TextColumn::make('amount')->money('IDR')->sortable()->toggleable(),
                 TextColumn::make('payment_status')->label('Pembayaran')->badge()
-                    ->formatStateUsing(fn ($s) => self::$statuses[$s] ?? $s)
-                    ->color(fn ($s) => match ($s) { 'paid' => 'success', 'cancelled' => 'danger', default => 'warning' }),
+                    ->formatStateUsing(fn ($state) => self::$statuses[$state] ?? $state)
+                    ->color(fn ($state) => match ($state) { 'paid' => 'success', 'cancelled' => 'danger', default => 'warning' }),
                 TextColumn::make('bib_number')->label('BIB')->placeholder('-')->toggleable(),
                 TextColumn::make('registered_at')->label('Daftar')->dateTime()->sortable(),
             ])
