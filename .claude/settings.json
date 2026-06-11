@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '{print $2}')",
+      "Bash(curl -s http://127.0.0.1:8899/ -o /tmp/h.html)",
+      "Bash(curl -s http://127.0.0.1:8899/agenda -o /tmp/a.html)",
+      "Bash([ -f \"public/$a\" ])",
+      "Bash(perl -0pi -e 's{<a href=\"\\\\{\\\\{ route\\\\\\('\\\\''home'\\\\''\\\\\\) \\\\}\\\\}#gtr\">GTR</a>}{<a href=\"{{ route\\('\\\\''gtr'\\\\''\\) }}\" \\\\@class\\(['\\\\''active'\\\\'' => $active === '\\\\''gtr'\\\\'']\\)>GTR</a>}g' resources/views/components/site-nav.blade.php)",
+      "Bash(curl -s -o /tmp/gtr.html -w \"HTTP %{http_code}\\\\n\" http://127.0.0.1:8899/gtr)",
+      "Bash(curl -s http://127.0.0.1:8899/agenda)"
+    ]
+  }
+}

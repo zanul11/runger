@@ -12,7 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Send unauthenticated GTR participants to the runner login page.
+        $middleware->redirectGuestsTo(fn (Request $request) => route('gtr.login'));
+
+        // Midtrans webhook must skip CSRF verification.
+        $middleware->validateCsrfTokens(except: [
+            'api/midtrans/notification',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

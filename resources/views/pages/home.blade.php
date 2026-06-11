@@ -554,7 +554,8 @@
       <a href="#jadwal">Jadwal</a>
       <a href="{{ route('agenda') }}">Agenda</a>
       <a href="#galeri">Galeri</a>
-      <a href="#gtr">Volunteer GTR</a>
+      <a href="{{ route('gtr') }}">GTR</a>
+      <a href="{{ route('volunteer') }}">Volunteer GTR</a>
       <a href="#gabung">Gabung</a>
     </div>
     <div class="nav-cta">
@@ -887,6 +888,57 @@
   </div>
 </section>
 
+<!-- RUNGER APP PORTAL -->
+<style>
+  .portal{background:var(--ink);color:var(--bone);position:relative;overflow:hidden}
+  .portal::before{content:'';position:absolute;inset:0;background:radial-gradient(700px 400px at 85% 0%, rgba(27,63,174,.55), transparent 60%),radial-gradient(500px 360px at 0% 110%, rgba(var(--volt-rgb),.12), transparent 60%);pointer-events:none}
+  .portal .wrap{position:relative;z-index:1}
+  .portal-grid{display:grid;grid-template-columns:1fr;gap:48px;align-items:center}
+  .portal-lead{margin-top:24px;max-width:560px;font-size:18px;line-height:1.6;opacity:.9;font-weight:300}
+  .portal-badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .portal-badge{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em}
+  .portal-phone{width:240px;max-width:72%;margin:0 auto;aspect-ratio:9/18;border-radius:34px;background:#0A0F1F;border:7px solid rgba(255,255,255,.14);box-shadow:0 34px 80px rgba(0,0,0,.5);padding:12px;display:flex;flex-direction:column;gap:10px}
+  .pp-bar{background:linear-gradient(110deg,#1B3FAE,#0F2680);border-radius:14px 14px 8px 8px;padding:12px 14px;font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff}
+  .pp-card{background:linear-gradient(135deg,#2A4FC8,#0F2680);border-radius:14px;padding:14px;flex-shrink:0}
+  .pp-card b{font-family:'Archivo',sans-serif;font-size:16px;display:block}
+  .pp-card span{font-size:10px;opacity:.8}
+  .pp-row{height:54px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+  .pp-tabs{margin-top:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 4px 4px;border-top:1px solid rgba(255,255,255,.1)}
+  .pp-tabs span{height:6px;border-radius:3px;background:rgba(255,255,255,.18)}
+  .pp-tabs span:first-child{background:#4C7DF2}
+  @media (min-width:900px){ .portal-grid{grid-template-columns:1.25fr .75fr} }
+</style>
+<section id="portal" class="portal">
+  <div class="wrap">
+    <div class="portal-grid">
+      <div>
+        <div class="eyebrow" style="color:var(--volt)">Aplikasi Komunitas · 007</div>
+        <h2 class="section-title" style="font-size:clamp(44px,7vw,96px)">PORTAL <em style="color:var(--volt)">RUNGER</em> APP.</h2>
+        <p class="portal-lead">
+          Satu aplikasi untuk komunitas Runger — daftar akun, ikut event seperti <strong>Gerung Trail Run</strong>,
+          isi data peserta, bayar online, dan simpan e-ticket QR. Semua langsung dari HP kamu.
+        </p>
+        <div class="portal-badges">
+          <span class="portal-badge">🏃 Daftar Event</span>
+          <!-- <span class="portal-badge">💳 Bayar Online</span> -->
+          <span class="portal-badge">🎫 E-Ticket QR</span>
+          <span class="portal-badge">📋 My Race</span>
+        </div>
+        <a href="{{ route('gtr.login') }}" class="btn btn-volt" style="margin-top:36px">Buka Runger App <span class="arr">→</span></a>
+      </div>
+      <div>
+        <div class="portal-phone">
+          <div class="pp-bar">Runger</div>
+          <div class="pp-card"><b>Halo, Runner 👋</b><span>Portal Komunitas Runger</span></div>
+          <div class="pp-row"></div>
+          <div class="pp-row"></div>
+          <div class="pp-tabs"><span></span><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- JOIN -->
 <section id="gabung" class="join">
   <div class="wrap">
@@ -954,6 +1006,7 @@
       <a href="#jadwal">Jadwal Mingguan</a>
       <a href="{{ route('agenda') }}">Agenda</a>
       <a href="#galeri">Galeri</a>
+      <a href="{{ route('gtr') }}">GTR</a>
       <a href="{{ route('volunteer') }}">Volunteer GTR</a>
       <a href="#gabung">Gabung</a>
     </div>

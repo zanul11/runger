@@ -46,6 +46,42 @@ class PageController extends Controller
         return view('pages.gallery', compact('items'));
     }
 
+    public function gtr()
+    {
+        $gtrCategories = \App\Models\GtrCategory::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('pages.gtr', compact('gtrCategories'));
+    }
+
+    public function gtrEntryList()
+    {
+        return view('pages.gtr-entry-list', ['active' => 'entry']);
+    }
+
+    public function gtrResults()
+    {
+        return view('pages.gtr-results', ['active' => 'results']);
+    }
+
+    public function gtrRules()
+    {
+        return view('pages.gtr-rules', ['active' => 'rules']);
+    }
+
+    public function gtrCategory(string $slug)
+    {
+        $cat = \App\Models\GtrCategory::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        return view('pages.gtr-category', [
+            'active' => 'category',
+            'cat' => $cat,
+        ]);
+    }
+
     public function volunteer()
     {
         return view('pages.volunteer');

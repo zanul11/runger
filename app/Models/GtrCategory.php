@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Models;
+
+use App\Services\GpxParser;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+
+class GtrCategory extends Model
+{
+    protected $guarded = ['id'];
+
+    protected $casts = [
+        'route_points' => 'array',
+        'elevation_profile' => 'array',
+        'water_stations' => 'array',
+        'mandatory_gear' => 'array',
+        'rundown' => 'array',
+        'early_bird_until' => 'date',
+        'total_km' => 'decimal:2',
+        'price_early_bird' => 'integer',
+        'price_normal' => 'integer',
+        'is_active' => 'boolean',
+    ];
+
+    /**
+     * Parse the uploaded GPX into route points (for the course map) whenever it changes.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (GtrCategory $cat) {
+            if (! $cat->isDirty('gpx_file')) {
+                return;
+            }
+
+            if (! $cat->gpx_file) {
+                $cat->route_points = null;
+                $cat->elevation_profile = null;
+                $cat->total_km = null;
+
+                return;
+            }
+
+            $disk = Storage::disk('public');
+            if (! $disk->exists($cat->gpx_file)) {
+                return;
+            }
+
+            $parsed = GpxParser::parse($disk->path($cat->gpx_file));
+            $cat->route_points = $parsed['route_points'] ?? null;
+            $cat->elevation_profile = $parsed['elevation_profile'] ?? null;
+            $cat->total_km = $parsed['total_km'] ?? null;
+        });
+    }
+
+    public function getHeaderUrlAttribute(): string
+    {
+        return $this->header_image
+            ? Storage::disk('public')->url($this->header_image)
+            : asset('assets/gtr/gallery/rudi.jpeg');
+    }
+
+    public function getGpxUrlAttribute(): ?string
+    {
+        return $this->gpx_file ? Storage::disk('public')->url($this->gpx_file) : null;
+    }
+
+    public function priceFormatted(?int $value): string
+    {
+        return $value ? 'IDR ' . number_format($value, 0, ',', '.') : '-';
+    }
+
+    public function getEarlyBirdFormattedAttribute(): string
+    {
+        return $this->priceFormatted($this->price_early_bird);
+    }
+
+    public function getWaterStationCountAttribute(): int
+    {
+        return count($this->water_stations ?? []);
+    }
+
+    public function getWaterStationLabelAttribute(): string
+    {
+        $count = $this->water_station_count;
+
+        return $count > 0 ? $count . ' Pos' : ($this->water_station ?: '-');
+    }
+
+    public function getNormalFormattedAttribute(): string
+    {
+        return $this->priceFormatted($this->price_normal);
+    }
+}

@@ -38,6 +38,7 @@
       <a href="{{ route('home') }}#jadwal">Jadwal</a>
       <a href="{{ route('agenda') }}" @class(['active' => $active === 'agenda'])>Agenda</a>
       <a href="{{ route('gallery') }}" @class(['active' => $active === 'gallery'])>Galeri</a>
+      <a href="{{ route('gtr') }}" @class(['active' => $active === 'gtr'])>GTR</a>
       <a href="{{ route('volunteer') }}" @class(['active' => $active === 'volunteer'])>Volunteer GTR</a>
     </div>
     <a class="site-nav-cta" href="{{ \App\Models\Setting::get('social.instagram_url', '#') }}" target="_blank" rel="noopener">Gabung →</a>
@@ -52,6 +53,7 @@
   <a href="{{ route('home') }}#jadwal">Jadwal</a>
   <a href="{{ route('agenda') }}" @class(['active' => $active === 'agenda'])>Agenda</a>
   <a href="{{ route('gallery') }}" @class(['active' => $active === 'gallery'])>Galeri</a>
+  <a href="{{ route('gtr') }}" @class(['active' => $active === 'gtr'])>GTR</a>
   <a href="{{ route('volunteer') }}" @class(['active' => $active === 'volunteer'])>Volunteer GTR</a>
 </div>
 <script>
