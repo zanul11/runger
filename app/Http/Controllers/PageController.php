@@ -52,7 +52,9 @@ class PageController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return view('pages.gtr', compact('gtrCategories'));
+        $gtrSetting = \App\Models\GtrSetting::first();
+
+        return view('pages.gtr', compact('gtrCategories', 'gtrSetting'));
     }
 
     public function gtrEntryList()

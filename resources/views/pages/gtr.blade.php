@@ -4,28 +4,34 @@
 
 <!-- HERO -->
 <header class="hero" id="home">
-  <img class="hero-video" src="{{ asset('assets/gtr/gallery/ari.jpeg') }}" alt="Gerung Trail Run">
+  <img class="hero-video" src="{{ $gtrSetting?->header_url ?? asset('assets/gtr/gallery/ari.jpeg') }}" alt="Gerung Trail Run">
   <div class="hero-overlay"></div>
   <div class="hero-logos">
     <img src="{{ asset('assets/gtr/lobar.png') }}" alt="Pemkab Lombok Barat">
     <img src="{{ asset('assets/gtr/dispar.png') }}" alt="Dinas Pariwisata">
   </div>
   <div class="hero-inner wrap">
-    <div class="hero-eye">1st Edition · Bukit Keteri Trail</div>
-    <h1 class="hero-title">Gerung<br>Trail Run <span class="accent">2026.</span></h1>
+    <div class="hero-eye">{{ $gtrSetting->eyebrow ?? '1st Edition · Bukit Keteri Trail' }}</div>
+    <h1 class="hero-title">{{ $gtrSetting->title ?? 'Gerung Trail Run 2026' }}</h1>
     <div class="hero-meta">
+      @if($gtrSetting?->date_text ?? true)
       <span class="hm">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        Minggu, 29 November 2026
+        {{ $gtrSetting->date_text ?? 'Minggu, 29 November 2026' }}
       </span>
+      @endif
+      @if($gtrSetting?->location_text ?? true)
       <span class="hm">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Bukit Keteri, Gerung — Lombok Barat
+        {{ $gtrSetting->location_text ?? 'Bukit Keteri, Gerung — Lombok Barat' }}
       </span>
+      @endif
+      @if($gtrSetting?->categories_text ?? true)
       <span class="hm">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l5.5 10.5-3.2-1.6L12 16l-2.3-3.1-3.2 1.6z"/></svg>
-        Kategori 7K &amp; 15K
+        {{ $gtrSetting->categories_text ?? 'Kategori 7K & 15K' }}
       </span>
+      @endif
     </div>
     <div class="hero-cta">
       <a class="btn-primary" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>

@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Filament\Resources\GtrSettings;
+
+use App\Filament\Resources\GtrSettings\Pages\EditGtrSetting;
+use App\Models\GtrSetting;
+use BackedEnum;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+
+class GtrSettingResource extends Resource
+{
+    protected static ?string $model = GtrSetting::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
+
+    protected static ?string $navigationLabel = 'Header GTR';
+
+    protected static ?string $modelLabel = 'Header GTR';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'GTR';
+
+    protected static ?int $navigationSort = 0;
+
+    /** Singleton: the nav goes straight to editing the single settings row. */
+    public static function getNavigationUrl(): string
+    {
+        return static::getUrl('edit', ['record' => GtrSetting::current()]);
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            Section::make('Header Halaman GTR')
+                ->description('Foto & teks yang tampil di bagian atas (hero) halaman Gerung Trail Run.')
+                ->columns(2)
+                ->components([
+                    FileUpload::make('header_image')
+                        ->label('Foto Header')
+                        ->image()
+                        ->disk('public')
+                        ->directory('gtr/header')
+                        ->imageEditor()
+                        ->columnSpanFull(),
+                    TextInput::make('eyebrow')
+                        ->label('Teks Kecil (Eyebrow)')
+                        ->placeholder('1st Edition · Bukit Keteri Trail')
+                        ->columnSpanFull(),
+                    TextInput::make('title')
+                        ->label('Judul')
+                        ->placeholder('Gerung Trail Run 2026')
+                        ->columnSpanFull(),
+                    TextInput::make('date_text')
+                        ->label('Tanggal Event')
+                        ->placeholder('Minggu, 29 November 2026'),
+                    TextInput::make('categories_text')
+                        ->label('Kategori')
+                        ->placeholder('Kategori 7K & 15K'),
+                    TextInput::make('location_text')
+                        ->label('Lokasi')
+                        ->placeholder('Bukit Keteri, Gerung — Lombok Barat')
+                        ->columnSpanFull(),
+                ]),
+        ]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'edit' => EditGtrSetting::route('/{record}/edit'),
+        ];
+    }
+}
