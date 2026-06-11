@@ -57,7 +57,12 @@ class PageController extends Controller
 
     public function gtrEntryList()
     {
-        return view('pages.gtr-entry-list', ['active' => 'entry']);
+        $categories = \App\Models\GtrCategory::where('is_active', true)
+            ->orderBy('sort_order')
+            ->with(['registrations' => fn ($q) => $q->orderBy('full_name')])
+            ->get();
+
+        return view('pages.gtr-entry-list', ['active' => 'entry', 'categories' => $categories]);
     }
 
     public function gtrResults()

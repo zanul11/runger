@@ -4,11 +4,17 @@ namespace App\Models;
 
 use App\Services\GpxParser;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class GtrCategory extends Model
 {
     protected $guarded = ['id'];
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(GtrRegistration::class, 'gtr_category_id');
+    }
 
     protected $casts = [
         'route_points' => 'array',
