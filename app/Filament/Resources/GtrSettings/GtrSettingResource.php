@@ -3,14 +3,19 @@
 namespace App\Filament\Resources\GtrSettings;
 
 use App\Filament\Resources\GtrSettings\Pages\EditGtrSetting;
+use App\Filament\Resources\GtrSettings\Pages\ListGtrSettings;
 use App\Models\GtrSetting;
 use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class GtrSettingResource extends Resource
 {
@@ -25,12 +30,6 @@ class GtrSettingResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'GTR';
 
     protected static ?int $navigationSort = 0;
-
-    /** Singleton: the nav goes straight to editing the single settings row. */
-    public static function getNavigationUrl(): string
-    {
-        return static::getUrl('edit', ['record' => GtrSetting::current()]);
-    }
 
     public static function form(Schema $schema): Schema
     {
@@ -68,9 +67,24 @@ class GtrSettingResource extends Resource
         ]);
     }
 
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                ImageColumn::make('header_image')->label('Foto')->disk('public'),
+                TextColumn::make('title')->label('Judul'),
+                TextColumn::make('date_text')->label('Tanggal'),
+                TextColumn::make('updated_at')->label('Diperbarui')->dateTime(),
+            ])
+            ->recordActions([
+                EditAction::make(),
+            ]);
+    }
+
     public static function getPages(): array
     {
         return [
+            'index' => ListGtrSettings::route('/'),
             'edit' => EditGtrSetting::route('/{record}/edit'),
         ];
     }
