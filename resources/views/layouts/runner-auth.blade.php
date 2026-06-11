@@ -17,6 +17,8 @@
   .auth-visual{display:none}
   .auth-panel{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px}
   .auth-form{width:100%;max-width:460px;padding:8px 0 40px}
+  .auth-brand{display:flex;justify-content:center;margin-bottom:22px}
+  .auth-brand img{height:40px;width:auto}
   .auth-title{font-family:'Archivo',sans-serif;font-weight:800;font-size:28px;text-align:center;letter-spacing:-.01em}
   .auth-sub{text-align:center;color:#888;margin:8px 0 28px;font-size:14px}
   .fld{margin-bottom:16px}
@@ -74,6 +76,7 @@
   </div>
   <div class="auth-panel">
     <div class="auth-form">
+      <div class="auth-brand"><img src="{{ asset('assets/runger-logo.png') }}" alt="Runger"></div>
       @yield('form')
       <div class="auth-foot">&copy; {{ date('Y') }} Runger · Gerung Trail Run</div>
     </div>

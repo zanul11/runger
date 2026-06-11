@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\GpxParser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class GtrCategory extends Model
@@ -69,6 +70,31 @@ class GtrCategory extends Model
     public function getGpxUrlAttribute(): ?string
     {
         return $this->gpx_file ? Storage::disk('public')->url($this->gpx_file) : null;
+    }
+
+    /**
+     * Elevation gain read live from the GPX file (cached by file mtime), never from a DB column.
+     * Returns a formatted string like "+344 M", or null when there is no GPX / no elevation data.
+     */
+    public function gpxElevationGain(): ?string
+    {
+        if (! $this->gpx_file) {
+            return null;
+        }
+
+        $disk = Storage::disk('public');
+        if (! $disk->exists($this->gpx_file)) {
+            return null;
+        }
+
+        $abs = $disk->path($this->gpx_file);
+        $gain = Cache::remember(
+            'gtr_eg_' . md5($this->gpx_file . '|' . @filemtime($abs)),
+            3600,
+            fn () => GpxParser::parse($abs)['elevation_gain_m'] ?? null,
+        );
+
+        return $gain !== null ? '+' . round($gain) . ' M' : null;
     }
 
     public function priceFormatted(?int $value): string

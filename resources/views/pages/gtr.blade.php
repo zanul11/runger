@@ -60,7 +60,7 @@
           <div class="cat-dist">{{ $cat->distance }}</div>
           @if($cat->description)<p class="cat-desc">{{ $cat->description }}</p>@endif
           <div class="cat-rows">
-            <div class="cat-row"><span class="k">Elevation Gain</span><span class="v">{{ $cat->elevation_gain }}</span></div>
+            <div class="cat-row"><span class="k">Elevation Gain</span><span class="v">{{ $cat->elevation_gain ?: '-' }}</span></div>
             <div class="cat-row"><span class="k">Cut-Off Time</span><span class="v">{{ $cat->cut_off_time }}</span></div>
             <div class="cat-row"><span class="k">Early Bird</span><span class="v">{{ $cat->early_bird_formatted }}</span></div>
             <div class="cat-row"><span class="k">Normal</span><span class="v strike">{{ $cat->normal_formatted }}</span></div>

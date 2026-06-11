@@ -146,7 +146,7 @@
           <div class="elev-profile">
             <div class="elev-head">
               <span class="elev-title">Profil Elevasi</span>
-              <span class="elev-meta">{{ $cat->elevation_gain }} · {{ rtrim(rtrim(number_format($elev['maxKm'], 1), '0'), '.') }} km</span>
+              <span class="elev-meta">{{ $cat->elevation_gain ?: '-' }} · {{ rtrim(rtrim(number_format($elev['maxKm'], 1), '0'), '.') }} km</span>
             </div>
             <div class="elev-chart"
                  data-ep='@json($cat->elevation_profile)'
