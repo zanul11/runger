@@ -12,6 +12,7 @@ class GtrRegistration extends Model
     protected $casts = [
         'birth_date' => 'date',
         'registered_at' => 'datetime',
+        'paid_at' => 'datetime',
         'agree_terms' => 'boolean',
     ];
 
