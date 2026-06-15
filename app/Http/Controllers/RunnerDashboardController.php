@@ -112,7 +112,11 @@ class RunnerDashboardController extends Controller
             'club' => ['nullable', 'string', 'max:255'],
             'blood_type' => ['required', 'in:' . implode(',', GtrRegistration::BLOOD_TYPES)],
             'emergency_name' => ['required', 'string', 'max:255'],
-            'emergency_contact' => ['required', 'string', 'max:30'],
+            'emergency_contact' => ['required', 'string', 'max:30', function ($attribute, $value, $fail) use ($request) {
+                if (\App\Support\Phone::normalize($value) === \App\Support\Phone::normalize($request->input('whatsapp'))) {
+                    $fail('Kontak darurat tidak boleh sama dengan nomor WhatsApp kamu.');
+                }
+            }],
             'pay' => ['required', 'string', 'max:50'],
             'agree_terms' => ['accepted'],
         ], [

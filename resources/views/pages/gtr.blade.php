@@ -9,6 +9,7 @@
   <div class="hero-logos">
     <img src="{{ asset('assets/gtr/lobar.png') }}" alt="Pemkab Lombok Barat">
     <img src="{{ asset('assets/gtr/dispar.png') }}" alt="Dinas Pariwisata">
+    <img src="{{ asset('assets/gtr/keteri.png') }}" alt="Bukit Keteri">
   </div>
   <div class="hero-inner wrap">
     <div class="hero-eye">{{ $gtrSetting->eyebrow ?? '1st Edition · Keteri Hill' }}</div>
