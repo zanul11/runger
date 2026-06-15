@@ -27,6 +27,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class GtrCategoryResource extends Resource
 {
@@ -82,7 +83,9 @@ class GtrCategoryResource extends Resource
                             ->image()
                             ->disk('public')
                             ->directory('gtr/categories')
-                            ->imageEditor(),
+                            ->imageEditor()
+                            ->helperText('Gambar otomatis dikompres saat disimpan.')
+                            ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file) => \App\Support\ImageCompressor::store($file, 'gtr/categories', 1600)),
                         FileUpload::make('gpx_file')
                             ->label('File GPX (Course Map)')
                             ->disk('public')

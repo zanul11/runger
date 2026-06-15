@@ -5,13 +5,17 @@ namespace App\Filament\Resources\GtrRegistrations;
 use App\Filament\Resources\GtrRegistrations\Pages\EditGtrRegistration;
 use App\Filament\Resources\GtrRegistrations\Pages\ListGtrRegistrations;
 use App\Filament\Resources\GtrRegistrations\Pages\ViewGtrRegistration;
+use App\Mail\RegistrationConfirmation;
 use App\Models\GtrRegistration;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -127,6 +131,31 @@ class GtrRegistrationResource extends Resource
                 SelectFilter::make('gtr_category_id')->label('Kategori')->relationship('category', 'name'),
             ])
             ->recordActions([
+                Action::make('kirimEmail')
+                    ->label('Kirim Email')
+                    ->icon(Heroicon::OutlinedEnvelope)
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalHeading('Kirim Email Konfirmasi')
+                    ->modalDescription(fn (GtrRegistration $record) => 'Email konfirmasi akan dikirim ke ' . $record->email . '.')
+                    ->action(function (GtrRegistration $record) {
+                        try {
+                            Mail::to($record->email)->send(new RegistrationConfirmation($record->load('category')));
+
+                            Notification::make()
+                                ->title('Email terkirim')
+                                ->body('Konfirmasi dikirim ke ' . $record->email)
+                                ->success()
+                                ->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('Gagal mengirim email')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->persistent()
+                                ->send();
+                        }
+                    }),
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),

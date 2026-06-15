@@ -11,7 +11,7 @@
     <img src="{{ asset('assets/gtr/dispar.png') }}" alt="Dinas Pariwisata">
   </div>
   <div class="hero-inner wrap">
-    <div class="hero-eye">{{ $gtrSetting->eyebrow ?? '1st Edition · Bukit Keteri Trail' }}</div>
+    <div class="hero-eye">{{ $gtrSetting->eyebrow ?? '1st Edition · Keteri Hill' }}</div>
     <h1 class="hero-title">{{ $gtrSetting->title ?? 'Gerung Trail Run 2026' }}</h1>
     <div class="hero-meta">
       @if($gtrSetting?->date_text ?? true)
@@ -185,27 +185,23 @@
 </section>
 
 <!-- SCENIC COURSE -->
-@php
-  $scenicFiles = glob(public_path('assets/gtr/scenic/*.{jpg,JPG,jpeg,JPEG,png,PNG}'), GLOB_BRACE) ?: [];
-  sort($scenicFiles);
-  $scenicLabels = ['Top Keteri', 'Downhill Keteri', 'Air Terjun Meledos', 'Tugu Gerung', 'Punggung Bukit', 'Night Trail', 'Jalur Desa', 'Finish Line'];
-@endphp
-@if(count($scenicFiles))
 <section class="course-section" id="course">
   <div class="wrap">
     <div class="block-head"><h2>Our Scenic Course</h2></div>
+    @if(($gtrScenics ?? collect())->isNotEmpty())
     <div class="course-grid">
-      @foreach($scenicFiles as $i => $path)
-        @php $label = $scenicLabels[$i] ?? null; @endphp
+      @foreach($gtrScenics as $s)
         <div class="course-tile">
-          <img src="{{ asset('assets/gtr/scenic/' . rawurlencode(basename($path))) }}" alt="{{ $label ?? 'Scenic course' }}" loading="lazy">
-          @if($label)<span class="label">{{ $label }}</span>@endif
+          <img src="{{ $s->image_url }}" alt="{{ $s->label ?? 'Scenic course' }}" loading="lazy">
+          @if($s->label)<span class="label">{{ $s->label }}</span>@endif
         </div>
       @endforeach
     </div>
+    @else
+    <p style="text-align:center;color:var(--text-soft);font-size:14.5px">Foto rute akan segera diupdate.</p>
+    @endif
   </div>
 </section>
-@endif
 
 <!-- CONTACT -->
 <section class="block" id="contact" style="padding-top:40px">
@@ -227,7 +223,7 @@
           <div class="val">@runnersgerung</div>
         </div>
       </a>
-      <a class="contact-item" href="https://wa.me/" target="_blank" rel="noopener">
+      <a class="contact-item" href="https://wa.me/6283129148945" target="_blank" rel="noopener">
         <div class="ic">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
@@ -238,7 +234,7 @@
           <div class="val">Chat Panitia</div>
         </div>
       </a>
-      <a class="contact-item" href="mailto:info@runnersgerung.id">
+      <a class="contact-item" href="mailto:runnersgerung@gmail.com">
         <div class="ic">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
@@ -246,7 +242,7 @@
         </div>
         <div>
           <div class="lab">Email</div>
-          <div class="val">info@runnersgerung.id</div>
+          <div class="val">runnersgerung@gmail.com</div>
         </div>
       </a>
     </div>

@@ -54,7 +54,11 @@ class PageController extends Controller
 
         $gtrSetting = \App\Models\GtrSetting::first();
 
-        return view('pages.gtr', compact('gtrCategories', 'gtrSetting'));
+        $gtrScenics = \App\Models\GtrScenic::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('pages.gtr', compact('gtrCategories', 'gtrSetting', 'gtrScenics'));
     }
 
     public function gtrEntryList()
@@ -74,7 +78,11 @@ class PageController extends Controller
 
     public function gtrRules()
     {
-        return view('pages.gtr-rules', ['active' => 'rules']);
+        $rules = \App\Models\GtrRule::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('pages.gtr-rules', ['active' => 'rules', 'rules' => $rules]);
     }
 
     public function gtrCategory(string $slug)

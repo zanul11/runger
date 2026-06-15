@@ -94,7 +94,7 @@
       </div>
       <div class="cat-stat">
         <div class="lab">Award & Prize</div>
-        <div class="val" style="font-size:15px;line-height:1.35">{{ $cat->award_prize ?: '-' }}</div>
+        <div class="val" style="font-size:15px;line-height:1.5;white-space:pre-line">{{ $cat->award_prize ?: '-' }}</div>
       </div>
     </div>
 

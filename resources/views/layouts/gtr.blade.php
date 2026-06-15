@@ -544,6 +544,25 @@
   }
 
   /* ===== DESKTOP (≥820px) ===== */
+  /* ===== HERO — penyesuaian mobile ===== */
+  @media (max-width:819px){
+    .hero{min-height:88vh}
+    /* hindari "lompat" akibat bar browser di mobile */
+    @supports (height:100svh){ .hero{min-height:88svh} }
+    /* geser framing foto sedikit ke atas agar subjek tetap terlihat saat ter-crop */
+    .hero-video{object-position:50% 30%}
+    /* logo partner lebih kecil & rapi di pojok, tidak menabrak nav */
+    .hero-logos{top:62px;right:12px;gap:8px}
+    .hero-logos img{height:34px}
+    /* judul & chip menyesuaikan layar sempit */
+    .hero-title{font-size:clamp(38px,12vw,64px)}
+    .hero-meta{gap:8px;margin-top:18px}
+    .hero-meta .hm{font-size:11px;padding:8px 12px}
+    .hero-cta{margin-top:22px}
+    /* tombol memenuhi lebar agar mudah ditekan */
+    .hero-cta .btn-primary,.hero-cta .btn-ghost{flex:1 1 auto;justify-content:center}
+  }
+
   @media (min-width:820px){
     .wrap{padding:0 32px}
     .nav-inner{padding:18px 32px}
@@ -669,18 +688,9 @@
       <div class="nav-item">
         <span class="nav-link">Race Info <span class="caret">▾</span></span>
         <div class="nav-dd">
-          <a href="{{ route('gtr') }}#overview">Race Venue</a>
-          <a href="{{ route('gtr') }}#overview">Event Schedule</a>
+          <!-- <a href="{{ route('gtr') }}#overview">Race Venue</a>
+          <a href="{{ route('gtr') }}#overview">Event Schedule</a> -->
           <a href="{{ route('gtr.rules') }}">Rules and Regulations</a>
-          <a href="{{ route('gtr.rules') }}">Mandatory Gear</a>
-          <a href="{{ route('gtr.rules') }}">Race Pack Collection</a>
-          <a href="#">Merchandise</a>
-          <a href="#">Accomodation</a>
-          <a href="#">Download Race Guide</a>
-          <a href="#">Download GPX</a>
-          <a href="#">Download Waiver Letter</a>
-          <a href="#">Download PARQ</a>
-          <a href="#">Download Surat Kuasa</a>
           <a href="{{ asset('assets/gtr/logo.jpeg') }}" download>Download Logo</a>
         </div>
       </div>
@@ -714,18 +724,8 @@
   <details>
     <summary>Race Info</summary>
     <div class="dd-links">
-      <a href="{{ route('gtr') }}#overview">Race Venue</a>
-      <a href="{{ route('gtr') }}#overview">Event Schedule</a>
+      
       <a href="{{ route('gtr.rules') }}">Rules and Regulations</a>
-      <a href="{{ route('gtr.rules') }}">Mandatory Gear</a>
-      <a href="{{ route('gtr.rules') }}">Race Pack Collection</a>
-      <a href="#">Merchandise</a>
-      <a href="#">Accomodation</a>
-      <a href="#">Download Race Guide</a>
-      <a href="#">Download GPX</a>
-      <a href="#">Download Waiver Letter</a>
-      <a href="#">Download PARQ</a>
-      <a href="#">Download Surat Kuasa</a>
       <a href="{{ asset('assets/gtr/logo.jpeg') }}" download>Download Logo</a>
     </div>
   </details>
@@ -752,7 +752,7 @@
       <img src="{{ asset('assets/gtr/logo.jpeg') }}" alt="Gerung Trail Run">
       <div>
         <div class="foot-brand-text">Gerung Trail Run <span class="accent">2026.</span></div>
-        <div class="foot-brand-sub">1st Edition · Bukit Keteri Trail</div>
+        <div class="foot-brand-sub">1st Edition · Keteri Hill</div>
       </div>
       <div class="foot-by">
         <span class="lab">Presented by</span>

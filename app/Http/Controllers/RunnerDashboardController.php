@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\RegistrationConfirmation;
 use App\Models\GtrCategory;
 use App\Models\GtrRegistration;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class RunnerDashboardController extends Controller
 {
@@ -130,6 +133,13 @@ class RunnerDashboardController extends Controller
             'nomor_registrasi' => 'GTR2026' . str_pad($registration->id, 5, '0', STR_PAD_LEFT),
         ]);
 
-        return redirect()->route('gtr.account.transaction')->with('success', 'Pendaftaran ' . $category->distance . ' berhasil! No. registrasi: ' . $registration->nomor_registrasi . '. Lanjutkan pembayaran.');
+        // Kirim email konfirmasi pendaftaran (jangan gagalkan pendaftaran bila email error).
+        try {
+            Mail::to($registration->email)->send(new RegistrationConfirmation($registration->fresh('category')));
+        } catch (\Throwable $e) {
+            Log::warning('Gagal kirim email konfirmasi pendaftaran: ' . $e->getMessage());
+        }
+
+        return redirect()->route('gtr.account.transaction')->with('success', 'Pendaftaran ' . $category->distance . ' berhasil! No. registrasi: ' . $registration->nomor_registrasi . '. Cek email kamu untuk konfirmasi, lalu lanjutkan pembayaran.');
     }
 }

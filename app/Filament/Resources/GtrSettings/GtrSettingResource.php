@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -44,6 +45,8 @@ class GtrSettingResource extends Resource
                         ->disk('public')
                         ->directory('gtr/header')
                         ->imageEditor()
+                        ->helperText('Gambar otomatis dikompres saat disimpan.')
+                        ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file) => \App\Support\ImageCompressor::store($file, 'gtr/header', 1920))
                         ->columnSpanFull(),
                     TextInput::make('eyebrow')
                         ->label('Teks Kecil (Eyebrow)')
