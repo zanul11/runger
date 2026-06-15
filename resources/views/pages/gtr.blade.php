@@ -78,23 +78,18 @@
   <div class="wrap">
     <div class="ov-grid">
       <div class="ov-head">
-        <div class="eye">Event Overview</div>
-        <h2>Gerung Trail Run 2026</h2>
-        <p>
-          Edisi perdana race trail yang digelar Runners Gerung di <strong style="color:#fff">Bukit Keteri</strong>,
-          Gerung. Rute melintasi punggung bukit, hutan rendah, dan jalur pedesaan dengan panorama
-          Lombok Barat saat matahari terbit.
-        </p>
-        <p>
-          Dua kategori dirancang untuk semua level — dari pelari yang ingin mencoba trail
-          pertamanya, sampai yang mencari tantangan elevasi & jarak.
-        </p>
+        <div class="eye">{{ $gtrOverview->eyebrow ?? 'Event Overview' }}</div>
+        <h2>{{ $gtrOverview->heading ?? 'Gerung Trail Run 2026' }}</h2>
+        <p style="white-space:pre-line">{{ $gtrOverview->paragraph_1 ?? 'Edisi perdana race trail yang digelar Runners Gerung di Bukit Keteri, Gerung. Rute melintasi punggung bukit, hutan rendah, dan jalur pedesaan dengan panorama Lombok Barat saat matahari terbit.' }}</p>
+        @if($gtrOverview?->paragraph_2 ?? true)
+        <p style="white-space:pre-line">{{ $gtrOverview->paragraph_2 ?? 'Dua kategori dirancang untuk semua level — dari pelari yang ingin mencoba trail pertamanya, sampai yang mencari tantangan elevasi & jarak.' }}</p>
+        @endif
       </div>
 
       <div class="ov-photos">
-        <div class="ov-photo big" style="background-image:url('{{ asset('assets/gtr/WhatsApp Image 2026-06-07 at 09.22.00.jpeg') }}')"></div>
-        <div class="ov-photo" style="background-image:url('{{ asset('assets/gtr/WhatsApp Image 2026-06-06 at 13.37.28.jpeg') }}')"></div>
-        <div class="ov-photo" style="background-image:url('{{ asset('assets/g-sunset.jpeg') }}')"></div>
+        <div class="ov-photo big" style="background-image:url('{{ $gtrOverview?->photo_main_url ?? asset('assets/gtr/WhatsApp Image 2026-06-07 at 09.22.00.jpeg') }}')"></div>
+        <div class="ov-photo" style="background-image:url('{{ $gtrOverview?->photo_2_url ?? asset('assets/gtr/WhatsApp Image 2026-06-06 at 13.37.28.jpeg') }}')"></div>
+        <div class="ov-photo" style="background-image:url('{{ $gtrOverview?->photo_3_url ?? asset('assets/g-sunset.jpeg') }}')"></div>
       </div>
     </div>
 
