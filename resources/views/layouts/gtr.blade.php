@@ -496,7 +496,7 @@
   .support-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:28px;margin-top:8px}
   .support-item{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;max-width:300px}
   .support-logo{
-    height:120px;display:flex;align-items:center;justify-content:center;transition:transform .3s ease;
+    height:130px;display:flex;align-items:center;justify-content:center;transition:transform .3s ease;
   }
   .support-item:hover .support-logo{transform:translateY(-5px)}
   .support-logo img{max-height:100%;width:auto;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(0,0,0,.45))}
@@ -671,7 +671,7 @@
     /* Supported by */
     .support-section{padding:96px 0}
     .support-grid{gap:56px}
-    .support-logo{height:150px}
+    .support-logo{height:168px}
 
     /* Scenic course */
     .course-section{padding:110px 0}

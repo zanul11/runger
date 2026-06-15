@@ -554,13 +554,13 @@
       <a href="#jadwal">Jadwal</a>
       <a href="{{ route('agenda') }}">Agenda</a>
       <a href="#galeri">Galeri</a>
-      <!-- <a href="{{ route('gtr') }}">GTR</a> -->
-      <a href="{{ route('volunteer') }}">Volunteer GTR</a>
-      <a href="#gabung">Gabung</a>
+      <a href="{{ route('gtr') }}">GTR</a>
+      <!-- <a href="{{ route('volunteer') }}">Volunteer GTR</a> -->
+      <!-- <a href="#gabung">Gabung</a> -->
     </div>
     <div class="nav-cta">
-      <a class="pill ghost" href="{{ route('volunteer') }}">Volunteer GTR</a>
-      <a class="pill solid" href="#gabung">Gabung Lari →</a>
+      <a class="pill solid" href="{{ route('gtr') }}">Daftar GTR</a>
+      <!-- <a class="pill solid" href="#gabung">Gabung Lari →</a> -->
     </div>
   </div>
 </nav>

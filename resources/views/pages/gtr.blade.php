@@ -151,11 +151,11 @@
     </div>
     <div class="support-grid">
       <div class="support-item">
-        <div class="support-logo"><img src="{{ asset('assets/gtr/lobar.png') }}" alt="Pemerintah Kabupaten Lombok Barat"></div>
+        <div class="support-logo s-lobar"><img src="{{ asset('assets/gtr/lobar.png') }}" alt="Pemerintah Kabupaten Lombok Barat"></div>
         <div class="support-name">Pemerintah Kabupaten Lombok Barat</div>
       </div>
       <div class="support-item">
-        <div class="support-logo"><img src="{{ asset('assets/gtr/dispar.png') }}" alt="Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat"></div>
+        <div class="support-logo s-dispar"><img src="{{ asset('assets/gtr/dispar2.png') }}" alt="Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat"></div>
         <div class="support-name">Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat</div>
       </div>
     </div>
