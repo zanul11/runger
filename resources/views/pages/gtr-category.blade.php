@@ -56,19 +56,19 @@
 
 @section('content')
 
-<!-- HEADER: FULL PHOTO -->
-<header class="cat-hero" style="background-image:url('{{ $cat->header_url }}')">
+<!-- DETAIL HEAD: mobile = foto full bg + judul overlay; desktop = poster kiri + judul & statistik kanan -->
+<div class="cat-detail" style="--cat-photo:url('{{ $cat->header_url }}')">
+  <div class="cat-hero-bg"></div>
+  <div class="cat-poster">
+    <img src="{{ $cat->header_url }}" alt="{{ $cat->name }}">
+  </div>
   <div class="cat-hero-inner">
     <a class="back" href="{{ route('gtr') }}#category">← Semua Kategori</a>
     <span class="ch-tag"><span class="dot" style="background:{{ $cat->color }}"></span>{{ $cat->tag }}</span>
     <h1>{{ $cat->distance }}</h1>
     <div class="ch-name">{{ $cat->name }}</div>
   </div>
-</header>
-
-<!-- INFO STATS -->
-<section class="detail-section">
-  <div class="detail-wrap">
+  <div class="cat-stats-wrap">
     <div class="cat-stats">
       <div class="cat-stat">
         <div class="lab">Reg Fee</div>
@@ -97,6 +97,12 @@
         <div class="val" style="font-size:15px;line-height:1.5;white-space:pre-line">{{ $cat->award_prize ?: '-' }}</div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- TABS SECTION -->
+<section class="detail-section">
+  <div class="detail-wrap">
 
     <!-- TABS -->
     <div class="tabs" id="cat-tabs">

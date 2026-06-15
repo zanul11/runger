@@ -406,30 +406,40 @@
   .contact-item .val{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:#fff}
 
   /* ===== CATEGORY DETAIL ===== */
-  .cat-hero{
-    position:relative;min-height:52vh;display:flex;align-items:flex-end;overflow:hidden;color:#fff;
-    background-size:cover;background-position:center;background-color:#111;
+  /* ===== Category detail ===== */
+  /* mobile: foto full bg (atas) + judul overlay, lalu statistik di bawah (konsep awal) */
+  .cat-detail{position:relative;color:#fff}
+  .cat-hero-bg{
+    position:absolute;top:0;left:0;right:0;height:52vh;z-index:0;
+    background-image:var(--cat-photo);background-size:cover;background-position:center;background-repeat:no-repeat;
   }
-  .detail-section{padding:32px 0 56px;background:var(--bg)}
-  .cat-hero::before{
+  .cat-hero-bg::after{
     content:'';position:absolute;inset:0;
     background:linear-gradient(180deg, rgba(0,0,0,.4) 0%, rgba(0,0,0,.2) 38%, rgba(0,0,0,.92) 100%);
   }
-  .cat-hero-inner{position:relative;z-index:2;width:100%;max-width:1320px;margin:0 auto;padding:0 16px 44px}
-  .cat-hero .back{
+  .cat-poster{display:none}
+  .cat-poster img{width:100%;height:100%;object-fit:cover;display:block}
+  .cat-hero-inner{
+    position:relative;z-index:2;min-height:52vh;
+    display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;
+    padding:0 16px 26px;
+  }
+  .cat-stats-wrap{position:relative;z-index:2;background:var(--bg);max-width:1320px;margin:0 auto;padding:26px 16px 0}
+  .detail-section{padding:24px 0 56px;background:var(--bg)}
+  .cat-hero-inner .back{
     display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;
     font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;
     text-transform:uppercase;color:rgba(255,255,255,.85);
   }
-  .cat-hero .back:hover{color:#fff}
-  .cat-hero .ch-tag{
+  .cat-hero-inner .back:hover{color:#fff}
+  .cat-hero-inner .ch-tag{
     display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;margin-bottom:14px;
     background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);
     font-family:'Archivo',sans-serif;font-weight:800;font-size:11px;letter-spacing:.04em;text-transform:uppercase;
   }
-  .cat-hero .ch-tag .dot{width:8px;height:8px;border-radius:50%}
-  .cat-hero h1{font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(48px,11vw,110px);line-height:.9;letter-spacing:-.02em;text-transform:uppercase}
-  .cat-hero .ch-name{font-family:'Archivo',sans-serif;font-weight:700;font-size:clamp(15px,3vw,22px);color:#fff;text-transform:uppercase;letter-spacing:.04em;margin-top:8px;opacity:.92}
+  .cat-hero-inner .ch-tag .dot{width:8px;height:8px;border-radius:50%}
+  .cat-hero-inner h1{font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(48px,11vw,110px);line-height:.9;letter-spacing:-.02em;text-transform:uppercase}
+  .cat-hero-inner .ch-name{font-family:'Archivo',sans-serif;font-weight:700;font-size:clamp(15px,3vw,22px);color:#fff;text-transform:uppercase;letter-spacing:.04em;margin-top:8px;opacity:.92}
 
   .detail-wrap{max-width:1320px;margin:0 auto;padding:0 16px}
   .cat-stats{
@@ -635,8 +645,23 @@
     /* Contact */
     .contact-grid{grid-template-columns:repeat(3,1fr);gap:16px}
 
-    /* Category detail */
-    .cat-hero-inner{padding:0 32px 60px}
+    /* Category detail — desktop: poster kiri + (judul & statistik) kanan */
+    .cat-detail{
+      display:grid;grid-template-columns:360px 1fr;column-gap:48px;row-gap:22px;
+      align-items:start;max-width:1320px;margin:0 auto;padding:112px 32px 8px;
+    }
+    .cat-hero-bg{display:none}
+    .cat-poster{
+      display:block;position:relative;grid-column:1;grid-row:1 / span 2;align-self:start;
+      width:360px;aspect-ratio:4/5;border-radius:16px;overflow:hidden;
+      background:#111;border:1px solid var(--line-strong);
+    }
+    .cat-hero-inner{
+      grid-column:2;grid-row:1;min-height:0;
+      justify-content:flex-start;align-items:flex-start;padding:0;
+    }
+    .cat-stats-wrap{grid-column:2;grid-row:2;background:none;max-width:none;margin:0;padding:0}
+    .cat-hero-inner h1{font-size:clamp(52px,6vw,84px)}
     .detail-wrap{padding:0 32px}
     .cat-stats{grid-template-columns:repeat(3,1fr)}
     .cat-stat{padding:26px 24px}
