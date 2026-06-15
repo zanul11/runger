@@ -81,6 +81,7 @@ class GtrCategoryResource extends Resource
                         FileUpload::make('header_image')
                             ->label('Gambar Header')
                             ->image()
+                            ->maxSize(3072)
                             ->disk('public')
                             ->directory('gtr/categories')
                             ->imageEditor()

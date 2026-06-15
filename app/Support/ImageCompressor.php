@@ -12,10 +12,11 @@ class ImageCompressor
      * Kompres & resize gambar yang diupload, simpan ke disk public, kembalikan path relatif.
      * Dipakai sebagai callback Filament FileUpload::saveUploadedFileUsing().
      */
-    public static function store(TemporaryUploadedFile $file, string $directory, int $maxWidth = 1600, int $quality = 78): string
+    public static function store(TemporaryUploadedFile $file, string $directory, int $maxWidth = 1600, int $quality = 62): string
     {
         $directory = trim($directory, '/');
         $path = $file->getRealPath();
+        $originalSize = @filesize($path) ?: 0;
         $info = @getimagesize($path);
 
         // Bukan gambar raster yang didukung / GD tak ada → simpan apa adanya.
@@ -65,15 +66,23 @@ class ImageCompressor
             @mkdir(dirname($absolute), 0755, true);
         }
 
-        switch ($type) {
-            case IMAGETYPE_PNG:
-                imagepng($src, $absolute, 6);
-                break;
-            case IMAGETYPE_WEBP:
-                imagewebp($src, $absolute, $quality);
-                break;
-            default:
-                imagejpeg($src, $absolute, $quality);
+        if ($type === IMAGETYPE_PNG) {
+            // PNG: kompresi maksimal + filter (lossless).
+            imagepng($src, $absolute, 9, PNG_ALL_FILTERS);
+        } else {
+            // JPEG/WebP: turunkan kualitas bertahap sampai ukuran ≤ 40% dari asli
+            // (target pengurangan ~60%), dengan batas bawah kualitas 42.
+            $target = $originalSize > 0 ? (int) ($originalSize * 0.4) : 0;
+            $q = $quality;
+
+            do {
+                if ($type === IMAGETYPE_WEBP) {
+                    imagewebp($src, $absolute, $q);
+                } else {
+                    imagejpeg($src, $absolute, $q);
+                }
+                $q -= 8;
+            } while ($target > 0 && @filesize($absolute) > $target && $q >= 42);
         }
 
         imagedestroy($src);

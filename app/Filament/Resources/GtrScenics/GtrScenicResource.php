@@ -50,6 +50,7 @@ class GtrScenicResource extends Resource
                     FileUpload::make('image')
                         ->label('Foto')
                         ->image()
+                        ->maxSize(3072)
                         ->disk('public')
                         ->directory('gtr/scenic')
                         ->imageEditor()
