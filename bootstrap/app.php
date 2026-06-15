@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Send unauthenticated GTR participants to the runner login page.
         $middleware->redirectGuestsTo(fn (Request $request) => route('gtr.login'));
 
+        // Rate limit semua request web.
+        $middleware->appendToGroup('web', 'throttle:web');
+
         // Midtrans webhook must skip CSRF verification.
         $middleware->validateCsrfTokens(except: [
             'api/midtrans/notification',
