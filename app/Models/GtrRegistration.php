@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Support\Phone;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GtrRegistration extends Model
 {
@@ -41,5 +42,10 @@ class GtrRegistration extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(GtrCategory::class, 'gtr_category_id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(GtrPayment::class, 'gtr_registration_id');
     }
 }

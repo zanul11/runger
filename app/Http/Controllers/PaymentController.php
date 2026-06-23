@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GtrPayment;
 use App\Models\GtrRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,12 +13,83 @@ use Midtrans\Snap;
 
 class PaymentController extends Controller
 {
+    /** Berapa lama satu Snap berlaku (menit). */
+    protected const SNAP_EXPIRY_MINUTES = 1440; // 24 jam
+
     protected function configureMidtrans(): void
     {
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = (bool) config('midtrans.is_production');
         Config::$isSanitized = (bool) config('midtrans.is_sanitized');
         Config::$is3ds = (bool) config('midtrans.is_3ds');
+    }
+
+    /**
+     * Cari payment via order_id. Untuk transaksi lama (dibuat sebelum tabel payments ada),
+     * backfill satu baris dari data di registrasi agar webhook-nya tetap tertangani.
+     */
+    protected function resolvePayment(?string $orderId): ?GtrPayment
+    {
+        if (! $orderId) {
+            return null;
+        }
+
+        $payment = GtrPayment::where('order_id', $orderId)->first();
+        if ($payment) {
+            return $payment;
+        }
+
+        $registration = GtrRegistration::where('midtrans_order_id', $orderId)->first();
+        if (! $registration) {
+            return null;
+        }
+
+        return $registration->payments()->create([
+            'order_id' => $orderId,
+            'amount' => (int) $registration->amount,
+            'status' => $registration->payment_status === 'paid' ? 'paid' : 'pending',
+            'snap_token' => $registration->snap_token,
+            'paid_at' => $registration->paid_at,
+        ]);
+    }
+
+    /** Petakan status transaksi Midtrans → status payment kami. */
+    protected function mapStatus(?string $trx, ?string $fraud): string
+    {
+        return match (true) {
+            $trx === 'capture' => $fraud === 'challenge' ? 'pending' : 'paid',
+            $trx === 'settlement' => 'paid',
+            $trx === 'pending' => 'pending',
+            in_array($trx, ['cancel', 'deny'], true) => 'cancelled',
+            $trx === 'expire' => 'expired',
+            $trx === 'failure' => 'failed',
+            default => 'pending',
+        };
+    }
+
+    /**
+     * Turunkan status registrasi dari kumpulan payment-nya.
+     * paid jika ada yang paid; pending jika ada attempt aktif; selain itu cancelled (bisa bayar lagi).
+     */
+    protected function syncRegistrationStatus(GtrRegistration $registration): void
+    {
+        $statuses = $registration->payments()->pluck('status');
+
+        if ($statuses->contains('paid')) {
+            $new = 'paid';
+        } elseif ($statuses->contains('pending')) {
+            $new = 'pending';
+        } elseif ($statuses->isNotEmpty()) {
+            $new = 'cancelled';
+        } else {
+            $new = $registration->payment_status;
+        }
+
+        $paidAt = $new === 'paid'
+            ? ($registration->paid_at ?? optional($registration->payments()->where('status', 'paid')->first())->paid_at ?? now())
+            : $registration->paid_at;
+
+        $registration->update(['payment_status' => $new, 'paid_at' => $paidAt]);
     }
 
     /**
@@ -39,7 +111,21 @@ class PaymentController extends Controller
             return back()->with('success', 'Nominal pembayaran belum tersedia. Hubungi panitia.');
         }
 
+        // Pakai ulang Snap yang masih aktif (pending & belum kedaluwarsa) — hindari order_id bengkak.
+        $active = $registration->payments()
+            ->where('status', 'pending')
+            ->where('amount', $amount)
+            ->whereNotNull('snap_redirect_url')
+            ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->latest('id')
+            ->first();
+
+        if ($active) {
+            return redirect()->away($active->snap_redirect_url);
+        }
+
         $orderId = $registration->nomor_registrasi . '-' . substr((string) time(), -6);
+        $expiresAt = now()->addMinutes(self::SNAP_EXPIRY_MINUTES);
 
         $this->configureMidtrans();
 
@@ -62,6 +148,10 @@ class PaymentController extends Controller
             'callbacks' => [
                 'finish' => route('gtr.payment.finish'),
             ],
+            'expiry' => [
+                'unit' => 'minutes',
+                'duration' => self::SNAP_EXPIRY_MINUTES,
+            ],
             'enabled_payments' => ['other_qris'],
         ];
 
@@ -73,6 +163,17 @@ class PaymentController extends Controller
             return back()->with('success', 'Gagal membuat transaksi pembayaran. Silakan coba lagi.');
         }
 
+        // Catat attempt pembayaran (riwayat per order_id).
+        $registration->payments()->create([
+            'order_id' => $orderId,
+            'amount' => $amount,
+            'status' => 'pending',
+            'snap_token' => $snap->token ?? null,
+            'snap_redirect_url' => $snap->redirect_url ?? null,
+            'expires_at' => $expiresAt,
+        ]);
+
+        // Simpan attempt terbaru ke registrasi (untuk kompatibilitas tampilan).
         $registration->update([
             'midtrans_order_id' => $orderId,
             'snap_token' => $snap->token ?? null,
@@ -92,11 +193,10 @@ class PaymentController extends Controller
         $runner = Auth::guard('runner')->user();
         $orderId = $request->query('order_id');
 
-        $registration = $orderId
-            ? GtrRegistration::where('midtrans_order_id', $orderId)->first()
-            : null;
+        $payment = $this->resolvePayment($orderId);
+        $registration = $payment?->registration;
 
-        if ($registration && $registration->runner_id === $runner->id) {
+        if ($payment && $registration && $registration->runner_id === $runner->id) {
             $this->configureMidtrans();
 
             try {
@@ -104,21 +204,13 @@ class PaymentController extends Controller
                 $trx = is_array($status) ? ($status['transaction_status'] ?? null) : ($status->transaction_status ?? null);
                 $fraud = is_array($status) ? ($status['fraud_status'] ?? null) : ($status->fraud_status ?? null);
 
-                $new = $registration->payment_status;
-                if ($trx === 'capture') {
-                    $new = ($fraud === 'challenge') ? 'pending' : 'paid';
-                } elseif ($trx === 'settlement') {
-                    $new = 'paid';
-                } elseif (in_array($trx, ['cancel', 'deny', 'expire'], true)) {
-                    $new = 'cancelled';
-                } elseif ($trx === 'pending') {
-                    $new = 'pending';
-                }
-
-                $registration->update([
-                    'payment_status' => $new,
-                    'paid_at' => $new === 'paid' ? ($registration->paid_at ?? now()) : $registration->paid_at,
+                $mapped = $this->mapStatus($trx, $fraud);
+                $payment->update([
+                    'status' => $mapped,
+                    'paid_at' => $mapped === 'paid' ? ($payment->paid_at ?? now()) : $payment->paid_at,
                 ]);
+
+                $this->syncRegistrationStatus($registration);
             } catch (\Throwable $e) {
                 Log::warning('Midtrans status refresh failed: ' . $e->getMessage());
             }
@@ -151,27 +243,27 @@ class PaymentController extends Controller
         $status = $notif->transaction_status ?? null;
         $fraud = $notif->fraud_status ?? null;
 
-        $registration = GtrRegistration::where('midtrans_order_id', $orderId)->first();
-        if (! $registration) {
-            return response()->json(['message' => 'order not found'], 404);
+        $payment = $this->resolvePayment($orderId);
+
+        // Order_id tak dikenal → ack 200 supaya Midtrans berhenti retry (jangan 404).
+        if (! $payment) {
+            Log::info('Midtrans notif untuk order_id tak dikenal, diabaikan: ' . $orderId);
+
+            return response()->json(['message' => 'order not found, ignored'], 200);
         }
 
-        $new = $registration->payment_status;
+        $mapped = $this->mapStatus($status, $fraud);
 
-        if ($status === 'capture') {
-            $new = ($fraud === 'challenge') ? 'pending' : 'paid';
-        } elseif ($status === 'settlement') {
-            $new = 'paid';
-        } elseif (in_array($status, ['cancel', 'deny', 'expire'], true)) {
-            $new = 'cancelled';
-        } elseif ($status === 'pending') {
-            $new = 'pending';
+        // Jangan turunkan payment yang sudah paid (anti webhook telat/ganda).
+        if ($payment->status !== 'paid') {
+            $payment->update([
+                'status' => $mapped,
+                'paid_at' => $mapped === 'paid' ? ($payment->paid_at ?? now()) : $payment->paid_at,
+                'raw' => $request->all(),
+            ]);
         }
 
-        $registration->update([
-            'payment_status' => $new,
-            'paid_at' => $new === 'paid' ? now() : $registration->paid_at,
-        ]);
+        $this->syncRegistrationStatus($payment->registration);
 
         return response()->json(['message' => 'ok']);
     }
