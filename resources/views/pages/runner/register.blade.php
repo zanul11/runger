@@ -2,8 +2,9 @@
 @section('title', 'Buat Akun — Gerung Trail Run')
 
 @section('form')
+<div class="auth-eyebrow">Akun Peserta GTR</div>
 <h1 class="auth-title">Buat Akun</h1>
-<p class="auth-sub">Isi data kamu untuk membuat akun peserta GTR</p>
+<p class="auth-sub">Isi data kamu untuk mendaftar Gerung Trail Run</p>
 
 @if($errors->any())
   <div class="alert-err">Periksa kembali isian kamu — ada {{ $errors->count() }} yang perlu diperbaiki.</div>

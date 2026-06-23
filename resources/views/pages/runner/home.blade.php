@@ -27,9 +27,9 @@
 
   /* race category cards (GTR) */
   .rcat{
-    position:relative;border-radius:18px;overflow:hidden;min-height:236px;margin-bottom:16px;
+    position:relative;border-radius:18px;overflow:hidden;min-height:320px;margin-bottom:16px;
     display:flex;flex-direction:column;justify-content:flex-end;
-    background-size:cover;background-position:center;background-color:#161616;
+    background-size:cover;background-position:center top;background-color:#161616;
     border:1px solid var(--line);box-shadow:0 12px 30px rgba(15,24,48,.22)}
   .rcat::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,.12) 36%,rgba(0,0,0,.92) 100%)}
   .rcat-top{position:absolute;top:13px;left:13px;right:13px;z-index:2;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
