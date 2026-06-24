@@ -7,12 +7,12 @@
 <style>
   .rf-hero{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:18px;box-shadow:0 6px 20px rgba(15,24,48,.05)}
   .rf-hero img{height:42px;width:42px;border-radius:9px;object-fit:cover}
-  .rf-hero .d{font-family:'Archivo',sans-serif;font-weight:900;font-size:22px;line-height:1;color:var(--text)}
+  .rf-hero .d{font-family:'Poppins',sans-serif;font-weight:900;font-size:22px;line-height:1;color:var(--text)}
   .rf-hero .n{font-size:12px;color:var(--soft);margin-top:3px}
   .rf-hero .pr{margin-left:auto;text-align:right}
-  .rf-hero .pr .eb{font-family:'Archivo',sans-serif;font-weight:900;color:var(--blue);font-size:15px}
+  .rf-hero .pr .eb{font-family:'Poppins',sans-serif;font-weight:900;color:var(--blue);font-size:15px}
   .rf-hero .pr .lb{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
-  .rf-h{font-family:'Archivo',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:18px 2px 12px}
+  .rf-h{font-family:'Poppins',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:18px 2px 12px}
   .fld{margin-bottom:14px}
   .fld > label{display:block;font-weight:600;font-size:13px;margin-bottom:7px;color:#2A3350}
   .fld .req{color:var(--red)}
@@ -26,9 +26,9 @@
   .agree label{font-size:12.5px;color:var(--soft);line-height:1.5}
   .agree strong{color:var(--text) !important}
   .pay-fixed{display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid #D7DDEA;border-radius:10px;background:#F4F7FD}
-  .pay-dot{font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;color:#fff;background:var(--blue);padding:6px 12px;border-radius:8px;letter-spacing:.04em}
+  .pay-dot{font-family:'Poppins',sans-serif;font-weight:800;font-size:13px;color:#fff;background:var(--blue);padding:6px 12px;border-radius:8px;letter-spacing:.04em}
   .pay-note{font-size:12px;color:var(--soft)}
-  .rf-submit{width:100%;background:var(--blue);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:15px;border-radius:12px;border:none;cursor:pointer;transition:background .2s,transform .15s}
+  .rf-submit{width:100%;background:var(--blue);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:15px;border-radius:12px;border:none;cursor:pointer;transition:background .2s,transform .15s}
   .rf-submit:hover{background:var(--blue-deep);transform:translateY(-1px)}
   .alert-err{background:#FEF3F2;border:1px solid #FECDCA;color:#B42318;padding:12px 14px;border-radius:12px;font-size:13px;margin-bottom:16px}
 </style>

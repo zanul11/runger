@@ -11,7 +11,7 @@
   .pf.paid .pf-ic{background:#DCFCE7;color:#15803D}
   .pf.pending .pf-ic{background:#FEF9C3;color:#A16207}
   .pf.cancelled .pf-ic{background:#FEE2E2;color:#B42318}
-  .pf-title{font-family:'Archivo',sans-serif;font-weight:900;font-size:26px;line-height:1.05}
+  .pf-title{font-family:'Poppins',sans-serif;font-weight:900;font-size:26px;line-height:1.05}
   .pf-msg{color:var(--soft);font-size:14px;margin-top:8px;max-width:34ch}
   .pf-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-top:22px;box-shadow:0 6px 20px rgba(15,24,48,.05)}
   .pf-row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
@@ -19,7 +19,7 @@
   .pf-row .k{color:var(--mute)}
   .pf-row .v{font-weight:700;text-align:right;color:var(--text)}
   .pf-actions{display:flex;flex-direction:column;gap:10px;margin-top:20px}
-  .pf-btn{display:inline-flex;align-items:center;justify-content:center;padding:14px;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+  .pf-btn{display:inline-flex;align-items:center;justify-content:center;padding:14px;border-radius:12px;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
   .pf-btn.primary{background:var(--blue);color:#fff}
   .pf-btn.ghost{background:#fff;border:1px solid var(--line);color:var(--blue)}
 </style>

@@ -7,7 +7,7 @@
 <style>
   .race-card{display:flex;gap:14px;align-items:flex-start}
   .race-gtr{height:46px;width:46px;border-radius:10px;object-fit:cover;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.4)}
-  .race-card .nm{font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;line-height:1.1}
+  .race-card .nm{font-family:'Poppins',sans-serif;font-weight:800;font-size:18px;line-height:1.1}
   .race-card .mt{font-size:12px;color:var(--mute);margin-top:6px}
   .race-card .head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 </style>

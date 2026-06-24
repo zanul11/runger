@@ -6,12 +6,12 @@
 <title>@yield('title', 'Akun Peserta — Gerung Trail Run')</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 @verbatim
 <style>
   :root{--red:#E53935;--red-deep:#C62828;--blue:#1B3FAE;--blue-deep:#0F2680;--blue-bright:#3F62D8;--ink:#EEF2FB;--card:#FFFFFF;--line:#E6EAF3;--soft:#5B6378;--mute:#8A92A6;--text:#0F1830}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Plus Jakarta Sans',sans-serif;background:#E3E8F4;color:var(--text);-webkit-font-smoothing:antialiased}
+  body{font-family:'Poppins',sans-serif;background:#E3E8F4;color:var(--text);-webkit-font-smoothing:antialiased}
   a{color:inherit;text-decoration:none}
   .app{
     max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;
@@ -26,7 +26,7 @@
     box-shadow:0 6px 18px rgba(15,38,128,.28);
   }
   .app-top img{height:26px;width:auto}
-  .app-top .app-title{font-family:'Archivo',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:#fff}
+  .app-top .app-title{font-family:'Poppins',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:#fff}
   .app-main{flex:1;padding:18px 18px calc(96px + env(safe-area-inset-bottom))}
   .app-ok{background:#DCFCE7;border:1px solid #A7F3D0;color:#15803D;padding:12px 14px;border-radius:12px;font-size:13.5px;margin-bottom:16px}
 
@@ -39,19 +39,19 @@
   }
   .app-tab{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 0 13px;color:var(--mute);transition:color .2s}
   .app-tab svg{width:22px;height:22px}
-  .app-tab span{font-family:'Archivo',sans-serif;font-size:10px;font-weight:700;letter-spacing:.03em}
+  .app-tab span{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.03em}
   .app-tab.active{color:var(--blue)}
 
   /* shared content bits */
-  .sec-title{font-family:'Archivo',sans-serif;font-weight:900;font-size:26px;line-height:1;letter-spacing:-.01em;margin-bottom:4px;color:var(--text)}
+  .sec-title{font-family:'Poppins',sans-serif;font-weight:900;font-size:26px;line-height:1;letter-spacing:-.01em;margin-bottom:4px;color:var(--text)}
   .sec-sub{color:var(--soft);font-size:13.5px;margin-bottom:18px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 6px 20px rgba(15,24,48,.05)}
-  .card-h{font-family:'Archivo',sans-serif;font-weight:800;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
-  .badge{font-family:'Archivo',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:999px}
+  .card-h{font-family:'Poppins',sans-serif;font-weight:800;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+  .badge{font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:999px}
   .badge.pending{background:#FEF9C3;color:#A16207;border:1px solid #FDE68A}
   .badge.paid,.badge.confirmed{background:#DCFCE7;color:#15803D;border:1px solid #A7F3D0}
   .badge.cancelled{background:#F3F4F6;color:#6B7280;border:1px solid #E5E7EB}
-  .btn-blue{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;border-radius:10px;border:none;cursor:pointer;transition:background .2s}
+  .btn-blue{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;border-radius:10px;border:none;cursor:pointer;transition:background .2s}
   .btn-blue:hover{background:var(--blue-deep)}
   .empty{text-align:center;color:var(--mute);font-size:13.5px;padding:26px 10px}
 </style>

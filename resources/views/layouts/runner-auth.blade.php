@@ -6,12 +6,12 @@
 <title>@yield('title', 'Gerung Trail Run — Akun Peserta')</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 @verbatim
 <style>
   :root{--red:#E53935;--red-deep:#C62828;--ink:#0F1115;--line:#E4E7EF;--muted:#8A90A2}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Plus Jakarta Sans',sans-serif;background:#eceff5;color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:'Poppins',sans-serif;background:#eceff5;color:var(--ink);-webkit-font-smoothing:antialiased}
   a{color:inherit;text-decoration:none}
   .auth{display:flex;min-height:100vh}
 
@@ -26,10 +26,10 @@
   .auth-brand{display:flex;justify-content:center;margin-bottom:16px}
   .auth-brand img{height:38px;width:auto}
   .auth-eyebrow{
-    text-align:center;font-family:'Archivo',sans-serif;font-weight:800;
+    text-align:center;font-family:'Poppins',sans-serif;font-weight:800;
     font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:7px;
   }
-  .auth-title{font-family:'Archivo',sans-serif;font-weight:900;font-size:30px;text-align:center;letter-spacing:-.02em;line-height:1}
+  .auth-title{font-family:'Poppins',sans-serif;font-weight:900;font-size:30px;text-align:center;letter-spacing:-.02em;line-height:1}
   .auth-sub{text-align:center;color:var(--muted);margin:9px 0 24px;font-size:14px}
 
   .fld{margin-bottom:15px}
@@ -55,7 +55,7 @@
   .remember{display:flex;align-items:center;gap:9px;font-size:13.5px;color:#555;margin:2px 0 16px;cursor:pointer;user-select:none}
   .remember input{width:16px;height:16px;accent-color:var(--red)}
 
-  .btn-submit{width:100%;padding:15px;border-radius:12px;background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;font-family:'Archivo',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:none;transition:transform .15s, box-shadow .25s;box-shadow:0 10px 24px rgba(229,57,53,.32);margin-top:6px}
+  .btn-submit{width:100%;padding:15px;border-radius:12px;background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;font-family:'Poppins',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:none;transition:transform .15s, box-shadow .25s;box-shadow:0 10px 24px rgba(229,57,53,.32);margin-top:6px}
   .btn-submit:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(229,57,53,.42)}
   .auth-alt{text-align:center;margin-top:20px;font-size:14px;color:#666}
   .auth-alt a{color:var(--red);font-weight:800}
@@ -77,9 +77,9 @@
     .auth-visual::before{content:'';position:absolute;inset:0;background:linear-gradient(155deg,rgba(197,40,40,.34) 0%,rgba(0,0,0,.5) 42%,rgba(0,0,0,.92) 100%)}
     .auth-visual-inner{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:space-between;padding:54px 52px}
     .auth-logo{width:150px;height:auto;max-width:55%;object-fit:contain;display:block}
-    .v-eyebrow{font-family:'Archivo',sans-serif;font-weight:800;font-size:12px;letter-spacing:.22em;text-transform:uppercase;opacity:.92;margin-bottom:14px;display:inline-flex;align-items:center;gap:10px}
+    .v-eyebrow{font-family:'Poppins',sans-serif;font-weight:800;font-size:12px;letter-spacing:.22em;text-transform:uppercase;opacity:.92;margin-bottom:14px;display:inline-flex;align-items:center;gap:10px}
     .v-eyebrow::before{content:'';width:28px;height:2px;background:var(--red)}
-    .auth-visual h2{font-family:'Archivo',sans-serif;font-weight:900;font-size:42px;line-height:1.02;margin-bottom:18px;letter-spacing:-.02em}
+    .auth-visual h2{font-family:'Poppins',sans-serif;font-weight:900;font-size:42px;line-height:1.02;margin-bottom:18px;letter-spacing:-.02em}
     .auth-visual p{font-size:14.5px;line-height:1.65;opacity:.9;max-width:450px}
     .v-feats{list-style:none;margin-top:24px;display:flex;flex-direction:column;gap:12px}
     .v-feats li{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}

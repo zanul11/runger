@@ -6,9 +6,9 @@
 @verbatim
 <style>
   .trx{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
-  .trx .nm{font-family:'Archivo',sans-serif;font-weight:800;font-size:16px}
+  .trx .nm{font-family:'Poppins',sans-serif;font-weight:800;font-size:16px}
   .trx .mt{font-size:12px;color:var(--mute);margin-top:4px}
-  .trx .amt{font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;text-align:right}
+  .trx .amt{font-family:'Poppins',sans-serif;font-weight:800;font-size:15px;text-align:right}
   .trx-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
   .trx-detail{margin-top:6px;padding-top:12px;border-top:1px dashed var(--line)}
   .td-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:5px 0}
