@@ -12,7 +12,7 @@ class ImageCompressor
      * Kompres & resize gambar yang diupload, simpan ke disk public, kembalikan path relatif.
      * Dipakai sebagai callback Filament FileUpload::saveUploadedFileUsing().
      */
-    public static function store(TemporaryUploadedFile $file, string $directory, int $maxWidth = 1600, int $quality = 62): string
+    public static function store(TemporaryUploadedFile $file, string $directory, int $maxWidth = 1600, int $quality = 78): string
     {
         $directory = trim($directory, '/');
         $path = $file->getRealPath();
@@ -70,9 +70,9 @@ class ImageCompressor
             // PNG: kompresi maksimal + filter (lossless).
             imagepng($src, $absolute, 9, PNG_ALL_FILTERS);
         } else {
-            // JPEG/WebP: turunkan kualitas bertahap sampai ukuran ≤ 40% dari asli
-            // (target pengurangan ~60%), dengan batas bawah kualitas 42.
-            $target = $originalSize > 0 ? (int) ($originalSize * 0.4) : 0;
+            // JPEG/WebP: turunkan kualitas bertahap sampai ukuran ≤ 50% dari asli
+            // (target pengurangan ~50%), dengan batas bawah kualitas 45.
+            $target = $originalSize > 0 ? (int) ($originalSize * 0.5) : 0;
             $q = $quality;
 
             do {
@@ -82,7 +82,7 @@ class ImageCompressor
                     imagejpeg($src, $absolute, $q);
                 }
                 $q -= 8;
-            } while ($target > 0 && @filesize($absolute) > $target && $q >= 42);
+            } while ($target > 0 && @filesize($absolute) > $target && $q >= 45);
         }
 
         imagedestroy($src);

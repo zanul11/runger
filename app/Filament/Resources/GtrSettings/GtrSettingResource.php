@@ -42,7 +42,7 @@ class GtrSettingResource extends Resource
                     FileUpload::make('header_image')
                         ->label('Foto Header')
                         ->image()
-                        ->maxSize(3072)
+                        ->maxSize(5120)
                         ->disk('public')
                         ->directory('gtr/header')
                         ->imageEditor()
