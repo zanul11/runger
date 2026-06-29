@@ -19,7 +19,7 @@
   .inp{width:100%;padding:12px 13px;border:1px solid #D7DDEA;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;color:var(--text);transition:border-color .15s, box-shadow .15s}
   .inp::placeholder{color:#A0A7BA}
   .inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,63,174,.14)}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row2{display:contents}
   .err{color:#C0392B;font-size:12px;margin-top:5px}
   .agree{display:flex;gap:10px;align-items:flex-start;background:#F4F7FD;border:1px solid var(--line);border-radius:12px;padding:14px;margin:6px 0 16px}
   .agree input{margin-top:3px;width:18px;height:18px;accent-color:var(--blue)}
