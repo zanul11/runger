@@ -185,12 +185,13 @@
   <div class="wrap">
     <div class="block-head"><h2>Our Scenic Course</h2></div>
     @if(($gtrScenics ?? collect())->isNotEmpty())
-    <div class="course-grid">
-      @foreach($gtrScenics as $s)
-        <div class="course-tile">
+    <div class="course-grid" id="scenic-grid">
+      @foreach($gtrScenics as $i => $s)
+        <button type="button" class="course-tile" data-idx="{{ $i }}" aria-label="{{ $s->label ?? 'Lihat foto rute' }}">
           <img src="{{ $s->image_url }}" alt="{{ $s->label ?? 'Scenic course' }}" loading="lazy">
+          <span class="zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
           @if($s->label)<span class="label">{{ $s->label }}</span>@endif
-        </div>
+        </button>
       @endforeach
     </div>
     @else
@@ -198,6 +199,19 @@
     @endif
   </div>
 </section>
+
+@if(($gtrScenics ?? collect())->isNotEmpty())
+<!-- SCENIC LIGHTBOX -->
+<div class="sc-lb" id="sc-lb" aria-hidden="true">
+  <button class="sc-lb-close" id="sc-close" aria-label="Tutup">&times;</button>
+  <div class="sc-lb-count" id="sc-count"></div>
+  <button class="sc-lb-btn sc-lb-prev" id="sc-prev" aria-label="Sebelumnya">&lsaquo;</button>
+  <img id="sc-img" src="" alt="">
+  <button class="sc-lb-btn sc-lb-next" id="sc-next" aria-label="Berikutnya">&rsaquo;</button>
+  <div class="sc-lb-dots" id="sc-dots"></div>
+  <div class="sc-lb-cap" id="sc-cap"></div>
+</div>
+@endif
 
 <!-- CONTACT -->
 <section class="block" id="contact" style="padding-top:40px">
@@ -246,3 +260,61 @@
 </section>
 
 @endsection
+
+@push('scripts')
+@if(($gtrScenics ?? collect())->isNotEmpty())
+<script>
+(function(){
+  const data = @json($gtrScenics->map(fn ($s) => ['src' => $s->image_url, 'label' => $s->label])->values());
+  const lb = document.getElementById('sc-lb');
+  if(!lb || !data.length) return;
+  const img = document.getElementById('sc-img');
+  const cap = document.getElementById('sc-cap');
+  const cnt = document.getElementById('sc-count');
+  const dots = document.getElementById('sc-dots');
+  let idx = 0, timer = null;
+
+  data.forEach((_, i) => {
+    const d = document.createElement('i');
+    d.addEventListener('click', () => { idx = i; render(); play(); });
+    dots.appendChild(d);
+  });
+
+  function render(){
+    const it = data[idx];
+    img.src = it.src; img.alt = it.label || '';
+    cap.textContent = it.label || '';
+    cnt.textContent = (idx + 1) + ' / ' + data.length;
+    Array.from(dots.children).forEach((d, i) => d.classList.toggle('on', i === idx));
+  }
+  function open(i){ idx = i; render(); lb.classList.add('open'); document.body.style.overflow = 'hidden'; play(); }
+  function close(){ lb.classList.remove('open'); document.body.style.overflow = ''; stop(); }
+  function next(){ idx = (idx + 1) % data.length; render(); }
+  function prev(){ idx = (idx - 1 + data.length) % data.length; render(); }
+  function play(){ stop(); timer = setInterval(next, 4000); }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } }
+
+  document.querySelectorAll('.course-tile').forEach(t =>
+    t.addEventListener('click', () => open(parseInt(t.dataset.idx, 10) || 0)));
+  document.getElementById('sc-next').addEventListener('click', () => { next(); play(); });
+  document.getElementById('sc-prev').addEventListener('click', () => { prev(); play(); });
+  document.getElementById('sc-close').addEventListener('click', close);
+  lb.addEventListener('click', e => { if(e.target === lb) close(); });
+  document.addEventListener('keydown', e => {
+    if(!lb.classList.contains('open')) return;
+    if(e.key === 'Escape') close();
+    else if(e.key === 'ArrowRight'){ next(); play(); }
+    else if(e.key === 'ArrowLeft'){ prev(); play(); }
+  });
+
+  let sx = 0;
+  img.addEventListener('touchstart', e => { sx = e.touches[0].clientX; stop(); }, {passive:true});
+  img.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    if(Math.abs(dx) > 40){ dx < 0 ? next() : prev(); }
+    play();
+  }, {passive:true});
+})();
+</script>
+@endif
+@endpush

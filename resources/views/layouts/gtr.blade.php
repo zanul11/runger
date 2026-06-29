@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>@yield('title', 'Gerung Trail Run 2026 — 1st Edition · Runger Anniversary')</title>
 <meta name="description" content="@yield('description', 'Gerung Trail Run 2026 — race trail perdana di Lombok Barat. Bukit Keteri, Gerung. Dipersembahkan oleh Runners Gerung.')">
+<link rel="icon" type="image/jpeg" href="{{ asset('assets/gtr/logo.jpeg') }}">
+<link rel="apple-touch-icon" href="{{ asset('assets/gtr/logo.jpeg') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -507,24 +509,45 @@
 
   /* SCENIC COURSE GALLERY */
   .course-section{padding:56px 0;background:var(--bg)}
-  .course-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px}
+  .course-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:8px}
   .course-tile{
-    position:relative;display:block;aspect-ratio:1/1;overflow:hidden;background:#161616;
+    position:relative;display:block;width:calc((100% - 10px) / 2);aspect-ratio:1/1;overflow:hidden;background:#161616;
+    border:none;padding:0;margin:0;cursor:pointer;border-radius:14px;
   }
-  .course-tile img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+  .course-tile img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1)}
   .course-tile::after{
     content:'';position:absolute;inset:0;z-index:1;
-    background:linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.28) 55%, rgba(0,0,0,.55) 100%);
+    background:linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.2) 55%, rgba(0,0,0,.6) 100%);
     transition:background .3s ease;
   }
-  .course-tile:hover img{transform:scale(1.07)}
-  .course-tile:hover::after{background:linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.32))}
+  .course-tile:hover img{transform:scale(1.08)}
+  .course-tile:hover::after{background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.34))}
   .course-tile .label{
-    position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
-    text-align:center;padding:10px;
-    font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(15px,4.4vw,20px);
-    letter-spacing:.03em;text-transform:uppercase;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.7);
+    position:absolute;left:0;right:0;bottom:0;z-index:2;text-align:left;padding:11px 12px;
+    font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;
+    letter-spacing:.03em;text-transform:uppercase;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.75);
   }
+  .course-tile .zoom{position:absolute;top:9px;right:9px;z-index:2;width:30px;height:30px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;background:rgba(10,10,12,.45);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);
+    color:#fff;opacity:0;transform:scale(.85);transition:opacity .2s, transform .2s}
+  .course-tile .zoom svg{width:15px;height:15px}
+  .course-tile:hover .zoom{opacity:1;transform:scale(1)}
+
+  /* lightbox slide */
+  .sc-lb{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(6,8,14,.95);backdrop-filter:blur(10px);padding:20px}
+  .sc-lb.open{display:flex}
+  .sc-lb img{max-width:94vw;max-height:80vh;border-radius:12px;box-shadow:0 30px 80px rgba(0,0,0,.6);user-select:none}
+  .sc-lb-cap{position:absolute;left:0;right:0;bottom:26px;text-align:center;color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+  .sc-lb-count{position:absolute;left:0;right:0;top:22px;text-align:center;color:rgba(255,255,255,.7);font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:.12em}
+  .sc-lb-btn{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;cursor:pointer;font-size:26px;line-height:1;transition:background .2s}
+  .sc-lb-btn:hover{background:rgba(255,255,255,.22)}
+  .sc-lb-prev{left:14px}
+  .sc-lb-next{right:14px}
+  .sc-lb-close{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;cursor:pointer;font-size:24px;line-height:1;transition:background .2s}
+  .sc-lb-close:hover{background:rgba(255,255,255,.22)}
+  .sc-lb-dots{position:absolute;left:0;right:0;bottom:60px;display:flex;justify-content:center;gap:7px;flex-wrap:wrap;padding:0 16px}
+  .sc-lb-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35);transition:background .2s, transform .2s;cursor:pointer}
+  .sc-lb-dots i.on{background:var(--red);transform:scale(1.3)}
 
   /* FOOTER */
   footer{background:#050505;border-top:1px solid var(--line);padding:36px 16px 24px}
@@ -675,8 +698,9 @@
 
     /* Scenic course */
     .course-section{padding:110px 0}
-    .course-grid{grid-template-columns:repeat(4,1fr);gap:14px}
-    .course-tile .label{font-size:24px}
+    .course-grid{gap:14px}
+    .course-tile{width:calc((100% - 3 * 14px) / 4)}
+    .course-tile .label{font-size:16px;padding:14px 16px}
 
     /* Sponsor */
     .sponsor-section{padding:140px 0}
