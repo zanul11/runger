@@ -111,10 +111,14 @@ class PaymentController extends Controller
             return back()->with('success', 'Nominal pembayaran belum tersedia. Hubungi panitia.');
         }
 
+        // Total yang ditagih = biaya pendaftaran + biaya admin (platform aplikasi).
+        $fee = GtrRegistration::ADMIN_FEE;
+        $gross = $amount + $fee;
+
         // Pakai ulang Snap yang masih aktif (pending & belum kedaluwarsa) — hindari order_id bengkak.
         $active = $registration->payments()
             ->where('status', 'pending')
-            ->where('amount', $amount)
+            ->where('amount', $gross)
             ->whereNotNull('snap_redirect_url')
             ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
             ->latest('id')
@@ -132,14 +136,22 @@ class PaymentController extends Controller
         $params = [
             'transaction_details' => [
                 'order_id' => $orderId,
-                'gross_amount' => $amount,
+                'gross_amount' => $gross,
             ],
-            'item_details' => [[
-                'id' => 'GTR-' . $registration->gtr_category_id,
-                'price' => $amount,
-                'quantity' => 1,
-                'name' => 'GTR ' . ($registration->category->distance ?? '') . ' ' . ($registration->category->name ?? ''),
-            ]],
+            'item_details' => [
+                [
+                    'id' => 'GTR-' . $registration->gtr_category_id,
+                    'price' => $amount,
+                    'quantity' => 1,
+                    'name' => 'GTR ' . ($registration->category->distance ?? '') . ' ' . ($registration->category->name ?? ''),
+                ],
+                [
+                    'id' => 'ADMIN-FEE',
+                    'price' => $fee,
+                    'quantity' => 1,
+                    'name' => 'Biaya Layanan',
+                ],
+            ],
             'customer_details' => [
                 'first_name' => $registration->full_name,
                 'email' => $registration->email,
@@ -163,17 +175,17 @@ class PaymentController extends Controller
             return back()->with('success', 'Gagal membuat transaksi pembayaran. Silakan coba lagi.');
         }
 
-        // Catat attempt pembayaran (riwayat per order_id).
+        // Catat attempt pembayaran (riwayat per order_id). amount = total ditagih (termasuk biaya admin).
         $registration->payments()->create([
             'order_id' => $orderId,
-            'amount' => $amount,
+            'amount' => $gross,
             'status' => 'pending',
             'snap_token' => $snap->token ?? null,
             'snap_redirect_url' => $snap->redirect_url ?? null,
             'expires_at' => $expiresAt,
         ]);
 
-        // Simpan attempt terbaru ke registrasi (untuk kompatibilitas tampilan).
+        // Simpan attempt terbaru ke registrasi (amount = biaya pendaftaran/base, untuk rincian tampilan).
         $registration->update([
             'midtrans_order_id' => $orderId,
             'snap_token' => $snap->token ?? null,

@@ -28,6 +28,12 @@
   .pay-fixed{display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid #D7DDEA;border-radius:10px;background:#F4F7FD}
   .pay-dot{font-family:'Poppins',sans-serif;font-weight:800;font-size:13px;color:#fff;background:var(--blue);padding:6px 12px;border-radius:8px;letter-spacing:.04em}
   .pay-note{font-size:12px;color:var(--soft)}
+  .rf-summary{background:#F4F7FD;border:1px solid #D7DDEA;border-radius:12px;padding:14px 15px;margin:4px 0 18px}
+  .rf-summary .row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--soft);padding:4px 0}
+  .rf-summary .row span:last-child{font-family:'Poppins',sans-serif;font-weight:700;color:var(--text)}
+  .rf-summary .row.total{border-top:1px dashed #CBD5E8;margin-top:4px;padding-top:9px;font-size:14px}
+  .rf-summary .row.total span{font-family:'Poppins',sans-serif;font-weight:800;color:var(--text)}
+  .rf-summary .note{font-size:11.5px;color:var(--mute);margin-top:8px;line-height:1.45}
   .rf-submit{width:100%;background:var(--blue);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:15px;border-radius:12px;border:none;cursor:pointer;transition:background .2s,transform .15s}
   .rf-submit:hover{background:var(--blue-deep);transform:translateY(-1px)}
   .alert-err{background:#FEF3F2;border:1px solid #FECDCA;color:#B42318;padding:12px 14px;border-radius:12px;font-size:13px;margin-bottom:16px}
@@ -166,6 +172,16 @@
     </div>
     <input type="hidden" name="pay" value="QRIS">
     @error('pay')<div class="err">{{ $message }}</div>@enderror
+  </div>
+
+  @php
+    $base = (int) ($category->price_early_bird ?? 0);
+    $fee = \App\Models\GtrRegistration::ADMIN_FEE;
+  @endphp
+  <div class="rf-summary">
+    <div class="row"><span>Biaya Pendaftaran</span><span>IDR {{ number_format($base, 0, ',', '.') }}</span></div>
+    <div class="row"><span>Biaya Layanan <span class="info-i">?<span class="bubble">Biaya untuk pengelolaan sistem pendaftaran, e-ticket, dan dukungan peserta.</span></span></span><span>IDR {{ number_format($fee, 0, ',', '.') }}</span></div>
+    <div class="row total"><span>Total</span><span>IDR {{ number_format($base + $fee, 0, ',', '.') }}</span></div>
   </div>
 
   <label class="agree">

@@ -22,6 +22,9 @@ class GtrRegistration extends Model
     public const BLOOD_TYPES = ['A', 'B', 'AB', 'O'];
     public const GENDERS = ['Laki-laki', 'Perempuan'];
 
+    /** Biaya admin / platform aplikasi (Rupiah) yang ditambahkan ke setiap pembayaran. */
+    public const ADMIN_FEE = 2500;
+
     /** Simpan nomor HP peserta dalam format kanonik (62…). */
     public function setWhatsappAttribute($value): void
     {

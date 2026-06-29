@@ -54,6 +54,15 @@
   .btn-blue{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;border-radius:10px;border:none;cursor:pointer;transition:background .2s}
   .btn-blue:hover{background:var(--blue-deep)}
   .empty{text-align:center;color:var(--mute);font-size:13.5px;padding:26px 10px}
+  /* info icon (klik untuk tampilkan keterangan) */
+  .info-i{position:relative;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;
+    background:var(--blue);color:#fff;font-family:'Poppins',sans-serif;font-weight:800;font-size:10px;line-height:1;cursor:pointer;vertical-align:middle;flex-shrink:0;user-select:none}
+  .info-i .bubble{position:absolute;bottom:calc(100% + 8px);right:-6px;z-index:20;width:max-content;max-width:230px;
+    background:#0F1830;color:#fff;font-family:'Poppins',sans-serif;font-weight:500;font-size:11.5px;letter-spacing:0;text-transform:none;
+    line-height:1.45;padding:9px 11px;border-radius:10px;box-shadow:0 12px 28px rgba(15,24,48,.28);
+    opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .15s, transform .15s, visibility .15s;text-align:left}
+  .info-i .bubble::after{content:'';position:absolute;top:100%;right:9px;border:6px solid transparent;border-top-color:#0F1830}
+  .info-i.open .bubble{opacity:1;visibility:visible;transform:translateY(0)}
 </style>
 @endverbatim
 @stack('styles')
@@ -92,6 +101,13 @@
     </a>
   </nav>
 </div>
+<script>
+  document.addEventListener('click', function (e) {
+    const icon = e.target.closest('.info-i');
+    document.querySelectorAll('.info-i.open').forEach(function (el) { if (el !== icon) el.classList.remove('open'); });
+    if (icon) { e.preventDefault(); icon.classList.toggle('open'); }
+  });
+</script>
 @stack('scripts')
 </body>
 </html>

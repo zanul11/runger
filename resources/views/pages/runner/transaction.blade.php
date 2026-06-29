@@ -23,6 +23,11 @@
 <div class="sec-sub">Riwayat & pembayaran pendaftaranmu.</div>
 
 @forelse($registrations as $reg)
+  @php
+    $base = (int) ($reg->amount ?: ($reg->category->price_early_bird ?? 0));
+    $fee = \App\Models\GtrRegistration::ADMIN_FEE;
+    $total = $base + $fee;
+  @endphp
   <div class="card">
     <div class="trx">
       <div>
@@ -30,7 +35,7 @@
         <div class="mt">{{ optional($reg->registered_at)->translatedFormat('d M Y · H:i') }}</div>
       </div>
       <div>
-        <div class="amt">{{ $reg->amount ? 'IDR ' . number_format($reg->amount, 0, ',', '.') : ($reg->category->early_bird_formatted ?? '-') }}</div>
+        <div class="amt">IDR {{ number_format($total, 0, ',', '.') }}</div>
         <span class="badge {{ $reg->payment_status }}" style="float:right;margin-top:6px">{{ ucfirst($reg->payment_status) }}</span>
       </div>
     </div>
@@ -38,7 +43,9 @@
     <div class="trx-detail">
       <div class="td-row"><span class="k">No. Order</span><span class="v">{{ $reg->nomor_registrasi }}</span></div>
       <div class="td-row"><span class="k">Metode</span><span class="v">{{ $reg->pay }}</span></div>
-      <div class="td-row"><span class="k">Nominal</span><span class="v">{{ $reg->amount ? 'IDR ' . number_format($reg->amount, 0, ',', '.') : ($reg->category->early_bird_formatted ?? '-') }}</span></div>
+      <div class="td-row"><span class="k">Biaya Pendaftaran</span><span class="v">IDR {{ number_format($base, 0, ',', '.') }}</span></div>
+      <div class="td-row"><span class="k">Biaya Layanan <span class="info-i">?<span class="bubble">Biaya untuk pengelolaan sistem pendaftaran, e-ticket, dan dukungan peserta.</span></span></span><span class="v">IDR {{ number_format($fee, 0, ',', '.') }}</span></div>
+      <div class="td-row"><span class="k">Total</span><span class="v"><strong>IDR {{ number_format($total, 0, ',', '.') }}</strong></span></div>
       <div class="td-row"><span class="k">Status</span><span class="v"><span class="badge {{ $reg->payment_status }}">{{ ucfirst($reg->payment_status) }}</span></span></div>
       @if($reg->paid_at)
         <div class="td-row"><span class="k">Dibayar</span><span class="v">{{ $reg->paid_at->translatedFormat('d M Y · H:i') }}</span></div>
