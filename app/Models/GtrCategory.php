@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Services\GpxParser;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +18,15 @@ class GtrCategory extends Model
         return $this->hasMany(GtrRegistration::class, 'gtr_category_id');
     }
 
+    /** Titik timing yang harus dilewati kategori ini, urut sesuai sequence. */
+    public function timingPoints(): BelongsToMany
+    {
+        return $this->belongsToMany(GtrTimingPoint::class, 'gtr_category_timing_point')
+            ->withPivot(['sequence', 'is_mandatory', 'cutoff_at'])
+            ->withTimestamps()
+            ->orderBy('gtr_category_timing_point.sequence');
+    }
+
     protected $casts = [
         'route_points' => 'array',
         'elevation_profile' => 'array',
@@ -24,6 +34,8 @@ class GtrCategory extends Model
         'mandatory_gear' => 'array',
         'rundown' => 'array',
         'early_bird_until' => 'date',
+        'gun_start' => 'datetime',
+        'cut_off_at' => 'datetime',
         'total_km' => 'decimal:2',
         'price_early_bird' => 'integer',
         'price_normal' => 'integer',

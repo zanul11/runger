@@ -12,6 +12,7 @@ class Event extends Model
 
     protected $casts = [
         'date' => 'date',
+        'default_gun_start' => 'datetime',
         'is_featured' => 'boolean',
         'is_published' => 'boolean',
         'is_coming_soon' => 'boolean',
@@ -79,5 +80,10 @@ class Event extends Model
     public function results(): HasMany
     {
         return $this->hasMany(Result::class);
+    }
+
+    public function timingPoints(): HasMany
+    {
+        return $this->hasMany(GtrTimingPoint::class)->orderBy('sort_order');
     }
 }

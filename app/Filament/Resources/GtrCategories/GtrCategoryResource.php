@@ -108,14 +108,22 @@ class GtrCategoryResource extends Resource
                         DatePicker::make('early_bird_until')
                             ->label('Batas Early Bird'),
                         TextInput::make('start_time')
-                            ->label('Start')
+                            ->label('Start (teks display)')
                             ->placeholder('06:00 WITA'),
                         TextInput::make('elevation_gain')
                             ->label('Elevation Gain')
                             ->placeholder('+344 M'),
                         TextInput::make('cut_off_time')
-                            ->label('Cut-Off Time')
+                            ->label('Cut-Off Time (teks display)')
                             ->placeholder('2 Jam'),
+                        \Filament\Forms\Components\DateTimePicker::make('gun_start')
+                            ->label('Gun Start (waktu nyata)')
+                            ->seconds(false)
+                            ->helperText('Dipakai result engine untuk menghitung gun time & start fallback.'),
+                        \Filament\Forms\Components\DateTimePicker::make('cut_off_at')
+                            ->label('Cut-Off (waktu nyata)')
+                            ->seconds(false)
+                            ->helperText('Finish setelah waktu ini = DNF (over-COT).'),
                         Textarea::make('award_prize')
                             ->label('Award & Prize')
                             ->columnSpanFull(),
@@ -205,6 +213,13 @@ class GtrCategoryResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            \App\Filament\Resources\GtrCategories\RelationManagers\TimingPointsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
