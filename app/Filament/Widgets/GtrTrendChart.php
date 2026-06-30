@@ -2,12 +2,12 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Volunteer;
+use App\Models\GtrRegistration;
 use Filament\Widgets\ChartWidget;
 
-class VolunteerTrendChart extends ChartWidget
+class GtrTrendChart extends ChartWidget
 {
-    protected ?string $heading = 'Tren Pendaftaran Volunteer';
+    protected ?string $heading = 'Tren Pendaftaran GTR';
 
     protected ?string $description = '14 hari terakhir';
 
@@ -30,7 +30,7 @@ class VolunteerTrendChart extends ChartWidget
         for ($i = 13; $i >= 0; $i--) {
             $day = now('Asia/Makassar')->subDays($i);
             $labels[] = $day->locale('id')->translatedFormat('d M');
-            $data[] = Volunteer::whereDate('created_at', $day->toDateString())->count();
+            $data[] = GtrRegistration::whereDate('created_at', $day->toDateString())->count();
         }
 
         return [

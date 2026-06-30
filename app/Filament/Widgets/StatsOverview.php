@@ -2,15 +2,15 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Event;
-use App\Models\Volunteer;
+use App\Models\GtrPayment;
+use App\Models\GtrRegistration;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverview extends StatsOverviewWidget
 {
-    protected ?string $heading = 'Ringkasan Runger';
+    protected ?string $heading = 'Ringkasan Pendaftaran GTR';
 
     protected static ?int $sort = -3;
 
@@ -18,30 +18,31 @@ class StatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $volTotal = Volunteer::count();
-        $volPending = Volunteer::where('status', 'pending')->count();
-        $volAccepted = Volunteer::where('status', 'accepted')->count();
+        $total = GtrRegistration::count();
+        $paid = GtrRegistration::where('payment_status', 'paid')->count();
+        $pending = GtrRegistration::where('payment_status', 'pending')->count();
+        $revenue = (int) GtrPayment::where('status', 'paid')->sum('amount');
 
         return [
-            Stat::make('Volunteer GTR', $volTotal)
-                ->description('Total pendaftar')
-                ->descriptionIcon(Heroicon::OutlinedHandRaised)
+            Stat::make('Total Pendaftar', $total)
+                ->description('Seluruh pendaftaran GTR')
+                ->descriptionIcon(Heroicon::OutlinedClipboardDocumentList)
                 ->color('primary')
-                ->chart($this->volunteerTrend()),
+                ->chart($this->registrationTrend()),
 
-            Stat::make('Menunggu Review', $volPending)
-                ->description('Belum diproses')
-                ->descriptionIcon(Heroicon::OutlinedClock)
-                ->color($volPending > 0 ? 'warning' : 'success'),
-
-            Stat::make('Diterima', $volAccepted)
-                ->description('Volunteer aktif')
+            Stat::make('Sudah Bayar', $paid)
+                ->description('Pembayaran lunas')
                 ->descriptionIcon(Heroicon::OutlinedCheckCircle)
                 ->color('success'),
 
-            Stat::make('Event', Event::count())
-                ->description('Total agenda & lomba')
-                ->descriptionIcon(Heroicon::OutlinedCalendarDays)
+            Stat::make('Menunggu Bayar', $pending)
+                ->description('Belum lunas')
+                ->descriptionIcon(Heroicon::OutlinedClock)
+                ->color($pending > 0 ? 'warning' : 'success'),
+
+            Stat::make('Pendapatan', 'IDR ' . number_format($revenue, 0, ',', '.'))
+                ->description('Total pembayaran lunas')
+                ->descriptionIcon(Heroicon::OutlinedBanknotes)
                 ->color('info'),
         ];
     }
@@ -49,13 +50,13 @@ class StatsOverview extends StatsOverviewWidget
     /**
      * @return array<int, int>
      */
-    protected function volunteerTrend(): array
+    protected function registrationTrend(): array
     {
         $counts = [];
 
         for ($i = 6; $i >= 0; $i--) {
             $day = now('Asia/Makassar')->subDays($i)->toDateString();
-            $counts[] = Volunteer::whereDate('created_at', $day)->count();
+            $counts[] = GtrRegistration::whereDate('created_at', $day)->count();
         }
 
         return $counts;
