@@ -6,6 +6,11 @@ use App\Http\Controllers\RunnerAuthController;
 use App\Http\Controllers\RunnerDashboardController;
 use Illuminate\Support\Facades\Route;
 
+// Formulir pendaftaran offline (blank, untuk dicetak) — admin only.
+Route::get('/gtr/formulir-pendaftaran', [PageController::class, 'gtrRegistrationForm'])
+    ->middleware('auth')
+    ->name('gtr.registration-form');
+
 // Swagger UI dokumentasi API (dilayani via route agar tidak 404 di /docs).
 Route::get('/docs', fn () => response()->file(public_path('docs/index.html')))->name('api.docs');
 Route::get('/docs/openapi.yaml', fn () => response()->file(public_path('docs/openapi.yaml'), [

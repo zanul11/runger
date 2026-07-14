@@ -63,6 +63,17 @@ class PageController extends Controller
         return view('pages.gtr', compact('gtrCategories', 'gtrSetting', 'gtrScenics', 'gtrOverview'));
     }
 
+    /** Formulir pendaftaran kosong untuk dicetak (pendaftaran offline). */
+    public function gtrRegistrationForm()
+    {
+        $setting = \App\Models\GtrSetting::first();
+        $categories = \App\Models\GtrCategory::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('gtr.registration-form', compact('setting', 'categories'));
+    }
+
     public function gtrEntryList()
     {
         $categories = \App\Models\GtrCategory::where('is_active', true)

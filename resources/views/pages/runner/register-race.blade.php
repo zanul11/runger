@@ -37,6 +37,18 @@
   .rf-submit{width:100%;background:var(--blue);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:15px;border-radius:12px;border:none;cursor:pointer;transition:background .2s,transform .15s}
   .rf-submit:hover{background:var(--blue-deep);transform:translateY(-1px)}
   .alert-err{background:#FEF3F2;border:1px solid #FECDCA;color:#B42318;padding:12px 14px;border-radius:12px;font-size:13px;margin-bottom:16px}
+
+  /* Size chart */
+  .size-chart-btn{margin-left:8px;font-family:inherit;font-weight:700;font-size:11px;color:var(--blue);background:rgba(27,63,174,.08);border:1px solid rgba(27,63,174,.25);border-radius:999px;padding:3px 10px;cursor:pointer;vertical-align:middle}
+  .size-chart-btn:hover{background:rgba(27,63,174,.15)}
+  .sc-overlay{position:fixed;inset:0;z-index:9999;background:rgba(10,15,30,.82);display:none;align-items:center;justify-content:center;padding:18px}
+  .sc-overlay.open{display:flex}
+  .sc-box{max-width:720px;width:100%;max-height:92vh;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .sc-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #eee}
+  .sc-head b{font-family:'Poppins',sans-serif;font-size:14px;color:#111}
+  .sc-close{background:#f1f1f1;border:none;border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;color:#333}
+  .sc-body{overflow:auto;padding:10px}
+  .sc-body img{width:100%;height:auto;display:block;border-radius:8px}
 </style>
 @endverbatim
 @endpush
@@ -139,7 +151,9 @@
   <div class="rf-h">Jersey & Kontak Darurat</div>
 
   <div class="fld">
-    <label for="size">Ukuran Jersey <span class="req">*</span></label>
+    <label for="size">Ukuran Jersey <span class="req">*</span>
+      <button type="button" class="size-chart-btn" onclick="openSizeChart()">📏 Size Chart</button>
+    </label>
     <select class="inp" id="size" name="size" required>
       <option value="" disabled @selected(!old('size'))>Pilih ukuran</option>
       @foreach(\App\Models\GtrRegistration::SIZES as $opt)
@@ -192,4 +206,25 @@
 
   <button type="submit" class="rf-submit">Daftar &amp; Lanjut Bayar</button>
 </form>
+
+{{-- Modal Size Chart Jersey --}}
+<div class="sc-overlay" id="sizeChart" onclick="if(event.target===this)closeSizeChart()">
+  <div class="sc-box">
+    <div class="sc-head">
+      <b>Size Chart Jersey</b>
+      <button type="button" class="sc-close" onclick="closeSizeChart()" aria-label="Tutup">&times;</button>
+    </div>
+    <div class="sc-body">
+      <img src="{{ asset('assets/gtr/size-jersey.jpeg') }}" alt="Size Chart Jersey Gerung Trail Run">
+    </div>
+  </div>
+</div>
+
+@push('scripts')
+<script>
+  function openSizeChart(){ document.getElementById('sizeChart').classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeSizeChart(){ document.getElementById('sizeChart').classList.remove('open'); document.body.style.overflow=''; }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeSizeChart(); });
+</script>
+@endpush
 @endsection
