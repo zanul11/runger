@@ -166,8 +166,7 @@
       <div class="decl">
         Dengan ini saya menyatakan bahwa data yang saya isi benar, saya dalam kondisi sehat dan mampu
         mengikuti lomba, serta menyetujui seluruh syarat &amp; ketentuan penyelenggaraan
-        {{ $setting->title ?? 'Gerung Trail Run 2026' }}. Saya membebaskan panitia dari tuntutan atas
-        risiko cedera/kecelakaan selama kegiatan. <b>(☐ Setuju &amp; menandatangani di bawah)</b>
+        {{ $setting->title ?? 'Gerung Trail Run 2026' }}. <b>(☐ Setuju &amp; menandatangani di bawah)</b>
       </div>
       <div class="sign">
         <div class="b"><div class="space"></div><div class="ln">Peserta<br>(Nama &amp; Tanda Tangan)</div></div>
