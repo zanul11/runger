@@ -18,7 +18,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', MeController::class);
-    Route::get('/events/{event}/roster', RosterController::class);
+    Route::get('/roster', RosterController::class);
     Route::post('/scans', [ScanController::class, 'store']);
 
     // Admin-only.

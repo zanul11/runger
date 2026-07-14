@@ -21,7 +21,7 @@ class MeController extends Controller
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'email' => $user->email,
+                'username' => $user->username,
                 'role' => $user->role,
             ],
             'event' => $assignment?->event ? [

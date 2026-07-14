@@ -82,8 +82,13 @@ class Event extends Model
         return $this->hasMany(Result::class);
     }
 
-    public function timingPoints(): HasMany
+    /** Slug event GTR (modul race-timing single-event). */
+    public const GTR_SLUG = 'gerung-trail-run-2026';
+
+    /** ID event GTR (default), fallback ke event pertama. */
+    public static function gtrId(): ?int
     {
-        return $this->hasMany(GtrTimingPoint::class)->orderBy('sort_order');
+        return static::where('slug', self::GTR_SLUG)->value('id')
+            ?? static::orderBy('id')->value('id');
     }
 }

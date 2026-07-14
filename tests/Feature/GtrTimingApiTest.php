@@ -31,12 +31,8 @@ class GtrTimingApiTest extends TestCase
         $this->event = Event::create([
             'slug' => 'gtr-2026', 'title' => 'GTR 2026', 'date' => '2026-11-29', 'time' => '06:00',
         ]);
-        $this->start = GtrTimingPoint::create([
-            'event_id' => $this->event->id, 'code' => 'START', 'name' => 'Start', 'type' => 'start',
-        ]);
-        $this->cp1 = GtrTimingPoint::create([
-            'event_id' => $this->event->id, 'code' => 'CP1', 'name' => 'Checkpoint 1', 'type' => 'checkpoint',
-        ]);
+        $this->start = GtrTimingPoint::create(['code' => 'START', 'name' => 'Start', 'type' => 'start']);
+        $this->cp1 = GtrTimingPoint::create(['code' => 'CP1', 'name' => 'Checkpoint 1', 'type' => 'checkpoint']);
 
         $this->cat = GtrCategory::create(['name' => '7K', 'slug' => '7k', 'distance' => '7 KM']);
         $this->cat->timingPoints()->attach([
@@ -64,9 +60,73 @@ class GtrTimingApiTest extends TestCase
         return $marshal;
     }
 
-    public function test_qr_token_is_auto_generated_on_registration(): void
+    public function test_nomor_registrasi_is_auto_generated_on_registration(): void
     {
-        $this->assertNotEmpty($this->reg->qr_token);
+        $this->assertNotEmpty($this->reg->nomor_registrasi);
+    }
+
+    public function test_marshal_logs_in_with_username(): void
+    {
+        User::create([
+            'name' => 'Pos Marshal', 'username' => 'marshal-cp1', 'password' => 'rahasia6', 'role' => User::ROLE_MARSHAL,
+        ]);
+
+        $this->postJson('/api/login', [
+            'username' => 'marshal-cp1',
+            'password' => 'rahasia6',
+            'device_name' => 'hp-marshal',
+        ])
+            ->assertOk()
+            ->assertJsonStructure(['token', 'user' => ['id', 'name', 'username', 'role']])
+            ->assertJsonPath('user.username', 'marshal-cp1');
+
+        // Password salah ditolak.
+        $this->postJson('/api/login', [
+            'username' => 'marshal-cp1', 'password' => 'salah', 'device_name' => 'hp-marshal',
+        ])->assertStatus(422);
+    }
+
+    public function test_roster_is_filtered_by_post_categories(): void
+    {
+        Sanctum::actingAs($this->marshalAtCp1());
+
+        // CP1 hanya terhubung kategori 7K (lihat setUp). Buat peserta kategori lain.
+        $cat15 = GtrCategory::create(['name' => '15K', 'slug' => '15k', 'distance' => '15 KM']);
+        $runner2 = Runner::create(['first_name' => 'Sari', 'email' => 'sari@test.id', 'password' => 'x']);
+        $reg2 = GtrRegistration::create([
+            'runner_id' => $runner2->id, 'gtr_category_id' => $cat15->id,
+            'bib_number' => '202', 'full_name' => 'Sari', 'gender' => 'Perempuan',
+        ]);
+
+        $tokens = collect(
+            $this->getJson('/api/roster')->assertOk()->json('roster')
+        )->pluck('nomor_registrasi');
+
+        $this->assertTrue($tokens->contains($this->reg->nomor_registrasi));   // 7K → muncul
+        $this->assertFalse($tokens->contains($reg2->nomor_registrasi));        // 15K → tidak
+    }
+
+    public function test_roster_includes_scanned_at_after_scan(): void
+    {
+        Sanctum::actingAs($this->marshalAtCp1());
+
+        // Sebelum discan -> scanned_at null.
+        $before = collect($this->getJson('/api/roster')->json('roster'))
+            ->firstWhere('nomor_registrasi', $this->reg->nomor_registrasi);
+        $this->assertNull($before['scanned_at']);
+
+        // Scan di CP1.
+        $this->postJson('/api/scans', ['scans' => [[
+            'client_uuid' => '55555555-5555-4555-8555-555555555555',
+            'nomor_registrasi' => $this->reg->nomor_registrasi,
+            'timing_point_id' => $this->cp1->id,
+            'scanned_at' => '2026-11-29T06:30:00+08:00',
+        ]]])->assertOk();
+
+        // Sesudah -> scanned_at terisi.
+        $after = collect($this->getJson('/api/roster')->json('roster'))
+            ->firstWhere('nomor_registrasi', $this->reg->nomor_registrasi);
+        $this->assertNotNull($after['scanned_at']);
     }
 
     public function test_me_returns_locked_active_assignment(): void
@@ -87,7 +147,7 @@ class GtrTimingApiTest extends TestCase
         $uuid = '11111111-1111-4111-8111-111111111111';
         $payload = ['scans' => [[
             'client_uuid' => $uuid,
-            'qr_token' => $this->reg->qr_token,
+            'nomor_registrasi' => $this->reg->nomor_registrasi,
             'timing_point_id' => $this->cp1->id,
             'scanned_at' => '2026-11-29T06:30:00+08:00',
             'raw_device_time' => '2026-11-29T06:30:00+08:00',
@@ -113,7 +173,7 @@ class GtrTimingApiTest extends TestCase
 
         $this->postJson('/api/scans', ['scans' => [[
             'client_uuid' => '22222222-2222-4222-8222-222222222222',
-            'qr_token' => $this->reg->qr_token,
+            'nomor_registrasi' => $this->reg->nomor_registrasi,
             'timing_point_id' => $this->start->id, // bukan pos marshal (CP1)
             'scanned_at' => '2026-11-29T06:00:00+08:00',
         ]]])
@@ -130,7 +190,7 @@ class GtrTimingApiTest extends TestCase
 
         $this->postJson('/api/scans', ['scans' => [[
             'client_uuid' => '33333333-3333-4333-8333-333333333333',
-            'qr_token' => 'GTR-NOTREAL',
+            'nomor_registrasi' => 'NOTREAL',
             'timing_point_id' => $this->cp1->id,
             'scanned_at' => '2026-11-29T06:30:00+08:00',
         ]]])
@@ -147,7 +207,7 @@ class GtrTimingApiTest extends TestCase
 
         $this->postJson('/api/scans', ['scans' => [[
             'client_uuid' => '44444444-4444-4444-8444-444444444444',
-            'qr_token' => $this->reg->qr_token,
+            'nomor_registrasi' => $this->reg->nomor_registrasi,
             'timing_point_id' => $this->cp1->id,
             'scanned_at' => '2026-11-29T06:30:00+08:00',
         ]]])->assertStatus(403);
@@ -167,7 +227,7 @@ class GtrTimingApiTest extends TestCase
 
         $this->postJson('/api/marshals', [
             'name' => 'Marshal Baru',
-            'email' => 'baru@test.id',
+            'username' => 'marshal-baru',
             'password' => 'rahasia6',
             'event_id' => $this->event->id,
             'timing_point_id' => $this->start->id,

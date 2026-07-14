@@ -30,24 +30,35 @@ class GtrRegistration extends Model
     public const RACE_DQ = 'dq';
     public const RACE_FINISHER = 'finisher';
 
-    /** Beri qr_token acak otomatis saat dibuat bila belum diisi. */
     protected static function booted(): void
     {
-        static::creating(function (GtrRegistration $reg) {
-            if (empty($reg->qr_token)) {
-                $reg->qr_token = self::generateQrToken();
+        static::created(function (GtrRegistration $reg) {
+            // Nomor registrasi (identitas QR) untuk semua jalur pembuatan.
+            if (empty($reg->nomor_registrasi)) {
+                $reg->forceFill([
+                    'nomor_registrasi' => 'GTR2026' . str_pad((string) $reg->id, 5, '0', STR_PAD_LEFT),
+                ])->saveQuietly();
+            }
+            // BIB langsung bila dibuat sudah lunas (mis. via admin).
+            if ($reg->payment_status === 'paid') {
+                self::assignBib($reg);
+            }
+        });
+
+        // BIB otomatis saat pembayaran berubah menjadi LUNAS (webhook / admin).
+        static::updated(function (GtrRegistration $reg) {
+            if ($reg->wasChanged('payment_status') && $reg->payment_status === 'paid') {
+                self::assignBib($reg);
             }
         });
     }
 
-    /** Token QR unik & acak (URL-safe). */
-    public static function generateQrToken(): string
+    /** Beri nomor BIB bila belum ada (prefix kategori + urutan per kategori). */
+    protected static function assignBib(GtrRegistration $reg): void
     {
-        do {
-            $token = 'GTR-' . strtoupper(\Illuminate\Support\Str::random(10));
-        } while (self::where('qr_token', $token)->exists());
-
-        return $token;
+        if (empty($reg->bib_number)) {
+            app(\App\Services\BibNumberService::class)->assignFor($reg);
+        }
     }
 
     /** Normalisasi gender ke "M"/"F" untuk roster & ranking. */

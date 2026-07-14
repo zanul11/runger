@@ -16,7 +16,7 @@ class StoreMarshalRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:191'],
-            'email' => ['required', 'email', 'max:191', 'unique:users,email'],
+            'username' => ['required', 'string', 'max:191', 'alpha_dash', 'unique:users,username'],
             'password' => ['required', 'string', Password::min(6)],
             'event_id' => ['required', 'integer', 'exists:events,id'],
             'timing_point_id' => ['required', 'integer', 'exists:gtr_timing_points,id'],

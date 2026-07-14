@@ -24,7 +24,7 @@ class MarshalService
         return DB::transaction(function () use ($attributes, $eventId, $timingPointId) {
             $user = User::create([
                 'name' => $attributes['name'],
-                'email' => $attributes['email'],
+                'username' => $attributes['username'],
                 'password' => $attributes['password'], // di-hash oleh cast 'hashed'
                 'role' => User::ROLE_MARSHAL,
             ]);
@@ -42,10 +42,8 @@ class MarshalService
     public function assign(User $user, int $eventId, int $timingPointId): GtrTimingPointAssignment
     {
         return DB::transaction(function () use ($user, $eventId, $timingPointId) {
-            // Pastikan timing point milik event yang sama.
-            GtrTimingPoint::where('id', $timingPointId)
-                ->where('event_id', $eventId)
-                ->firstOrFail();
+            // Pastikan timing point ada (tak lagi terikat event).
+            GtrTimingPoint::findOrFail($timingPointId);
 
             // Nonaktifkan assignment aktif lain marshal ini di event ini.
             $user->timingPointAssignments()

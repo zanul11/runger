@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\GtrTimingPoints\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -13,29 +14,34 @@ class GtrTimingPointsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('sort_order')
             ->columns([
-                TextColumn::make('event.title')
-                    ->searchable(),
+                TextColumn::make('sort_order')
+                    ->label('#')
+                    ->numeric()
+                    ->sortable(),
                 TextColumn::make('code')
+                    ->label('Kode')
+                    ->badge()
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 TextColumn::make('type')
-                    ->badge(),
-                TextColumn::make('latitude')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('longitude')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('sort_order')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Tipe')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'start' => 'success',
+                        'finish' => 'danger',
+                        'water_station' => 'info',
+                        default => 'gray',
+                    }),
+                TextColumn::make('categories.name')
+                    ->label('Kategori')
+                    ->badge()
+                    ->separator(',')
+                    ->placeholder('Semua'),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -45,6 +51,9 @@ class GtrTimingPointsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->modalDescription('Menghapus titik timing juga melepasnya dari kategori & menghapus scan log terkait.'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

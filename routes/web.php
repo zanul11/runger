@@ -6,6 +6,12 @@ use App\Http\Controllers\RunnerAuthController;
 use App\Http\Controllers\RunnerDashboardController;
 use Illuminate\Support\Facades\Route;
 
+// Swagger UI dokumentasi API (dilayani via route agar tidak 404 di /docs).
+Route::get('/docs', fn () => response()->file(public_path('docs/index.html')))->name('api.docs');
+Route::get('/docs/openapi.yaml', fn () => response()->file(public_path('docs/openapi.yaml'), [
+    'Content-Type' => 'application/yaml',
+]));
+
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/agenda', [PageController::class, 'agenda'])->name('agenda');
 Route::get('/agenda/{slug}', [PageController::class, 'eventDetail'])->name('event.detail');

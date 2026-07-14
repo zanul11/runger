@@ -35,9 +35,9 @@ class GtrResultEngineTest extends TestCase
             'default_gun_start' => Carbon::parse('2026-11-29 06:00', $this->tz),
         ]);
 
-        $this->start = GtrTimingPoint::create(['event_id' => $this->event->id, 'code' => 'START', 'name' => 'Start', 'type' => 'start']);
-        $this->cp1 = GtrTimingPoint::create(['event_id' => $this->event->id, 'code' => 'CP1', 'name' => 'CP1', 'type' => 'checkpoint']);
-        $this->finish = GtrTimingPoint::create(['event_id' => $this->event->id, 'code' => 'FINISH', 'name' => 'Finish', 'type' => 'finish']);
+        $this->start = GtrTimingPoint::create(['code' => 'START', 'name' => 'Start', 'type' => 'start']);
+        $this->cp1 = GtrTimingPoint::create(['code' => 'CP1', 'name' => 'CP1', 'type' => 'checkpoint']);
+        $this->finish = GtrTimingPoint::create(['code' => 'FINISH', 'name' => 'Finish', 'type' => 'finish']);
 
         $this->cat = GtrCategory::create([
             'name' => '7K', 'slug' => '7k', 'distance' => '7 KM',

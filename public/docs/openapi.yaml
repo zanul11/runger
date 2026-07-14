@@ -1,0 +1,352 @@
+openapi: 3.0.3
+info:
+  title: GTR Race-Timing API
+  version: 1.0.0
+  description: >
+    API modul race-timing Gerung Trail Run (GTR) 2026 untuk aplikasi scanner marshal
+    (offline-first). Auth memakai Laravel Sanctum (Bearer token).
+
+
+    **Kontrak offline-first:** (1) simpan scan lokal dulu; (2) tiap scan punya
+    `client_uuid` (UUID v4) untuk idempotensi; (3) koreksi jam via `/server-time`
+    (`scanned_at = raw_device_time + clock_offset_ms`); (4) antrian append-only —
+    jangan hapus item sebelum masuk `accepted`.
+
+servers:
+  - url: '{baseUrl}/api'
+    description: Server Laravel
+    variables:
+      baseUrl:
+        default: http://runger.test
+        description: Base URL server (tanpa /api)
+
+tags:
+  - name: Auth
+  - name: Sesi & Pos
+  - name: Roster
+  - name: Scan
+  - name: Marshal (Admin)
+
+paths:
+  /server-time:
+    get:
+      tags: [Auth]
+      summary: Waktu server (koreksi jam)
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  server_time:
+                    type: string
+                    format: date-time
+                    example: '2026-11-29T06:03:12+00:00'
+
+  /login:
+    post:
+      tags: [Auth]
+      summary: Login marshal (username) → token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, device_name]
+              properties:
+                username: { type: string, example: marshal-cp1 }
+                password: { type: string, format: password, example: rahasia }
+                device_name: { type: string, example: hp-marshal-01 }
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string, example: '12|abcdef...plaintext' }
+                  user: { $ref: '#/components/schemas/User' }
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /logout:
+    post:
+      tags: [Auth]
+      summary: Cabut token device ini
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: Logged out. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me:
+    get:
+      tags: [Sesi & Pos]
+      summary: Profil marshal + pos terkunci
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+                  event:
+                    nullable: true
+                    allOf: [{ $ref: '#/components/schemas/Event' }]
+                  active_assignment:
+                    nullable: true
+                    allOf: [{ $ref: '#/components/schemas/ActiveAssignment' }]
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /roster:
+    get:
+      tags: [Roster]
+      summary: Roster peserta untuk pos marshal
+      description: >
+        Diambil dari POS aktif marshal (bukan event). Hanya peserta yang kategorinya
+        melewati timing point pos ini yang dikembalikan. Bila pos tidak punya kategori,
+        seluruh pendaftar ber-`nomor_registrasi` dikembalikan.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timing_point: { $ref: '#/components/schemas/TimingPoint' }
+                  count: { type: integer, example: 21 }
+                  scanned_count: { type: integer, example: 5, description: 'Jumlah peserta yang sudah discan di pos ini' }
+                  roster:
+                    type: array
+                    items: { $ref: '#/components/schemas/RosterEntry' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Belum ditugaskan ke pos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+
+  /scans:
+    post:
+      tags: [Scan]
+      summary: Kirim batch scan (idempoten)
+      description: >
+        Tiap item divalidasi: `timing_point_id` harus = pos aktif marshal (kalau tidak
+        → `wrong_post`), `nomor_registrasi` harus dikenal (kalau tidak → `unknown_qr`).
+        `updateOrCreate` atas `client_uuid` → aman dikirim ulang.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [scans]
+              properties:
+                scans:
+                  type: array
+                  minItems: 1
+                  maxItems: 500
+                  items: { $ref: '#/components/schemas/ScanInput' }
+      responses:
+        '200':
+          description: Diproses per item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accepted:
+                    type: array
+                    items: { type: string, format: uuid }
+                  rejected:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        client_uuid: { type: string, format: uuid }
+                        reason: { type: string, enum: [wrong_post, unknown_qr] }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Belum ditugaskan ke pos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /marshals:
+    post:
+      tags: [Marshal (Admin)]
+      summary: Buat marshal + assign pos (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, username, password, event_id, timing_point_id]
+              properties:
+                name: { type: string, example: Budi }
+                username: { type: string, example: marshal-cp1, description: 'alpha_dash, unik' }
+                password: { type: string, format: password, minLength: 6 }
+                event_id: { type: integer, example: 3 }
+                timing_point_id: { type: integer, example: 12 }
+      responses:
+        '201':
+          description: Dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  marshal: { $ref: '#/components/schemas/User' }
+                  assignment: { $ref: '#/components/schemas/Assignment' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /marshals/{marshal}/reassign:
+    put:
+      tags: [Marshal (Admin)]
+      summary: Pindahkan pos marshal (admin)
+      parameters:
+        - name: marshal
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [event_id, timing_point_id]
+              properties:
+                event_id: { type: integer, example: 3 }
+                timing_point_id: { type: integer, example: 15 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  marshal_id: { type: integer, example: 5 }
+                  assignment: { $ref: '#/components/schemas/Assignment' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: Marshal/timing point tak ditemukan }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'Token Sanctum dari /login. Header: Authorization: Bearer <token>'
+
+  responses:
+    Unauthorized:
+      description: Token tidak ada / tidak valid
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Message' }
+    Forbidden:
+      description: Bukan admin
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Message' }
+    ValidationError:
+      description: Validasi gagal
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
+              errors:
+                type: object
+                additionalProperties:
+                  type: array
+                  items: { type: string }
+
+  schemas:
+    Message:
+      type: object
+      properties:
+        message: { type: string, example: Belum ditugaskan ke pos. }
+    User:
+      type: object
+      properties:
+        id: { type: integer, example: 5 }
+        name: { type: string, example: Budi }
+        username: { type: string, example: marshal-cp1 }
+        role: { type: string, enum: [admin, marshal], example: marshal }
+    Event:
+      type: object
+      properties:
+        id: { type: integer, example: 3 }
+        slug: { type: string, example: gerung-trail-run-2026 }
+        title: { type: string, example: Gerung Trail Run 2026 }
+    TimingPoint:
+      type: object
+      properties:
+        id: { type: integer, example: 12 }
+        code: { type: string, example: CP1 }
+        name: { type: string, example: Checkpoint 1 }
+        type: { type: string, enum: [start, checkpoint, water_station, finish] }
+    ActiveAssignment:
+      type: object
+      properties:
+        timing_point_id: { type: integer, example: 12 }
+        code: { type: string, example: CP1 }
+        name: { type: string, example: Checkpoint 1 }
+        type: { type: string, enum: [start, checkpoint, water_station, finish] }
+    Assignment:
+      type: object
+      properties:
+        event_id: { type: integer, example: 3 }
+        timing_point_id: { type: integer, example: 12 }
+        code: { type: string, example: CP1 }
+        is_active: { type: boolean, example: true }
+    RosterEntry:
+      type: object
+      properties:
+        nomor_registrasi: { type: string, example: GTR202600006 }
+        bib_number: { type: string, nullable: true, example: '101' }
+        name: { type: string, example: Rizal Bahri }
+        gender: { type: string, nullable: true, enum: [M, F, null], example: M }
+        category: { type: string, nullable: true, example: Keteri Trail Run }
+        scanned_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: 'Waktu scan paling awal di pos ini bila sudah discan, atau null'
+          example: '2026-11-29T06:31:05+08:00'
+    ScanInput:
+      type: object
+      required: [client_uuid, nomor_registrasi, timing_point_id, scanned_at]
+      properties:
+        client_uuid: { type: string, format: uuid, description: 'UUID v4, unik (idempotensi)' }
+        nomor_registrasi: { type: string, example: GTR202600006 }
+        timing_point_id: { type: integer, description: 'Harus = pos aktif marshal', example: 12 }
+        scanned_at: { type: string, format: date-time, example: '2026-11-29T06:30:00+08:00' }
+        raw_device_time: { type: string, format: date-time, nullable: true }
+        clock_offset_ms: { type: integer, default: 0, example: 1200 }
+        source: { type: string, enum: [scan, manual, video], default: scan }
+        device_id: { type: string, nullable: true, maxLength: 191 }
+
+security:
+  - bearerAuth: []

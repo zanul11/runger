@@ -34,10 +34,7 @@ class GtrMonitor extends Page
      */
     public function getRows(): array
     {
-        $points = GtrTimingPoint::with(['event'])
-            ->orderBy('event_id')
-            ->orderBy('sort_order')
-            ->get();
+        $points = GtrTimingPoint::orderBy('sort_order')->get();
 
         // Agregasi scan per titik dalam satu query.
         $scanStats = GtrScanLog::query()
@@ -62,7 +59,6 @@ class GtrMonitor extends Page
                 'code' => $tp->code,
                 'name' => $tp->name,
                 'type' => $tp->type,
-                'event' => $tp->event?->title,
                 'marshals' => $marshals,
                 'scan_count' => (int) ($stat->total ?? 0),
                 'last_scan' => $stat?->last_scan ? \Illuminate\Support\Carbon::parse($stat->last_scan) : null,

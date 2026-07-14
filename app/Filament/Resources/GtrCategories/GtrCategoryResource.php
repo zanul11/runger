@@ -60,6 +60,11 @@ class GtrCategoryResource extends Resource
                             ->helperText('Dipakai di URL, mis. 7k / 15k. Tanpa spasi.')
                             ->required()
                             ->unique(ignoreRecord: true),
+                        TextInput::make('bib_prefix')
+                            ->label('Prefix Nomor BIB')
+                            ->placeholder('7')
+                            ->maxLength(8)
+                            ->helperText('BIB = prefix + urutan 3 digit per kategori. Mis. "7" → 7001, 7002 … (>999 jadi 4 digit).'),
                         TextInput::make('distance')
                             ->label('Jarak (tampil)')
                             ->placeholder('7 KM')

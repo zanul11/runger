@@ -4,138 +4,158 @@
 @section('bodyClass', 'gtr-sub')
 
 @push('styles')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 @verbatim
 <style>
-  .el-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
-  .el-toolbar label{font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mute)}
-  .el-toolbar select{background:var(--card);border:1px solid var(--line);color:#fff;border-radius:8px;padding:9px 13px;font-family:inherit;font-size:13px;cursor:pointer}
+  .el-toolbar{margin-bottom:16px}
+  .el-search{width:100%;background:var(--card);border:1px solid var(--line);color:#fff;border-radius:10px;padding:12px 15px;font-family:inherit;font-size:14px}
+  .el-search::placeholder{color:var(--text-mute)}
+  .el-search:focus{outline:none;border-color:var(--red)}
 
-  .el-cat-tag{font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;color:var(--red)}
-  .el-pay-ok{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.45);font-weight:800;font-size:13px}
-  .el-pay-no{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.04);color:var(--text-mute);border:1px solid var(--line);font-size:13px}
-  .el-legend{display:flex;gap:18px;justify-content:center;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-mute)}
-  .el-legend span{display:inline-flex;align-items:center;gap:7px}
+  /* Tabs per kategori */
+  .el-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+  .el-tab{
+    background:var(--card);border:1px solid var(--line);color:var(--text-soft);
+    border-radius:999px;padding:9px 16px;font-family:'Archivo',sans-serif;font-weight:700;
+    font-size:12.5px;letter-spacing:.02em;cursor:pointer;display:inline-flex;align-items:center;gap:7px
+  }
+  .el-tab:hover{border-color:rgba(255,255,255,.28);color:#fff}
+  .el-tab.active{background:var(--red);border-color:var(--red);color:#fff}
+  .el-tab .el-count{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;
+    background:rgba(255,255,255,.14);border-radius:999px;padding:1px 7px;line-height:1.6
+  }
+  .el-tab.active .el-count{background:rgba(0,0,0,.22)}
 
-  /* DataTables dark theme */
-  .dataTables_wrapper{color:var(--text-soft);font-size:13px}
-  .dataTables_wrapper .dataTables_filter{margin-bottom:12px}
-  .dataTables_wrapper .dataTables_filter label{color:var(--text-mute);font-family:'Archivo',sans-serif;font-size:12px}
-  .dataTables_wrapper .dataTables_filter input,
-  .dataTables_wrapper .dataTables_length select{
-    background:var(--card);border:1px solid var(--line);color:#fff;border-radius:8px;padding:9px 13px;font-family:inherit;margin-left:8px
+  /* Tabel */
+  .el-table-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+  table.el-table{width:100%;border-collapse:collapse}
+  .el-table thead th{
+    background:rgba(255,255,255,.03);color:var(--text-mute);border-bottom:1px solid var(--line);
+    text-transform:uppercase;font-size:10px;letter-spacing:.14em;font-family:'Archivo',sans-serif;
+    font-weight:700;padding:13px 14px;text-align:left;white-space:nowrap
   }
-  .dataTables_wrapper .dataTables_filter input::placeholder{color:var(--text-mute)}
-  .dataTables_wrapper .dataTables_filter input:focus{outline:none;border-color:var(--red)}
-  table.dataTable{width:100% !important;border-collapse:collapse !important;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-  table.dataTable thead th{
-    background:rgba(255,255,255,.03);color:var(--text-mute) !important;border-bottom:1px solid var(--line) !important;
-    text-transform:uppercase;font-size:10px;letter-spacing:.14em;font-family:'Archivo',sans-serif;font-weight:700;padding:13px 16px;text-align:left
+  .el-table thead th.c,.el-table tbody td.c{text-align:center}
+  .el-table tbody td{color:#fff;border-bottom:1px solid var(--line);padding:12px 14px;font-size:14px;vertical-align:middle}
+  .el-table tbody tr:last-child td{border-bottom:none}
+  .el-table tbody tr:hover td{background:rgba(255,255,255,.025)}
+  .el-no{color:var(--text-mute);font-family:'JetBrains Mono',monospace;font-size:12.5px;width:44px}
+  .el-bib{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--red);width:78px}
+  .el-bib.empty{color:var(--text-mute);font-weight:600}
+  .el-nm{font-weight:600}
+  .el-gd{color:var(--text-soft);font-size:13px;white-space:nowrap}
+  .el-pay-ok{display:inline-flex;align-items:center;gap:6px;color:#22c55e;font-weight:700;font-size:12.5px;font-family:'Archivo',sans-serif}
+  .el-pay-no{display:inline-flex;align-items:center;gap:6px;color:var(--text-mute);font-size:12.5px;font-family:'Archivo',sans-serif}
+  .el-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .el-dot.ok{background:#22c55e}
+  .el-dot.no{background:var(--text-mute)}
+  .el-empty{padding:26px;text-align:center;color:var(--text-mute);font-style:italic}
+  @media (max-width:560px){
+    .el-hide-sm{display:none}
+    .el-table tbody td,.el-table thead th{padding:11px 10px}
   }
-  table.dataTable thead th.c{text-align:center}
-  table.dataTable thead th.sorting:after,table.dataTable thead th.sorting_asc:after,table.dataTable thead th.sorting_desc:after{opacity:.4}
-  table.dataTable tbody td{color:#fff;border-bottom:1px solid var(--line);padding:13px 16px;font-size:14px}
-  table.dataTable tbody td.c{text-align:center}
-  table.dataTable tbody td.nm{font-weight:600}
-  table.dataTable tbody td.gd{color:var(--text-soft);font-size:13px}
-  table.dataTable tbody tr{background:transparent !important}
-  table.dataTable tbody tr:hover{background:rgba(255,255,255,.025) !important}
-  table.dataTable.no-footer{border-bottom:1px solid var(--line)}
-  .dataTables_wrapper .dataTables_info{color:var(--text-mute);font-size:12px;padding-top:12px}
-  .dataTables_wrapper .dataTables_paginate{padding-top:10px}
-  .dataTables_wrapper .dataTables_paginate .paginate_button{
-    color:var(--text-soft) !important;background:transparent !important;border:1px solid var(--line) !important;
-    border-radius:8px;margin:0 2px;padding:6px 12px !important
-  }
-  .dataTables_wrapper .dataTables_paginate .paginate_button:hover{background:rgba(255,255,255,.06) !important;color:#fff !important;border-color:rgba(255,255,255,.3) !important}
-  .dataTables_wrapper .dataTables_paginate .paginate_button.current{background:var(--red) !important;border-color:var(--red) !important;color:#fff !important}
-  .dataTables_wrapper .dataTables_paginate .paginate_button.disabled{opacity:.4}
-  .dataTables_empty{color:var(--text-mute) !important;font-style:italic;padding:24px !important}
 </style>
 @endverbatim
 @endpush
 
 @section('content')
 <section class="block" style="padding-top:48px">
-  <div class="wrap" style="max-width:880px">
+  <div class="wrap" style="max-width:920px">
     <div class="block-head">
       <div class="eye">Registered Runners</div>
       <h2>Entry List</h2>
-      <p>Cari peserta berdasarkan nama atau filter per kategori. Centang hijau berarti pembayaran lunas.</p>
+      <p>Pilih tab kategori atau cari nama / nomor BIB. Peserta yang sudah bayar tampil lebih dulu.</p>
     </div>
 
     <div class="el-toolbar">
-      <label for="cat-filter">Kategori</label>
-      <select id="cat-filter">
-        <option value="">Semua Kategori</option>
-        @foreach($categories as $cat)
-          <option value="{{ $cat->distance }}">{{ $cat->distance }} — {{ $cat->name }}</option>
-        @endforeach
-      </select>
+      <input id="el-search" class="el-search" type="search" placeholder="Cari nama atau nomor BIB…" autocomplete="off">
     </div>
 
-    <table id="entry-table" class="display" style="width:100%">
-      <thead>
-        <tr>
-          <th>Nama</th>
-          <th>Kategori</th>
-          <th>Gender</th>
-          <th class="c">Bayar</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($categories as $cat)
-          @foreach($cat->registrations as $reg)
-            <tr>
-              <td class="nm">{{ $reg->full_name }}</td>
-              <td><span class="el-cat-tag">{{ $cat->distance }}</span></td>
-              <td class="gd">{{ $reg->gender }}</td>
-              <td class="c" data-order="{{ $reg->payment_status === 'paid' ? 1 : 0 }}">
-                @if($reg->payment_status === 'paid')
-                  <span class="el-pay-ok" title="Sudah bayar">✓</span>
-                @else
-                  <span class="el-pay-no" title="Belum bayar">—</span>
-                @endif
-              </td>
-            </tr>
-          @endforeach
-        @endforeach
-      </tbody>
-    </table>
+    <div class="el-tabs" id="el-tabs">
+      <button class="el-tab active" data-cat="">Semua
+        <span class="el-count">{{ $categories->sum(fn ($c) => $c->registrations->count()) }}</span>
+      </button>
+      @foreach($categories as $cat)
+        <button class="el-tab" data-cat="{{ $cat->slug }}">{{ $cat->distance }}
+          <span class="el-count">{{ $cat->registrations->count() }}</span>
+        </button>
+      @endforeach
+    </div>
 
-    <div class="el-legend">
-      <span><span class="el-pay-ok" style="width:18px;height:18px;font-size:11px">✓</span> Sudah Bayar</span>
-      <span><span class="el-pay-no" style="width:18px;height:18px;font-size:11px">—</span> Belum Bayar</span>
+    <div class="el-table-wrap">
+      <table class="el-table">
+        <thead>
+          <tr>
+            <th class="c">No</th>
+            <th>BIB</th>
+            <th>Nama</th>
+            <th class="el-hide-sm">Gender</th>
+            <th class="c">Bayar</th>
+          </tr>
+        </thead>
+        <tbody id="el-body">
+          @foreach($categories as $cat)
+            @foreach($cat->registrations as $reg)
+              @php($paid = $reg->payment_status === 'paid')
+              <tr data-cat="{{ $cat->slug }}"
+                  data-name="{{ \Illuminate\Support\Str::lower($reg->full_name) }}"
+                  data-bib="{{ $reg->bib_number }}">
+                <td class="c el-no"></td>
+                <td class="el-bib {{ $reg->bib_number ? '' : 'empty' }}">{{ $reg->bib_number ?: '-' }}</td>
+                <td class="el-nm">{{ $reg->full_name }}</td>
+                <td class="el-gd el-hide-sm">{{ $reg->gender ?: '—' }}</td>
+                <td class="c">
+                  @if($paid)
+                    <span class="el-pay-ok"><span class="el-dot ok"></span>Lunas</span>
+                  @else
+                    <span class="el-pay-no"><span class="el-dot no"></span>Belum</span>
+                  @endif
+                </td>
+              </tr>
+            @endforeach
+          @endforeach
+          <tr id="el-empty-row" style="display:none"><td colspan="5" class="el-empty">Peserta tidak ditemukan.</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 @verbatim
 <script>
-  jQuery(function($){
-    const table = $('#entry-table').DataTable({
-      pageLength: 25,
-      order: [[0, 'asc']],
-      language: {
-        search: '',
-        searchPlaceholder: 'Cari nama peserta...',
-        lengthMenu: 'Tampil _MENU_',
-        info: 'Menampilkan _START_–_END_ dari _TOTAL_ peserta',
-        infoEmpty: 'Tidak ada peserta',
-        infoFiltered: '(difilter dari _MAX_)',
-        zeroRecords: 'Peserta tidak ditemukan',
-        paginate: { previous: '‹', next: '›' }
-      }
-    });
+  (function () {
+    var tabs = document.getElementById('el-tabs');
+    var search = document.getElementById('el-search');
+    var body = document.getElementById('el-body');
+    var emptyRow = document.getElementById('el-empty-row');
+    var rows = Array.prototype.slice.call(body.querySelectorAll('tr[data-cat]'));
+    var activeCat = '';
 
-    $('#cat-filter').on('change', function(){
-      const v = this.value;
-      table.column(1).search(v ? '^' + v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$' : '', true, false).draw();
+    function apply() {
+      var q = (search.value || '').trim().toLowerCase();
+      var n = 0;
+      rows.forEach(function (tr) {
+        var catOk = !activeCat || tr.getAttribute('data-cat') === activeCat;
+        var text = tr.getAttribute('data-name') + ' ' + (tr.getAttribute('data-bib') || '');
+        var searchOk = !q || text.toLowerCase().indexOf(q) !== -1;
+        var show = catOk && searchOk;
+        tr.style.display = show ? '' : 'none';
+        if (show) { n++; tr.querySelector('.el-no').textContent = n; }
+      });
+      emptyRow.style.display = n === 0 ? '' : 'none';
+    }
+
+    tabs.addEventListener('click', function (e) {
+      var btn = e.target.closest('.el-tab');
+      if (!btn) return;
+      activeCat = btn.getAttribute('data-cat');
+      tabs.querySelectorAll('.el-tab').forEach(function (b) { b.classList.toggle('active', b === btn); });
+      apply();
     });
-  });
+    search.addEventListener('input', apply);
+
+    apply();
+  })();
 </script>
 @endverbatim
 @endpush

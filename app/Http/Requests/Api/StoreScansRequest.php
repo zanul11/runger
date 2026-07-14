@@ -16,7 +16,7 @@ class StoreScansRequest extends FormRequest
         return [
             'scans' => ['required', 'array', 'min:1', 'max:500'],
             'scans.*.client_uuid' => ['required', 'uuid'],
-            'scans.*.qr_token' => ['required', 'string'],
+            'scans.*.nomor_registrasi' => ['required', 'string'],
             'scans.*.timing_point_id' => ['required', 'integer'],
             'scans.*.scanned_at' => ['required', 'date'],
             'scans.*.raw_device_time' => ['nullable', 'date'],

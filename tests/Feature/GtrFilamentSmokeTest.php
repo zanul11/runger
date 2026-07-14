@@ -19,8 +19,8 @@ class GtrFilamentSmokeTest extends TestCase
 
     private function seedMinimal(): void
     {
-        $event = Event::create(['slug' => 'gtr', 'title' => 'GTR 2026', 'date' => '2026-11-29', 'time' => '06:00']);
-        $tp = GtrTimingPoint::create(['event_id' => $event->id, 'code' => 'CP1', 'name' => 'CP1', 'type' => 'checkpoint']);
+        Event::create(['slug' => 'gtr', 'title' => 'GTR 2026', 'date' => '2026-11-29', 'time' => '06:00']);
+        $tp = GtrTimingPoint::create(['code' => 'CP1', 'name' => 'CP1', 'type' => 'checkpoint']);
         $cat = GtrCategory::create(['name' => '7K', 'slug' => '7k', 'distance' => '7 KM']);
         $cat->timingPoints()->attach($tp->id, ['sequence' => 1, 'is_mandatory' => true]);
 
@@ -54,6 +54,7 @@ class GtrFilamentSmokeTest extends TestCase
     {
         return [
             'timing points' => ['/admin/gtr-timing-points'],
+            'timing point create' => ['/admin/gtr-timing-points/create'],
             'marshals' => ['/admin/marshals'],
             'marshal create' => ['/admin/marshals/create'],
             'results' => ['/admin/gtr-results'],

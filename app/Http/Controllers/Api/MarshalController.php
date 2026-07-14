@@ -19,7 +19,7 @@ class MarshalController extends Controller
     public function store(StoreMarshalRequest $request): JsonResponse
     {
         [$user, $assignment] = $this->marshals->createMarshal(
-            $request->only(['name', 'email', 'password']),
+            $request->only(['name', 'username', 'password']),
             (int) $request->event_id,
             (int) $request->timing_point_id,
         );
@@ -30,7 +30,7 @@ class MarshalController extends Controller
             'marshal' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'email' => $user->email,
+                'username' => $user->username,
                 'role' => $user->role,
             ],
             'assignment' => [

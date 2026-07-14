@@ -26,8 +26,8 @@ class ListGtrResults extends ListRecords
                 ->schema([
                     Select::make('event_id')
                         ->label('Event')
-                        ->options(fn () => Event::whereHas('timingPoints')->pluck('title', 'id'))
-                        ->default(fn () => Event::whereHas('timingPoints')->value('id'))
+                        ->options(fn () => Event::orderBy('id')->pluck('title', 'id'))
+                        ->default(fn () => Event::gtrId())
                         ->required(),
                 ])
                 ->action(function (array $data) {

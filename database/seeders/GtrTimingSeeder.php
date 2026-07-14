@@ -65,7 +65,7 @@ class GtrTimingSeeder extends Seeder
         $tp = [];
         foreach ($points as $p) {
             $tp[$p['code']] = GtrTimingPoint::updateOrCreate(
-                ['event_id' => $event->id, 'code' => $p['code']],
+                ['code' => $p['code']],
                 $p,
             );
         }

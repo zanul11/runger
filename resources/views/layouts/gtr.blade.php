@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>@yield('title', 'Gerung Trail Run 2026 — 1st Edition · Runger Anniversary')</title>
 <meta name="description" content="@yield('description', 'Gerung Trail Run 2026 — race trail perdana di Lombok Barat. Bukit Keteri, Gerung. Dipersembahkan oleh Runners Gerung.')">
+
+{{-- Thumbnail saat URL dibagikan (WhatsApp/FB/Twitter). Halaman override via @section('og_image', ...) --}}
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gerung Trail Run 2026">
+<meta property="og:title" content="@yield('title', 'Gerung Trail Run 2026 — 1st Edition · Runger Anniversary')">
+<meta property="og:description" content="@yield('description', 'Gerung Trail Run 2026 — race trail perdana di Lombok Barat. Bukit Keteri, Gerung. Dipersembahkan oleh Runners Gerung.')">
+<meta property="og:url" content="{{ url()->current() }}">
+<meta property="og:image" content="@yield('og_image', asset('assets/gtr/gallery/ari.jpeg'))">
+<meta property="og:image:secure_url" content="@yield('og_image', asset('assets/gtr/gallery/ari.jpeg'))">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="@yield('title', 'Gerung Trail Run 2026 — 1st Edition · Runger Anniversary')">
+<meta name="twitter:description" content="@yield('description', 'Gerung Trail Run 2026 — race trail perdana di Lombok Barat. Bukit Keteri, Gerung. Dipersembahkan oleh Runners Gerung.')">
+<meta name="twitter:image" content="@yield('og_image', asset('assets/gtr/gallery/ari.jpeg'))">
+
 <link rel="icon" type="image/jpeg" href="{{ asset('assets/gtr/logo.jpeg') }}">
 <link rel="apple-touch-icon" href="{{ asset('assets/gtr/logo.jpeg') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">

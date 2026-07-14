@@ -1,5 +1,9 @@
 @extends('layouts.gtr')
 
+@section('title', ($gtrSetting->title ?? 'Gerung Trail Run 2026') . ' — ' . ($gtrSetting->eyebrow ?? '1st Edition · Bukit Keteri'))
+@section('description', trim(($gtrSetting->date_text ?? 'Minggu, 29 November 2026') . ' · ' . ($gtrSetting->location_text ?? 'Bukit Keteri, Gerung — Lombok Barat') . ' · ' . ($gtrSetting->categories_text ?? 'Kategori 7K & 15K')))
+@section('og_image', $gtrSetting?->header_url ?? asset('assets/gtr/gallery/ari.jpeg'))
+
 @section('content')
 
 <!-- HERO -->

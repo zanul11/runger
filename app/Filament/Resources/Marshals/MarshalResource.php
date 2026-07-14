@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Marshals;
 use App\Filament\Resources\Marshals\Pages\CreateMarshal;
 use App\Filament\Resources\Marshals\Pages\EditMarshal;
 use App\Filament\Resources\Marshals\Pages\ListMarshals;
+use App\Models\Event;
 use App\Models\GtrTimingPoint;
 use App\Models\User;
 use App\Services\MarshalService;
@@ -49,12 +50,22 @@ class MarshalResource extends Resource
         return parent::getEloquentQuery()->where('role', User::ROLE_MARSHAL);
     }
 
+    /** Opsi pilihan pos: "KODE · Nama". */
+    private static function timingPointOptions(): array
+    {
+        return GtrTimingPoint::orderBy('sort_order')->get()
+            ->mapWithKeys(fn (GtrTimingPoint $tp) => [$tp->id => "{$tp->code} · {$tp->name}"])
+            ->all();
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             TextInput::make('name')->label('Nama')->required()->maxLength(191),
-            TextInput::make('email')->label('Email')->email()->required()
-                ->unique(ignoreRecord: true)->maxLength(191),
+            TextInput::make('username')->label('Username')->required()
+                ->alphaDash()
+                ->unique(ignoreRecord: true)->maxLength(191)
+                ->helperText('Dipakai marshal untuk login di aplikasi scanner.'),
             TextInput::make('password')->label('Password')->password()
                 ->revealable()
                 ->required(fn (string $operation) => $operation === 'create')
@@ -64,8 +75,7 @@ class MarshalResource extends Resource
             // Pos hanya saat membuat marshal baru; pindah pos lewat aksi "Pindahkan pos".
             Select::make('timing_point_id')
                 ->label('Tugaskan ke Pos')
-                ->options(fn () => GtrTimingPoint::with('event')->get()
-                    ->mapWithKeys(fn ($tp) => [$tp->id => "{$tp->code} · {$tp->name} ({$tp->event?->title})"]))
+                ->options(fn () => self::timingPointOptions())
                 ->searchable()
                 ->required()
                 ->visibleOn('create'),
@@ -77,7 +87,7 @@ class MarshalResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->label('Nama')->searchable(),
-                TextColumn::make('email')->searchable(),
+                TextColumn::make('username')->label('Username')->searchable()->copyable(),
                 TextColumn::make('active_pos')
                     ->label('Pos Aktif')
                     ->state(function (User $record): string {
@@ -103,14 +113,13 @@ class MarshalResource extends Resource
                     ->schema([
                         Select::make('timing_point_id')
                             ->label('Pos baru')
-                            ->options(fn () => GtrTimingPoint::with('event')->get()
-                                ->mapWithKeys(fn ($tp) => [$tp->id => "{$tp->code} · {$tp->name} ({$tp->event?->title})"]))
+                            ->options(fn () => self::timingPointOptions())
                             ->searchable()
                             ->required(),
                     ])
                     ->action(function (User $record, array $data) {
                         $tp = GtrTimingPoint::findOrFail($data['timing_point_id']);
-                        app(MarshalService::class)->reassign($record, $tp->event_id, $tp->id);
+                        app(MarshalService::class)->reassign($record, (int) Event::gtrId(), $tp->id);
                         Notification::make()->title('Pos dipindahkan')->body("Ke {$tp->code}")->success()->send();
                     }),
 

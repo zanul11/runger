@@ -67,7 +67,10 @@ class PageController extends Controller
     {
         $categories = \App\Models\GtrCategory::where('is_active', true)
             ->orderBy('sort_order')
-            ->with(['registrations' => fn ($q) => $q->orderBy('full_name')])
+            ->with(['registrations' => fn ($q) => $q
+                // Sudah bayar dulu, lalu urut nama.
+                ->orderByRaw("CASE WHEN payment_status = 'paid' THEN 0 ELSE 1 END")
+                ->orderByRaw('LOWER(full_name)')])
             ->get();
 
         return view('pages.gtr-entry-list', ['active' => 'entry', 'categories' => $categories]);

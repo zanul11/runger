@@ -123,7 +123,6 @@ class GtrRegistrationResource extends Resource
                     ->formatStateUsing(fn ($state) => self::$statuses[$state] ?? $state)
                     ->color(fn ($state) => match ($state) { 'paid' => 'success', 'cancelled' => 'danger', default => 'warning' }),
                 TextColumn::make('bib_number')->label('BIB')->placeholder('-')->toggleable(),
-                TextColumn::make('qr_token')->label('QR Token')->placeholder('-')->copyable()->toggleable(),
                 TextColumn::make('race_status')->label('Status Lomba')->badge()
                     ->color(fn ($state) => match ($state) {
                         'finisher' => 'success', 'dnf' => 'warning', 'dq' => 'danger', 'dns' => 'gray', default => 'gray',
@@ -162,36 +161,12 @@ class GtrRegistrationResource extends Resource
                                 ->send();
                         }
                     }),
-                Action::make('generateQr')
-                    ->label('Generate QR')
-                    ->icon(Heroicon::OutlinedQrCode)
-                    ->color('warning')
-                    ->visible(fn (GtrRegistration $record) => empty($record->qr_token))
-                    ->action(function (GtrRegistration $record) {
-                        $record->forceFill(['qr_token' => GtrRegistration::generateQrToken()])->save();
-                        Notification::make()->title('QR token dibuat')->body($record->qr_token)->success()->send();
-                    }),
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('generateQrBulk')
-                        ->label('Generate QR (yang kosong)')
-                        ->icon(Heroicon::OutlinedQrCode)
-                        ->color('warning')
-                        ->deselectRecordsAfterCompletion()
-                        ->action(function (\Illuminate\Support\Collection $records) {
-                            $made = 0;
-                            foreach ($records as $record) {
-                                if (empty($record->qr_token)) {
-                                    $record->forceFill(['qr_token' => GtrRegistration::generateQrToken()])->save();
-                                    $made++;
-                                }
-                            }
-                            Notification::make()->title("$made QR token dibuat")->success()->send();
-                        }),
                     DeleteBulkAction::make(),
                 ]),
             ]);

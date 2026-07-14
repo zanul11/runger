@@ -35,10 +35,10 @@ class ScanController extends Controller
 
         $postTimingPointId = $assignment->gtr_timing_point_id;
 
-        // Pre-resolve qr_token -> registration_id sekali jalan (hindari N+1).
-        $tokens = collect($request->input('scans'))->pluck('qr_token')->unique()->all();
-        $regByToken = GtrRegistration::whereIn('qr_token', $tokens)
-            ->pluck('id', 'qr_token');
+        // Pre-resolve nomor_registrasi -> registration_id sekali jalan (hindari N+1).
+        $tokens = collect($request->input('scans'))->pluck('nomor_registrasi')->unique()->all();
+        $regByToken = GtrRegistration::whereIn('nomor_registrasi', $tokens)
+            ->pluck('id', 'nomor_registrasi');
 
         $accepted = [];
         $rejected = [];
@@ -53,8 +53,8 @@ class ScanController extends Controller
                 continue;
             }
 
-            // (2) qr_token harus dikenal (FK butuh registration).
-            $registrationId = $regByToken[$item['qr_token']] ?? null;
+            // (2) nomor_registrasi harus dikenal (FK butuh registration).
+            $registrationId = $regByToken[$item['nomor_registrasi']] ?? null;
             if (! $registrationId) {
                 $rejected[] = ['client_uuid' => $uuid, 'reason' => 'unknown_qr'];
 

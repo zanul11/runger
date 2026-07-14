@@ -31,8 +31,8 @@ class ResultEngine
     /** @return array<string,int> ringkasan jumlah per status */
     public function compute(Event $event): array
     {
-        $event->loadMissing('timingPoints');
-        $timingPointIds = $event->timingPoints->pluck('id');
+        // Single-event: seluruh timing point milik GTR.
+        $timingPointIds = GtrTimingPoint::query()->pluck('id');
 
         if ($timingPointIds->isEmpty()) {
             return ['finisher' => 0, 'dnf' => 0, 'dq' => 0, 'dns' => 0];
