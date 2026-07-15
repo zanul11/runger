@@ -48,6 +48,11 @@ class GalleryItemResource extends Resource
                     ->relationship('event', 'title'),
                 FileUpload::make('image')->disk('public')
                     ->image()
+                    ->directory('gallery')
+                    ->maxSize(5120)
+                    ->imageEditor()
+                    ->helperText('Gambar otomatis dikompres (WebP) saat disimpan.')
+                    ->saveUploadedFileUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file) => \App\Support\ImageCompressor::store($file, 'gallery', 1500))
                     ->required(),
                 TextInput::make('tag'),
                 TextInput::make('caption'),

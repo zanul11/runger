@@ -215,7 +215,7 @@
       <button type="button" class="sc-close" onclick="closeSizeChart()" aria-label="Tutup">&times;</button>
     </div>
     <div class="sc-body">
-      <img src="{{ asset('assets/gtr/size-jersey.jpeg') }}" alt="Size Chart Jersey Gerung Trail Run">
+      <img src="{{ asset('assets/gtr/size-jersey.png') }}" alt="Size Chart Jersey Gerung Trail Run">
     </div>
   </div>
 </div>

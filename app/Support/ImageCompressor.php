@@ -9,84 +9,66 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 class ImageCompressor
 {
     /**
-     * Kompres & resize gambar yang diupload, simpan ke disk public, kembalikan path relatif.
-     * Dipakai sebagai callback Filament FileUpload::saveUploadedFileUsing().
+     * Kompres + resize gambar upload → simpan sebagai WebP ke disk public,
+     * kembalikan path relatif. Dipakai sebagai callback Filament
+     * FileUpload::saveUploadedFileUsing().
      */
     public static function store(TemporaryUploadedFile $file, string $directory, int $maxWidth = 1600, int $quality = 78): string
     {
         $directory = trim($directory, '/');
-        $path = $file->getRealPath();
-        $originalSize = @filesize($path) ?: 0;
-        $info = @getimagesize($path);
+        $data = @file_get_contents($file->getRealPath());
 
-        // Bukan gambar raster yang didukung / GD tak ada → simpan apa adanya.
-        if (! $info || ! function_exists('imagecreatetruecolor')) {
+        $webp = $data ? self::toWebp($data, $maxWidth, $quality) : null;
+
+        // Bukan gambar yang bisa diproses / GD tak ada → simpan apa adanya.
+        if ($webp === null) {
             return $file->storePublicly($directory, 'public');
         }
 
-        [$width, $height, $type] = $info;
-
-        $src = match ($type) {
-            IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
-            IMAGETYPE_PNG => @imagecreatefrompng($path),
-            IMAGETYPE_WEBP => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
-            default => false,
-        };
-
-        if (! $src) {
-            return $file->storePublicly($directory, 'public');
-        }
-
-        // Resize proporsional bila lebih lebar dari batas.
-        if ($width > $maxWidth) {
-            $newW = $maxWidth;
-            $newH = (int) round($height * ($maxWidth / $width));
-            $dst = imagecreatetruecolor($newW, $newH);
-
-            if (in_array($type, [IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
-                imagealphablending($dst, false);
-                imagesavealpha($dst, true);
-            }
-
-            imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $width, $height);
-            imagedestroy($src);
-            $src = $dst;
-        }
-
-        $ext = match ($type) {
-            IMAGETYPE_PNG => 'png',
-            IMAGETYPE_WEBP => 'webp',
-            default => 'jpg',
-        };
-
-        $relative = $directory . '/' . Str::ulid() . '.' . $ext;
-        $absolute = Storage::disk('public')->path($relative);
-
-        if (! is_dir(dirname($absolute))) {
-            @mkdir(dirname($absolute), 0755, true);
-        }
-
-        if ($type === IMAGETYPE_PNG) {
-            // PNG: kompresi maksimal + filter (lossless).
-            imagepng($src, $absolute, 9, PNG_ALL_FILTERS);
-        } else {
-            // JPEG/WebP: turunkan kualitas bertahap sampai ukuran ≤ 50% dari asli
-            // (target pengurangan ~50%), dengan batas bawah kualitas 45.
-            $target = $originalSize > 0 ? (int) ($originalSize * 0.5) : 0;
-            $q = $quality;
-
-            do {
-                if ($type === IMAGETYPE_WEBP) {
-                    imagewebp($src, $absolute, $q);
-                } else {
-                    imagejpeg($src, $absolute, $q);
-                }
-                $q -= 8;
-            } while ($target > 0 && @filesize($absolute) > $target && $q >= 45);
-        }
-
-        imagedestroy($src);
+        $relative = $directory . '/' . Str::ulid() . '.webp';
+        Storage::disk('public')->put($relative, $webp);
 
         return $relative;
+    }
+
+    /**
+     * Inti: ubah data gambar mentah (jpeg/png/webp) → biner WebP hasil resize.
+     * Return null bila GD/WebP tak tersedia atau bukan gambar yang didukung.
+     */
+    public static function toWebp(string $data, int $maxWidth = 1600, int $quality = 78): ?string
+    {
+        if (! function_exists('imagewebp') || ! function_exists('imagecreatetruecolor')) {
+            return null;
+        }
+
+        $src = @imagecreatefromstring($data);
+        if (! $src) {
+            return null;
+        }
+
+        $w = imagesx($src);
+        $h = imagesy($src);
+        $scale = $w > $maxWidth ? $maxWidth / $w : 1.0;
+        $nw = max(1, (int) round($w * $scale));
+        $nh = max(1, (int) round($h * $scale));
+
+        if ($scale < 1.0) {
+            $dst = imagecreatetruecolor($nw, $nh);
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+            imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+            imagedestroy($src);
+        } else {
+            imagealphablending($src, false);
+            imagesavealpha($src, true);
+            $dst = $src;
+        }
+
+        ob_start();
+        imagewebp($dst, null, $quality);
+        $out = ob_get_clean();
+        imagedestroy($dst);
+
+        return $out !== '' ? $out : null;
     }
 }

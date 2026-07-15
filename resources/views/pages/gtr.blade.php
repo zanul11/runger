@@ -162,6 +162,10 @@
         <div class="support-logo s-dispar"><img src="{{ asset('assets/gtr/dispar2.png') }}" alt="Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat"></div>
         <div class="support-name">Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat</div>
       </div>
+      <div class="support-item">
+        <div class="support-logo s-dispar"><img src="{{ asset('assets/gtr/alti.png') }}" alt="ALTI NTB"></div>
+        <div class="support-name">Asosiasi Lari Trail Indonesia NTB</div>
+      </div>
     </div>
   </div>
 </section>
