@@ -72,8 +72,13 @@
     <div class="cat-stats">
       <div class="cat-stat">
         <div class="lab">Reg Fee</div>
-        <div class="val">{{ $cat->early_bird_formatted }} <span class="strike">{{ $cat->normal_formatted }}</span></div>
-        <div class="sub">Early Bird{{ $cat->early_bird_until ? ' s/d ' . $cat->early_bird_until->translatedFormat('d M Y') : '' }}</div>
+        @if($cat->earlyBirdActive())
+          <div class="val">{{ $cat->early_bird_formatted }} <span class="strike">{{ $cat->normal_formatted }}</span></div>
+          <div class="sub">Early Bird{{ $cat->early_bird_until ? ' s/d ' . $cat->early_bird_until->translatedFormat('d M Y') : '' }}</div>
+        @else
+          <div class="val">{{ $cat->current_price_formatted }}</div>
+          <div class="sub">Harga Normal @if($cat->earlyBirdEnded())· early bird selesai @endif</div>
+        @endif
       </div>
       <div class="cat-stat">
         <div class="lab">Start</div>

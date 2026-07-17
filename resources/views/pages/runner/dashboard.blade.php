@@ -75,7 +75,7 @@
             <div>
               <div class="d">{{ $c->distance }}</div>
               <div class="n">{{ $c->name }}</div>
-              <div class="price">{{ $c->early_bird_formatted }}</div>
+              <div class="price">{{ $c->current_price_formatted }}</div>
             </div>
             @if(in_array($c->id, $registeredIds))
               <span class="pick-done">✓ Terdaftar</span>

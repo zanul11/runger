@@ -24,7 +24,7 @@
 
 @forelse($registrations as $reg)
   @php
-    $base = (int) ($reg->amount ?: ($reg->category->price_early_bird ?? 0));
+    $base = $reg->baseAmount();
     $fee = \App\Models\GtrRegistration::ADMIN_FEE;
     $total = $base + $fee;
   @endphp

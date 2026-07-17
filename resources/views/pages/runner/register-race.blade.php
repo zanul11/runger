@@ -67,10 +67,16 @@
     <div class="n">{{ $category->name }}</div>
   </div>
   <div class="pr">
-    <div class="eb">{{ $category->early_bird_formatted }}</div>
-    <div class="lb">Early Bird</div>
+    <div class="eb">{{ $category->current_price_formatted }}</div>
+    <div class="lb">{{ $category->currentPriceLabel() }}</div>
   </div>
 </div>
+
+@if($category->earlyBirdEnded())
+  <div class="alert-err" style="background:#FFF7ED;border-color:#FED7AA;color:#9A3412">
+    Periode <b>early bird sudah selesai</b>. Harga yang berlaku adalah <b>harga normal</b>.
+  </div>
+@endif
 
 @if($errors->any())
   <div class="alert-err">Ada {{ $errors->count() }} isian yang perlu diperbaiki.</div>
@@ -189,7 +195,7 @@
   </div>
 
   @php
-    $base = (int) ($category->price_early_bird ?? 0);
+    $base = (int) ($category->currentPrice() ?? 0);
     $fee = \App\Models\GtrRegistration::ADMIN_FEE;
   @endphp
   <div class="rf-summary">

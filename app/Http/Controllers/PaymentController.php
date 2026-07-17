@@ -89,7 +89,18 @@ class PaymentController extends Controller
             ? ($registration->paid_at ?? optional($registration->payments()->where('status', 'paid')->first())->paid_at ?? now())
             : $registration->paid_at;
 
-        $registration->update(['payment_status' => $new, 'paid_at' => $paidAt]);
+        $update = ['payment_status' => $new, 'paid_at' => $paidAt];
+
+        // Kunci biaya pendaftaran yang BENAR-BENAR dibayar (gross - admin fee),
+        // supaya tampilan tetap sesuai walau early bird sudah lewat setelahnya.
+        if ($new === 'paid' && ! $registration->amount) {
+            $paid = $registration->payments()->where('status', 'paid')->latest('id')->first();
+            if ($paid) {
+                $update['amount'] = max(0, (int) $paid->amount - GtrRegistration::ADMIN_FEE);
+            }
+        }
+
+        $registration->update($update);
     }
 
     /**
@@ -105,7 +116,8 @@ class PaymentController extends Controller
         }
 
         $registration->loadMissing('category');
-        $amount = (int) ($registration->amount ?: ($registration->category->price_early_bird ?? 0));
+        // Harga berbasis tanggal: early bird bila masih aktif, selain itu normal.
+        $amount = $registration->baseAmount();
 
         if ($amount <= 0) {
             return back()->with('success', 'Nominal pembayaran belum tersedia. Hubungi panitia.');

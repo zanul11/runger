@@ -74,6 +74,22 @@ class GtrRegistration extends Model
     /** Biaya admin / platform aplikasi (Rupiah) yang ditambahkan ke setiap pembayaran. */
     public const ADMIN_FEE = 2500;
 
+    /**
+     * Biaya pendaftaran (tanpa admin fee). Bila sudah terkunci (amount terisi saat
+     * dibayar) pakai itu; kalau belum, pakai harga kategori yang berlaku SEKARANG
+     * (early bird bila aktif, selain itu normal).
+     */
+    public function baseAmount(): int
+    {
+        return (int) ($this->amount ?: ($this->category?->currentPrice() ?? 0));
+    }
+
+    /** Total tagihan = biaya pendaftaran + biaya admin. */
+    public function totalAmount(): int
+    {
+        return $this->baseAmount() + self::ADMIN_FEE;
+    }
+
     /** Simpan nomor HP peserta dalam format kanonik (62…). */
     public function setWhatsappAttribute($value): void
     {

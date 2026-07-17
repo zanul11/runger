@@ -91,7 +91,7 @@
   </div>
 @else
   @php
-    $base = (int) ($reg->amount ?: ($reg->category->price_early_bird ?? 0));
+    $base = $reg->baseAmount();
     $total = $base + \App\Models\GtrRegistration::ADMIN_FEE;
   @endphp
   <div class="pay-cta">

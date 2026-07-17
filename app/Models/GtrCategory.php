@@ -135,4 +135,46 @@ class GtrCategory extends Model
     {
         return $this->priceFormatted($this->price_normal);
     }
+
+    // ===== Harga efektif berbasis tanggal =====
+
+    /** Early bird masih berlaku? (ada harga EB & belum lewat batas tanggal). */
+    public function earlyBirdActive(): bool
+    {
+        if (! $this->price_early_bird) {
+            return false;
+        }
+
+        // Tanpa batas tanggal = selalu berlaku.
+        return $this->early_bird_until === null || today()->lte($this->early_bird_until);
+    }
+
+    /** Early bird sudah selesai? (ada batas tanggal & sudah lewat). */
+    public function earlyBirdEnded(): bool
+    {
+        return $this->early_bird_until !== null
+            && $this->price_early_bird
+            && today()->gt($this->early_bird_until);
+    }
+
+    /** Harga yang berlaku sekarang: early bird bila aktif, selain itu normal. */
+    public function currentPrice(): ?int
+    {
+        if ($this->earlyBirdActive()) {
+            return $this->price_early_bird;
+        }
+
+        return $this->price_normal ?: $this->price_early_bird;
+    }
+
+    public function getCurrentPriceFormattedAttribute(): string
+    {
+        return $this->priceFormatted($this->currentPrice());
+    }
+
+    /** Label harga aktif. */
+    public function currentPriceLabel(): string
+    {
+        return $this->earlyBirdActive() ? 'Early Bird' : 'Normal';
+    }
 }

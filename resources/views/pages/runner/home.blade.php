@@ -147,8 +147,12 @@
       </div>
       <div class="rcat-foot">
         <div class="rcat-price">
-          <span class="lab">Early Bird</span>
-          <span><span class="eb">{{ $c->early_bird_formatted }}</span><span class="nm">{{ $c->normal_formatted }}</span></span>
+          <span class="lab">{{ $c->currentPriceLabel() }}</span>
+          @if($c->earlyBirdActive())
+            <span><span class="eb">{{ $c->early_bird_formatted }}</span><span class="nm">{{ $c->normal_formatted }}</span></span>
+          @else
+            <span><span class="eb">{{ $c->current_price_formatted }}</span></span>
+          @endif
         </div>
         @if(in_array($c->id, $registeredIds))
           <span class="rcat-done">✓ Terdaftar</span>

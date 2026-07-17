@@ -56,7 +56,7 @@
   <div class="pf-row"><span class="k">No. Registrasi</span><span class="v">{{ $reg->nomor_registrasi }}</span></div>
   <div class="pf-row"><span class="k">Kategori</span><span class="v">{{ $reg->category->distance ?? '' }} · {{ $reg->category->name ?? '' }}</span></div>
   @php
-    $base = (int) ($reg->amount ?: ($reg->category->price_early_bird ?? 0));
+    $base = $reg->baseAmount();
     $fee = \App\Models\GtrRegistration::ADMIN_FEE;
   @endphp
   <div class="pf-row"><span class="k">Biaya Pendaftaran</span><span class="v">IDR {{ number_format($base, 0, ',', '.') }}</span></div>

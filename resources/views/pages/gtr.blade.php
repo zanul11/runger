@@ -67,8 +67,13 @@
           <div class="cat-rows">
             <div class="cat-row"><span class="k">Elevation Gain</span><span class="v">{{ $cat->elevation_gain ?: '-' }}</span></div>
             <div class="cat-row"><span class="k">Cut-Off Time</span><span class="v">{{ $cat->cut_off_time }}</span></div>
-            <div class="cat-row"><span class="k">Early Bird</span><span class="v">{{ $cat->early_bird_formatted }}</span></div>
-            <div class="cat-row"><span class="k">Normal</span><span class="v strike">{{ $cat->normal_formatted }}</span></div>
+            @if($cat->earlyBirdActive())
+              <div class="cat-row"><span class="k">Early Bird</span><span class="v">{{ $cat->early_bird_formatted }}</span></div>
+              <div class="cat-row"><span class="k">Normal</span><span class="v strike">{{ $cat->normal_formatted }}</span></div>
+            @else
+              <div class="cat-row"><span class="k">Harga Normal</span><span class="v">{{ $cat->current_price_formatted }}</span></div>
+              @if($cat->earlyBirdEnded())<div class="cat-row"><span class="k" style="color:#E53935">Early Bird</span><span class="v" style="color:#E53935">Selesai</span></div>@endif
+            @endif
           </div>
           <a class="cat-btn" href="{{ route('gtr.category', $cat->slug) }}">Detail Category <span class="arr">→</span></a>
         </div>
