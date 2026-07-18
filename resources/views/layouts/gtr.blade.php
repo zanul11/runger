@@ -397,6 +397,17 @@
     font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.18em;
     text-transform:uppercase;color:var(--text-mute);font-weight:600;
   }
+  /* Item sponsor: keterangan (mis. Official Jersey) di atas logo. */
+  .sponsor-item{display:inline-flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;transition:transform .15s ease}
+  a.sponsor-item:hover{transform:translateY(-2px)}
+  .sponsor-role{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+    font-weight:700;color:var(--red);
+  }
+  /* Slot dengan logo asli: kartu putih agar logo warna terlihat di tema gelap. */
+  .sponsor-slot img{height:46px;width:auto;max-width:160px;object-fit:contain;display:block}
+  .sponsor-slot:has(img){background:#fff;border:1px solid rgba(255,255,255,.14);padding:12px 20px}
+  .sponsor-row:has(.sponsor-item){opacity:1}
   .sponsor-cta{
     margin-top:24px;padding:26px 22px;background:var(--card);border:1px solid var(--line);
     border-radius:18px;

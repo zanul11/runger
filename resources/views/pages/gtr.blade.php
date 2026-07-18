@@ -181,10 +181,22 @@
   <div class="wrap sponsor-inner">
     <h2>Official Sponsors</h2>
     <div class="sponsor-row">
-      <div class="sponsor-slot">Slot Sponsor</div>
-      <div class="sponsor-slot">Slot Sponsor</div>
-      <div class="sponsor-slot">Slot Sponsor</div>
-      <div class="sponsor-slot">Slot Sponsor</div>
+      @forelse($gtrSponsors as $sp)
+        @php($logo = $sp->logo_url)
+        <{{ $sp->link ? 'a' : 'div' }} class="sponsor-item"
+          @if($sp->link) href="{{ $sp->link }}" target="_blank" rel="noopener" @endif
+          title="{{ $sp->name }}">
+          <span class="sponsor-slot">
+            @if($logo)<img src="{{ $logo }}" alt="{{ $sp->name }}" loading="lazy">@else{{ $sp->name }}@endif
+          </span>
+          @if($sp->role)<span class="sponsor-role">{{ $sp->role }}</span>@endif
+        </{{ $sp->link ? 'a' : 'div' }}>
+      @empty
+        <div class="sponsor-slot">Slot Sponsor</div>
+        <div class="sponsor-slot">Slot Sponsor</div>
+        <div class="sponsor-slot">Slot Sponsor</div>
+        <div class="sponsor-slot">Slot Sponsor</div>
+      @endforelse
     </div>
     <div class="sponsor-cta">
       <h3>Interested in Becoming a Sponsor?</h3>

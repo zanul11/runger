@@ -55,6 +55,8 @@ class GtrFilamentSmokeTest extends TestCase
         return [
             'timing points' => ['/admin/gtr-timing-points'],
             'timing point create' => ['/admin/gtr-timing-points/create'],
+            'sponsors' => ['/admin/gtr-sponsors'],
+            'sponsor create' => ['/admin/gtr-sponsors/create'],
             'marshals' => ['/admin/marshals'],
             'marshal create' => ['/admin/marshals/create'],
             'results' => ['/admin/gtr-results'],

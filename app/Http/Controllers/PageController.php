@@ -60,7 +60,11 @@ class PageController extends Controller
 
         $gtrOverview = \App\Models\GtrOverview::first();
 
-        return view('pages.gtr', compact('gtrCategories', 'gtrSetting', 'gtrScenics', 'gtrOverview'));
+        $gtrSponsors = \App\Models\GtrSponsor::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('pages.gtr', compact('gtrCategories', 'gtrSetting', 'gtrScenics', 'gtrOverview', 'gtrSponsors'));
     }
 
     /** Formulir pendaftaran kosong untuk dicetak (pendaftaran offline). */
