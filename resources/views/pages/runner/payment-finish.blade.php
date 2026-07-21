@@ -57,10 +57,12 @@
   <div class="pf-row"><span class="k">Kategori</span><span class="v">{{ $reg->category->distance ?? '' }} · {{ $reg->category->name ?? '' }}</span></div>
   @php
     $base = $reg->baseAmount();
-    $fee = \App\Models\GtrRegistration::ADMIN_FEE;
+    $fee = $reg->serviceFee();
   @endphp
   <div class="pf-row"><span class="k">Biaya Pendaftaran</span><span class="v">IDR {{ number_format($base, 0, ',', '.') }}</span></div>
+  @if($fee > 0)
   <div class="pf-row"><span class="k">Biaya Layanan <span class="info-i">?<span class="bubble">Biaya untuk pengelolaan sistem pendaftaran, e-ticket, dan dukungan peserta.</span></span></span><span class="v">IDR {{ number_format($fee, 0, ',', '.') }}</span></div>
+  @endif
   <div class="pf-row"><span class="k">Total</span><span class="v"><strong>IDR {{ number_format($base + $fee, 0, ',', '.') }}</strong></span></div>
   <div class="pf-row"><span class="k">Metode</span><span class="v">{{ $reg->pay }}</span></div>
   <div class="pf-row"><span class="k">Status</span><span class="v"><span class="badge {{ $reg->payment_status }}">{{ ucfirst($reg->payment_status) }}</span></span></div>

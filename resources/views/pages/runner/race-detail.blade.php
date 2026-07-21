@@ -92,12 +92,13 @@
 @else
   @php
     $base = $reg->baseAmount();
-    $total = $base + \App\Models\GtrRegistration::ADMIN_FEE;
+    $fee = $reg->serviceFee();
+    $total = $base + $fee;
   @endphp
   <div class="pay-cta">
     <div class="pay-cta-h">Selesaikan Pembayaran</div>
     <p>E-ticket (QR code) akan muncul di sini setelah pembayaran kamu lunas.</p>
-    <div class="pay-cta-amt">IDR {{ number_format($total, 0, ',', '.') }} <span class="info-i">?<span class="bubble">Sudah termasuk biaya layanan IDR {{ number_format(\App\Models\GtrRegistration::ADMIN_FEE, 0, ',', '.') }} — biaya untuk pengelolaan sistem pendaftaran, e-ticket, dan dukungan peserta.</span></span></div>
+    <div class="pay-cta-amt">IDR {{ number_format($total, 0, ',', '.') }}@if($fee > 0) <span class="info-i">?<span class="bubble">Sudah termasuk biaya layanan IDR {{ number_format($fee, 0, ',', '.') }} — biaya untuk pengelolaan sistem pendaftaran, e-ticket, dan dukungan peserta.</span></span>@endif</div>
     <form method="POST" action="{{ route('gtr.payment.pay', $reg) }}">
       @csrf
       <button type="submit" class="pay-cta-btn">{{ $reg->payment_status === 'cancelled' ? 'Bayar Lagi' : 'Bayar Sekarang' }}</button>

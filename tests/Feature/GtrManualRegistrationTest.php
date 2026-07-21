@@ -83,6 +83,23 @@ class GtrManualRegistrationTest extends TestCase
         Mail::assertNothingSent();
     }
 
+    public function test_service_fee_only_applies_to_qris(): void
+    {
+        $cat = GtrCategory::create(['name' => '7K', 'slug' => '7k', 'distance' => '7 KM', 'price_normal' => 100000]);
+        $runner = Runner::create(['first_name' => 'X', 'email' => 'x@t.id', 'password' => 'x']);
+
+        $qris = GtrRegistration::create(['runner_id' => $runner->id, 'gtr_category_id' => $cat->id, 'pay' => 'QRIS']);
+        $cash = new GtrRegistration(['pay' => 'Cash']);
+        $cash->setRelation('category', $cat);
+
+        $this->assertSame(GtrRegistration::ADMIN_FEE, $qris->serviceFee());
+        $this->assertSame(0, $cash->serviceFee());
+
+        // Total: QRIS = base + fee; Cash = base saja.
+        $this->assertSame(100000 + GtrRegistration::ADMIN_FEE, $qris->totalAmount());
+        $this->assertSame(100000, $cash->totalAmount());
+    }
+
     public function test_existing_runner_is_reused(): void
     {
         Mail::fake();

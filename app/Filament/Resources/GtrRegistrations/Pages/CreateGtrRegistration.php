@@ -57,7 +57,7 @@ class CreateGtrRegistration extends CreateRecord
 
         $data['runner_id'] = $runner->id;
         $data['registered_at'] ??= now();
-        $data['pay'] = $data['pay'] ?: 'Manual (Admin)';
+        $data['pay'] = $data['pay'] ?: 'Cash';
 
         if (($data['payment_status'] ?? null) === 'paid') {
             $data['paid_at'] = $data['paid_at'] ?? now();

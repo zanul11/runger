@@ -25,7 +25,7 @@
 @forelse($registrations as $reg)
   @php
     $base = $reg->baseAmount();
-    $fee = \App\Models\GtrRegistration::ADMIN_FEE;
+    $fee = $reg->serviceFee();
     $total = $base + $fee;
   @endphp
   <div class="card">
@@ -44,7 +44,9 @@
       <div class="td-row"><span class="k">No. Order</span><span class="v">{{ $reg->nomor_registrasi }}</span></div>
       <div class="td-row"><span class="k">Metode</span><span class="v">{{ $reg->pay }}</span></div>
       <div class="td-row"><span class="k">Biaya Pendaftaran</span><span class="v">IDR {{ number_format($base, 0, ',', '.') }}</span></div>
+      @if($fee > 0)
       <div class="td-row"><span class="k">Biaya Layanan <span class="info-i">?<span class="bubble">Biaya untuk pengelolaan sistem pendaftaran, e-ticket, dan dukungan peserta.</span></span></span><span class="v">IDR {{ number_format($fee, 0, ',', '.') }}</span></div>
+      @endif
       <div class="td-row"><span class="k">Total</span><span class="v"><strong>IDR {{ number_format($total, 0, ',', '.') }}</strong></span></div>
       <div class="td-row"><span class="k">Status</span><span class="v"><span class="badge {{ $reg->payment_status }}">{{ ucfirst($reg->payment_status) }}</span></span></div>
       @if($reg->paid_at)

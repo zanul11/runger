@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\GtrRegistrations\Pages;
 
 use App\Filament\Resources\GtrRegistrations\GtrRegistrationResource;
+use App\Filament\Widgets\GtrPaymentStats;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -11,6 +12,11 @@ use Filament\Support\Icons\Heroicon;
 class ListGtrRegistrations extends ListRecords
 {
     protected static string $resource = GtrRegistrationResource::class;
+
+    protected function getHeaderWidgets(): array
+    {
+        return [GtrPaymentStats::class];
+    }
 
     protected function getHeaderActions(): array
     {

@@ -71,8 +71,30 @@ class GtrRegistration extends Model
         };
     }
 
-    /** Biaya admin / platform aplikasi (Rupiah) yang ditambahkan ke setiap pembayaran. */
+    /** Biaya admin / platform aplikasi (Rupiah) — hanya berlaku untuk pembayaran QRIS. */
     public const ADMIN_FEE = 2500;
+
+    /** Metode pembayaran. Pendaftaran via sistem selalu QRIS; sisanya hanya via admin. */
+    public const PAY_QRIS = 'QRIS';
+
+    public const PAY_METHODS = [
+        'QRIS' => 'QRIS (online)',
+        'Cash' => 'Tunai (Cash)',
+        'Transfer Bank' => 'Transfer Bank',
+        'Free' => 'Gratis / Undangan',
+    ];
+
+    /** Apakah metode pembayarannya QRIS? */
+    public function isQris(): bool
+    {
+        return str_contains(mb_strtolower((string) $this->pay), 'qris');
+    }
+
+    /** Biaya layanan: hanya dikenakan untuk QRIS; metode lain = 0. */
+    public function serviceFee(): int
+    {
+        return $this->isQris() ? self::ADMIN_FEE : 0;
+    }
 
     /**
      * Biaya pendaftaran (tanpa admin fee). Bila sudah terkunci (amount terisi saat
@@ -84,10 +106,10 @@ class GtrRegistration extends Model
         return (int) ($this->amount ?: ($this->category?->currentPrice() ?? 0));
     }
 
-    /** Total tagihan = biaya pendaftaran + biaya admin. */
+    /** Total tagihan = biaya pendaftaran + biaya layanan (0 bila non-QRIS). */
     public function totalAmount(): int
     {
-        return $this->baseAmount() + self::ADMIN_FEE;
+        return $this->baseAmount() + $this->serviceFee();
     }
 
     /** Kirim email konfirmasi ke peserta (aman: tak menggagalkan proses bila error). */

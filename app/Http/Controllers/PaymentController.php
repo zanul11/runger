@@ -123,8 +123,8 @@ class PaymentController extends Controller
             return back()->with('success', 'Nominal pembayaran belum tersedia. Hubungi panitia.');
         }
 
-        // Total yang ditagih = biaya pendaftaran + biaya admin (platform aplikasi).
-        $fee = GtrRegistration::ADMIN_FEE;
+        // Total yang ditagih = biaya pendaftaran + biaya layanan (0 bila non-QRIS).
+        $fee = $registration->serviceFee();
         $gross = $amount + $fee;
 
         // Pakai ulang Snap yang masih aktif (pending & belum kedaluwarsa) — hindari order_id bengkak.

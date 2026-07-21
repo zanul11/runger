@@ -92,7 +92,11 @@ class GtrRegistrationResource extends Resource
                 TextInput::make('emergency_contact')->label('Kontak Darurat (No.)'),
             ]),
             Section::make('Pembayaran')->columns(2)->components([
-                TextInput::make('pay')->label('Metode'),
+                Select::make('pay')->label('Metode Pembayaran')
+                    ->options(GtrRegistration::PAY_METHODS)
+                    ->default('Cash')
+                    ->native(false)
+                    ->helperText('QRIS dikenakan biaya layanan; metode lain tidak (biaya layanan = 0).'),
                 TextInput::make('amount')->label('Nominal')->numeric()->prefix('IDR'),
                 TextInput::make('midtrans_order_id')->label('Order ID Midtrans')->disabled(),
             ]),
