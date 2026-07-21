@@ -55,15 +55,33 @@ class GtrRegistrationResource extends Resource
     {
         return $schema->components([
             Section::make('Status & BIB')->columns(3)->components([
+                Select::make('gtr_category_id')->label('Kategori')
+                    ->relationship('category', 'name')
+                    ->required()
+                    ->native(false)
+                    ->columnSpan(3),
                 TextInput::make('nomor_registrasi')->disabled(),
-                Select::make('payment_status')->label('Status Pembayaran')->options(self::$statuses)->required(),
-                TextInput::make('bib_number')->label('BIB'),
+                Select::make('payment_status')->label('Status Pembayaran')->options(self::$statuses)->required()
+                    ->helperText('Jika "Paid": BIB & email konfirmasi otomatis.'),
+                TextInput::make('bib_number')->label('BIB')
+                    ->helperText('Kosongkan — otomatis dibuat saat lunas.'),
             ]),
+            Section::make('Akun Peserta (login)')
+                ->description('Password untuk akun peserta. Bila email sudah terdaftar, password diperbarui.')
+                ->columns(2)
+                ->visibleOn('create')
+                ->components([
+                    TextInput::make('password')->label('Password Akun')
+                        ->password()->revealable()
+                        ->required()
+                        ->minLength(6),
+                ]),
             Section::make('Data Peserta')->columns(2)->components([
                 TextInput::make('full_name')->label('Nama Lengkap')->required()->columnSpanFull(),
                 TextInput::make('nik')->label('NIK'),
                 Select::make('size')->label('Ukuran Jersey')->options(array_combine(GtrRegistration::SIZES, GtrRegistration::SIZES)),
-                TextInput::make('email')->email(),
+                TextInput::make('email')->email()->required()
+                    ->helperText('Email = username akun peserta untuk login.'),
                 TextInput::make('whatsapp')->tel(),
                 DatePicker::make('birth_date')->label('Tanggal Lahir'),
                 Select::make('gender')->options(array_combine(GtrRegistration::GENDERS, GtrRegistration::GENDERS)),
@@ -176,6 +194,7 @@ class GtrRegistrationResource extends Resource
     {
         return [
             'index' => ListGtrRegistrations::route('/'),
+            'create' => \App\Filament\Resources\GtrRegistrations\Pages\CreateGtrRegistration::route('/create'),
             'view' => ViewGtrRegistration::route('/{record}'),
             'edit' => EditGtrRegistration::route('/{record}/edit'),
         ];

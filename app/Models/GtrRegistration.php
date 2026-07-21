@@ -90,6 +90,25 @@ class GtrRegistration extends Model
         return $this->baseAmount() + self::ADMIN_FEE;
     }
 
+    /** Kirim email konfirmasi ke peserta (aman: tak menggagalkan proses bila error). */
+    public function sendConfirmationEmail(): bool
+    {
+        if (! $this->email) {
+            return false;
+        }
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($this->email)
+                ->send(new \App\Mail\RegistrationConfirmation($this->fresh('category')));
+
+            return true;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim email konfirmasi GTR: ' . $e->getMessage());
+
+            return false;
+        }
+    }
+
     /** Simpan nomor HP peserta dalam format kanonik (62…). */
     public function setWhatsappAttribute($value): void
     {
