@@ -67,6 +67,15 @@ class PageController extends Controller
         return view('pages.gtr', compact('gtrCategories', 'gtrSetting', 'gtrScenics', 'gtrOverview', 'gtrSponsors'));
     }
 
+    /** Laporan pembayaran GTR versi cetak. */
+    public function gtrPaymentReport()
+    {
+        return view('gtr.payment-report', [
+            'setting' => \App\Models\GtrSetting::first(),
+            'report' => \App\Models\GtrRegistration::paymentReport(),
+        ]);
+    }
+
     /** Formulir pendaftaran kosong untuk dicetak (pendaftaran offline). */
     public function gtrRegistrationForm()
     {

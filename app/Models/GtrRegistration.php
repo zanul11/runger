@@ -97,6 +97,42 @@ class GtrRegistration extends Model
     }
 
     /**
+     * Data laporan pembayaran: pendaftar lunas, total uang masuk, dan rincian
+     * per metode + per kategori. Dipakai halaman admin & versi cetak.
+     */
+    public static function paymentReport(): array
+    {
+        $paid = static::with('category')->where('payment_status', 'paid')->get();
+
+        $byMethod = $paid
+            ->groupBy(fn (self $r) => $r->pay ?: 'Lainnya')
+            ->map(fn ($g, $method) => [
+                'method' => $method,
+                'count' => $g->count(),
+                'total' => (int) $g->sum(fn (self $r) => $r->totalAmount()),
+            ])
+            ->sortByDesc('total')->values()->all();
+
+        $byCategory = $paid
+            ->groupBy(fn (self $r) => $r->category?->name ?: '—')
+            ->map(fn ($g, $cat) => [
+                'category' => $cat,
+                'count' => $g->count(),
+                'total' => (int) $g->sum(fn (self $r) => $r->totalAmount()),
+            ])
+            ->sortByDesc('total')->values()->all();
+
+        return [
+            'count' => $paid->count(),
+            'total' => (int) $paid->sum(fn (self $r) => $r->totalAmount()),
+            'pending' => static::where('payment_status', 'pending')->count(),
+            'cancelled' => static::where('payment_status', 'cancelled')->count(),
+            'by_method' => $byMethod,
+            'by_category' => $byCategory,
+        ];
+    }
+
+    /**
      * Biaya pendaftaran (tanpa admin fee). Bila sudah terkunci (amount terisi saat
      * dibayar) pakai itu; kalau belum, pakai harga kategori yang berlaku SEKARANG
      * (early bird bila aktif, selain itu normal).

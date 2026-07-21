@@ -4,12 +4,13 @@ namespace App\Filament\Pages;
 
 use App\Models\GtrRegistration;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 
 /**
- * Laporan pembayaran GTR: pendaftar yang sudah lunas & total uang masuk,
- * dibedakan per metode pembayaran (tanpa merinci biaya layanan).
+ * Laporan pembayaran GTR: pendaftar lunas & total uang masuk, dibedakan per
+ * metode & kategori (tanpa merinci biaya layanan). Bisa dicetak.
  */
 class GtrPaymentReport extends Page
 {
@@ -28,31 +29,20 @@ class GtrPaymentReport extends Page
         return 'Laporan Pembayaran GTR';
     }
 
-    /**
-     * @return array{count:int, total:int, pending:int, by_method:array<int,array{method:string,count:int,total:int}>}
-     */
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('print')
+                ->label('Cetak Laporan')
+                ->icon(Heroicon::OutlinedPrinter)
+                ->color('gray')
+                ->url(fn (): string => route('gtr.payment-report', ['print' => 1]))
+                ->openUrlInNewTab(),
+        ];
+    }
+
     public function getReport(): array
     {
-        $paid = GtrRegistration::with('category')
-            ->where('payment_status', 'paid')
-            ->get();
-
-        $byMethod = $paid
-            ->groupBy(fn (GtrRegistration $r) => $r->pay ?: 'Lainnya')
-            ->map(fn ($group, $method) => [
-                'method' => $method,
-                'count' => $group->count(),
-                'total' => (int) $group->sum(fn (GtrRegistration $r) => $r->totalAmount()),
-            ])
-            ->sortByDesc('total')
-            ->values()
-            ->all();
-
-        return [
-            'count' => $paid->count(),
-            'total' => (int) $paid->sum(fn (GtrRegistration $r) => $r->totalAmount()),
-            'pending' => GtrRegistration::where('payment_status', 'pending')->count(),
-            'by_method' => $byMethod,
-        ];
+        return GtrRegistration::paymentReport();
     }
 }

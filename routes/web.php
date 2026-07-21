@@ -11,6 +11,11 @@ Route::get('/gtr/formulir-pendaftaran', [PageController::class, 'gtrRegistration
     ->middleware('auth')
     ->name('gtr.registration-form');
 
+// Laporan pembayaran versi cetak — admin only.
+Route::get('/gtr/laporan-pembayaran', [PageController::class, 'gtrPaymentReport'])
+    ->middleware('auth')
+    ->name('gtr.payment-report');
+
 // Swagger UI dokumentasi API (dilayani via route agar tidak 404 di /docs).
 Route::get('/docs', fn () => response()->file(public_path('docs/index.html')))->name('api.docs');
 Route::get('/docs/openapi.yaml', fn () => response()->file(public_path('docs/openapi.yaml'), [
