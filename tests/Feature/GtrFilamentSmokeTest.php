@@ -61,6 +61,7 @@ class GtrFilamentSmokeTest extends TestCase
             'marshal create' => ['/admin/marshals/create'],
             'results' => ['/admin/gtr-results'],
             'monitor' => ['/admin/gtr-monitor'],
+            'payment report' => ['/admin/gtr-payment-report'],
             'registrations' => ['/admin/gtr-registrations'],
         ];
     }
