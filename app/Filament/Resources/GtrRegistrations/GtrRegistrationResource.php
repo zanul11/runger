@@ -145,6 +145,9 @@ class GtrRegistrationResource extends Resource
                     ->formatStateUsing(fn ($state) => self::$statuses[$state] ?? $state)
                     ->color(fn ($state) => match ($state) { 'paid' => 'success', 'cancelled' => 'danger', default => 'warning' }),
                 TextColumn::make('bib_number')->label('BIB')->placeholder('-')->toggleable(),
+                TextColumn::make('previous_bib_number')->label('BIB Lama')->placeholder('-')
+                    ->description(fn ($record) => $record->previous_bib_number ? 'sebelum pindah kategori' : null)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('race_status')->label('Status Lomba')->badge()
                     ->color(fn ($state) => match ($state) {
                         'finisher' => 'success', 'dnf' => 'warning', 'dq' => 'danger', 'dns' => 'gray', default => 'gray',
@@ -182,6 +185,68 @@ class GtrRegistrationResource extends Resource
                                 ->persistent()
                                 ->send();
                         }
+                    }),
+                // Pindah kategori: BIB diterbitkan ulang mengikuti prefix kategori baru.
+                Action::make('changeCategory')
+                    ->label('Pindah Kategori')
+                    ->icon(Heroicon::OutlinedArrowsRightLeft)
+                    ->color('warning')
+                    ->modalHeading('Pindah Kategori Peserta')
+                    ->modalDescription(fn (GtrRegistration $record) => 'Saat ini: '
+                        . ($record->category->name ?? '-')
+                        . ($record->bib_number ? ' · BIB ' . $record->bib_number : ' · belum ada BIB')
+                        . '. BIB akan diterbitkan ulang mengikuti kategori baru (nomor lama tidak dipakai ulang).')
+                    ->schema([
+                        Select::make('gtr_category_id')
+                            ->label('Kategori Baru')
+                            ->options(fn () => \App\Models\GtrCategory::orderBy('sort_order')->pluck('name', 'id'))
+                            ->required()
+                            ->native(false),
+                        \Filament\Forms\Components\Toggle::make('adjust_amount')
+                            ->label('Sesuaikan nominal ke harga kategori baru')
+                            ->default(true)
+                            ->helperText('Selisih pembayaran ditagih/dikembalikan manual oleh panitia.'),
+                    ])
+                    ->action(function (GtrRegistration $record, array $data) {
+                        $newCat = \App\Models\GtrCategory::find($data['gtr_category_id']);
+                        if (! $newCat || $newCat->id === $record->gtr_category_id) {
+                            Notification::make()->title('Kategori tidak berubah')->warning()->send();
+
+                            return;
+                        }
+
+                        $oldBib = $record->bib_number;
+                        $oldName = $record->category->name ?? '-';
+                        $oldAmount = $record->baseAmount();
+
+                        $record->forceFill(['gtr_category_id' => $newCat->id])->saveQuietly();
+                        $record->refresh()->loadMissing('category');
+
+                        // Nominal mengikuti harga kategori baru (bila dipilih).
+                        $newAmount = $oldAmount;
+                        if ($data['adjust_amount'] ?? false) {
+                            $newAmount = (int) ($newCat->currentPrice() ?? 0);
+                            $record->forceFill(['amount' => $newAmount])->saveQuietly();
+                        }
+
+                        // BIB diterbitkan ulang hanya bila peserta memang sudah punya BIB.
+                        $newBib = $oldBib
+                            ? app(\App\Services\BibNumberService::class)->reassignFor($record)
+                            : null;
+
+                        $diff = $newAmount - $oldAmount;
+                        $diffText = $diff === 0 ? 'nominal tetap'
+                            : ($diff > 0 ? 'kurang bayar IDR ' . number_format($diff, 0, ',', '.')
+                                         : 'lebih bayar IDR ' . number_format(abs($diff), 0, ',', '.'));
+
+                        Notification::make()
+                            ->title('Kategori dipindahkan')
+                            ->body("{$oldName} → {$newCat->name}"
+                                . ($newBib ? " · BIB {$oldBib} → {$newBib}" : '')
+                                . " · {$diffText}")
+                            ->success()
+                            ->persistent()
+                            ->send();
                     }),
                 ViewAction::make(),
                 EditAction::make(),

@@ -47,6 +47,23 @@ class BibNumberService
     }
 
     /**
+     * Terbitkan ulang BIB mengikuti kategori peserta SAAT INI (dipakai setelah
+     * pindah kategori). BIB lama disimpan di previous_bib_number dan TIDAK
+     * dipakai ulang oleh peserta lain (penomoran memakai MAX+1).
+     */
+    public function reassignFor(GtrRegistration $registration): ?string
+    {
+        $old = $registration->bib_number;
+
+        $registration->forceFill([
+            'previous_bib_number' => $old ?: $registration->previous_bib_number,
+            'bib_number' => null,
+        ])->saveQuietly();
+
+        return $this->assignFor($registration->refresh());
+    }
+
+    /**
      * Urutan berikutnya = (urutan tertinggi yang sudah dipakai di kategori) + 1.
      * Tahan terhadap lompatan/hapus karena selalu ambil MAX, bukan COUNT.
      */
