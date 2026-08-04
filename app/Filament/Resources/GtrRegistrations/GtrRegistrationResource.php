@@ -5,7 +5,6 @@ namespace App\Filament\Resources\GtrRegistrations;
 use App\Filament\Resources\GtrRegistrations\Pages\EditGtrRegistration;
 use App\Filament\Resources\GtrRegistrations\Pages\ListGtrRegistrations;
 use App\Filament\Resources\GtrRegistrations\Pages\ViewGtrRegistration;
-use App\Mail\RegistrationConfirmation;
 use App\Models\GtrRegistration;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -15,7 +14,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Mail;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -165,30 +163,40 @@ class GtrRegistrationResource extends Resource
                 SelectFilter::make('gtr_category_id')->label('Kategori')->relationship('category', 'name'),
             ])
             ->recordActions([
+                // Kirim ulang E-TICKET (konfirmasi pembayaran + BIB + QR).
+                Action::make('kirimEticket')
+                    ->label('Kirim E-Ticket')
+                    ->icon(Heroicon::OutlinedQrCode)
+                    ->color('success')
+                    ->visible(fn (GtrRegistration $record) => filled($record->email))
+                    ->requiresConfirmation()
+                    ->modalHeading('Kirim E-Ticket / Konfirmasi Pembayaran')
+                    ->modalDescription(fn (GtrRegistration $record) => 'Email berisi BIB & QR akan dikirim ke ' . $record->email . '.')
+                    ->action(function (GtrRegistration $record) {
+                        $sent = $record->sendPaymentConfirmation();
+                        Notification::make()
+                            ->title($sent ? 'E-Ticket terkirim' : 'Gagal mengirim (cek log/SMTP)')
+                            ->body($sent ? 'Dikirim ke ' . $record->email : null)
+                            ->{$sent ? 'success' : 'danger'}()
+                            ->send();
+                    }),
+
+                // Kirim ulang konfirmasi PENDAFTARAN.
                 Action::make('kirimEmail')
-                    ->label('Kirim Email')
+                    ->label('Kirim Konfirmasi Daftar')
                     ->icon(Heroicon::OutlinedEnvelope)
                     ->color('info')
+                    ->visible(fn (GtrRegistration $record) => filled($record->email))
                     ->requiresConfirmation()
-                    ->modalHeading('Kirim Email Konfirmasi')
-                    ->modalDescription(fn (GtrRegistration $record) => 'Email konfirmasi akan dikirim ke ' . $record->email . '.')
+                    ->modalHeading('Kirim Email Konfirmasi Pendaftaran')
+                    ->modalDescription(fn (GtrRegistration $record) => 'Email konfirmasi pendaftaran akan dikirim ke ' . $record->email . '.')
                     ->action(function (GtrRegistration $record) {
-                        try {
-                            Mail::to($record->email)->send(new RegistrationConfirmation($record->load('category')));
-
-                            Notification::make()
-                                ->title('Email terkirim')
-                                ->body('Konfirmasi dikirim ke ' . $record->email)
-                                ->success()
-                                ->send();
-                        } catch (\Throwable $e) {
-                            Notification::make()
-                                ->title('Gagal mengirim email')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->persistent()
-                                ->send();
-                        }
+                        $sent = $record->sendConfirmationEmail();
+                        Notification::make()
+                            ->title($sent ? 'Email terkirim' : 'Gagal mengirim (cek log/SMTP)')
+                            ->body($sent ? 'Dikirim ke ' . $record->email : null)
+                            ->{$sent ? 'success' : 'danger'}()
+                            ->send();
                     }),
                 // Pindah kategori: BIB diterbitkan ulang mengikuti prefix kategori baru.
                 Action::make('changeCategory')
@@ -258,6 +266,21 @@ class GtrRegistrationResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('kirimEticketBulk')
+                        ->label('Kirim E-Ticket (terpilih)')
+                        ->icon(Heroicon::OutlinedQrCode)
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (\Illuminate\Support\Collection $records) {
+                            $ok = 0;
+                            foreach ($records as $record) {
+                                if ($record->sendPaymentConfirmation()) {
+                                    $ok++;
+                                }
+                            }
+                            Notification::make()->title("E-Ticket terkirim ke {$ok} peserta")->success()->send();
+                        }),
                     DeleteBulkAction::make(),
                 ]),
             ]);

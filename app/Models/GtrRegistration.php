@@ -196,10 +196,10 @@ class GtrRegistration extends Model
         return $this->baseAmount() + $this->serviceFee();
     }
 
-    /** Isi QR e-ticket — sama seperti yang tampil di runger-app. */
+    /** Isi QR e-ticket = nomor registrasi (dipindai marshal via scanner). */
     public function qrData(): string
     {
-        return $this->nomor_registrasi . ' | ' . ($this->category?->name ?? '') . ' | ' . $this->full_name;
+        return (string) $this->nomor_registrasi;
     }
 
     /** URL gambar QR (layanan yang sama dengan runger-app). */
