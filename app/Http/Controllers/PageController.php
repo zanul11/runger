@@ -67,6 +67,40 @@ class PageController extends Controller
         return view('pages.gtr', compact('gtrCategories', 'gtrSetting', 'gtrScenics', 'gtrOverview', 'gtrSponsors'));
     }
 
+    /** Render HTML email (pendaftaran/pembayaran) untuk pratinjau di admin. */
+    public function gtrEmailPreview(\Illuminate\Http\Request $request)
+    {
+        $type = $request->query('type') === 'registration' ? 'registration' : 'payment';
+
+        $reg = $request->filled('registration')
+            ? \App\Models\GtrRegistration::with('category')->find($request->query('registration'))
+            : null;
+
+        // Tanpa data → contoh dummy agar format tetap bisa dilihat.
+        if (! $reg) {
+            $reg = new \App\Models\GtrRegistration([
+                'nomor_registrasi' => 'GTR202600001',
+                'full_name' => 'Budi Santoso (Contoh)',
+                'email' => 'peserta@example.com',
+                'bib_number' => '7001',
+                'pay' => 'QRIS',
+                'payment_status' => 'paid',
+                'amount' => 150000,
+                'discount_code' => 'RUNGER25',
+                'discount_amount' => 25000,
+            ]);
+            $reg->paid_at = now();
+            $reg->setRelation('category', \App\Models\GtrCategory::first()
+                ?? new \App\Models\GtrCategory(['name' => 'Keteri Trail Run', 'distance' => '7 KM', 'price_normal' => 175000]));
+        }
+
+        $mailable = $type === 'registration'
+            ? new \App\Mail\RegistrationConfirmation($reg)
+            : new \App\Mail\PaymentConfirmation($reg);
+
+        return response($mailable->render());
+    }
+
     /** Laporan pembayaran GTR versi cetak. */
     public function gtrPaymentReport()
     {

@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\GtrRegistrations\Pages\CreateGtrRegistration;
-use App\Mail\RegistrationConfirmation;
+use App\Mail\PaymentConfirmation;
 use App\Models\GtrCategory;
 use App\Models\GtrRegistration;
 use App\Models\Runner;
@@ -64,7 +64,7 @@ class GtrManualRegistrationTest extends TestCase
         $this->assertNotNull($reg->paid_at);
 
         // Email konfirmasi terkirim.
-        Mail::assertSent(RegistrationConfirmation::class);
+        Mail::assertSent(PaymentConfirmation::class);
     }
 
     public function test_pending_registration_has_no_bib_and_no_email(): void

@@ -63,15 +63,13 @@ class CreateGtrRegistration extends CreateRecord
             $data['paid_at'] = $data['paid_at'] ?? now();
         }
 
-        // Model hook mengisi nomor_registrasi + BIB (bila paid).
+        // Model hook mengisi nomor_registrasi + BIB + kirim email pembayaran (bila paid).
         $registration = GtrRegistration::create($data);
 
-        // Paid → kirim email konfirmasi otomatis.
         if ($registration->payment_status === 'paid') {
-            $sent = $registration->sendConfirmationEmail();
             Notification::make()
-                ->title($sent ? 'Email konfirmasi terkirim' : 'Email tidak terkirim (cek log/SMTP)')
-                ->{$sent ? 'success' : 'warning'}()
+                ->title('Lunas — BIB dibuat & email konfirmasi pembayaran dikirim')
+                ->success()
                 ->send();
         }
 

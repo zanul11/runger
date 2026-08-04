@@ -57,9 +57,14 @@
   <div class="pf-row"><span class="k">Kategori</span><span class="v">{{ $reg->category->distance ?? '' }} · {{ $reg->category->name ?? '' }}</span></div>
   @php
     $base = $reg->baseAmount();
+    $disc = (int) $reg->discount_amount;
+    $gross = $base + $disc;
     $fee = $reg->serviceFee();
   @endphp
-  <div class="pf-row"><span class="k">Biaya Pendaftaran</span><span class="v">IDR {{ number_format($base, 0, ',', '.') }}</span></div>
+  <div class="pf-row"><span class="k">Biaya Pendaftaran</span><span class="v">IDR {{ number_format($gross, 0, ',', '.') }}</span></div>
+  @if($disc > 0)
+  <div class="pf-row"><span class="k">Voucher <strong>{{ $reg->discount_code }}</strong></span><span class="v" style="color:#16a34a">− IDR {{ number_format($disc, 0, ',', '.') }}</span></div>
+  @endif
   @if($fee > 0)
   <div class="pf-row"><span class="k">Biaya Layanan <span class="info-i">?<span class="bubble">Biaya untuk pengelolaan sistem pendaftaran, e-ticket, dan dukungan peserta.</span></span></span><span class="v">IDR {{ number_format($fee, 0, ',', '.') }}</span></div>
   @endif

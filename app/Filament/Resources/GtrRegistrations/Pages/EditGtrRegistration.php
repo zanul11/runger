@@ -23,11 +23,11 @@ class EditGtrRegistration extends EditRecord
      */
     protected function afterSave(): void
     {
+        // Email konfirmasi pembayaran dikirim otomatis oleh model saat status → paid.
         if ($this->record->wasChanged('payment_status') && $this->record->payment_status === 'paid') {
-            $sent = $this->record->sendConfirmationEmail();
             Notification::make()
-                ->title($sent ? 'Lunas — BIB dibuat & email terkirim' : 'Lunas — email tidak terkirim (cek SMTP)')
-                ->{$sent ? 'success' : 'warning'}()
+                ->title('Lunas — BIB dibuat & email konfirmasi pembayaran dikirim')
+                ->success()
                 ->send();
         }
     }

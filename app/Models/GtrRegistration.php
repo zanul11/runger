@@ -17,6 +17,8 @@ class GtrRegistration extends Model
         'registered_at' => 'datetime',
         'paid_at' => 'datetime',
         'agree_terms' => 'boolean',
+        'discount_consumed' => 'boolean',
+        'discount_amount' => 'integer',
     ];
 
     public const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
@@ -39,18 +41,53 @@ class GtrRegistration extends Model
                     'nomor_registrasi' => 'GTR2026' . str_pad((string) $reg->id, 5, '0', STR_PAD_LEFT),
                 ])->saveQuietly();
             }
-            // BIB langsung bila dibuat sudah lunas (mis. via admin).
+            // BIB + email konfirmasi bayar bila dibuat sudah lunas (mis. via admin).
             if ($reg->payment_status === 'paid') {
                 self::assignBib($reg);
+                $reg->fresh()->sendPaymentConfirmation();
             }
         });
 
-        // BIB otomatis saat pembayaran berubah menjadi LUNAS (webhook / admin).
+        // Saat pembayaran berubah menjadi LUNAS (webhook / admin): BIB + email.
         static::updated(function (GtrRegistration $reg) {
-            if ($reg->wasChanged('payment_status') && $reg->payment_status === 'paid') {
-                self::assignBib($reg);
+            if ($reg->wasChanged('payment_status')) {
+                if ($reg->payment_status === 'paid') {
+                    self::assignBib($reg);
+                    $reg->fresh()->sendPaymentConfirmation();
+                }
+                self::reconcileDiscount($reg);
             }
         });
+
+        // Registrasi dihapus → kembalikan slot kuota voucher bila sedang dipakai.
+        static::deleted(function (GtrRegistration $reg) {
+            if ($reg->gtr_discount_id && $reg->discount_consumed) {
+                optional($reg->discount)->markReleased();
+            }
+        });
+    }
+
+    /**
+     * Sinkronkan pemakaian kuota voucher dengan status pembayaran:
+     *  - status cancelled  → kembalikan slot (jika sedang dipakai)
+     *  - status aktif lagi → pakai slot kembali (jika sebelumnya dikembalikan)
+     * Flag discount_consumed menjaga agar tidak dobel kurang/tambah (idempoten).
+     */
+    protected static function reconcileDiscount(GtrRegistration $reg): void
+    {
+        if (! $reg->gtr_discount_id) {
+            return;
+        }
+
+        $shouldConsume = $reg->payment_status !== 'cancelled';
+
+        if ($shouldConsume && ! $reg->discount_consumed) {
+            optional($reg->discount)->markUsed();
+            $reg->forceFill(['discount_consumed' => true])->saveQuietly();
+        } elseif (! $shouldConsume && $reg->discount_consumed) {
+            optional($reg->discount)->markReleased();
+            $reg->forceFill(['discount_consumed' => false])->saveQuietly();
+        }
     }
 
     /** Beri nomor BIB bila belum ada (prefix kategori + urutan per kategori). */
@@ -132,14 +169,25 @@ class GtrRegistration extends Model
         ];
     }
 
+    public function discount(): BelongsTo
+    {
+        return $this->belongsTo(GtrDiscount::class, 'gtr_discount_id');
+    }
+
     /**
-     * Biaya pendaftaran (tanpa admin fee). Bila sudah terkunci (amount terisi saat
-     * dibayar) pakai itu; kalau belum, pakai harga kategori yang berlaku SEKARANG
-     * (early bird bila aktif, selain itu normal).
+     * Biaya pendaftaran NETO (setelah diskon, tanpa admin fee). Bila sudah terkunci
+     * (amount terisi saat dibayar) pakai itu; kalau belum, harga kategori berlaku
+     * SEKARANG dikurangi potongan voucher.
      */
     public function baseAmount(): int
     {
-        return (int) ($this->amount ?: ($this->category?->currentPrice() ?? 0));
+        if ($this->amount) {
+            return (int) $this->amount;
+        }
+
+        $price = (int) ($this->category?->currentPrice() ?? 0);
+
+        return max(0, $price - (int) $this->discount_amount);
     }
 
     /** Total tagihan = biaya pendaftaran + biaya layanan (0 bila non-QRIS). */
@@ -148,20 +196,30 @@ class GtrRegistration extends Model
         return $this->baseAmount() + $this->serviceFee();
     }
 
-    /** Kirim email konfirmasi ke peserta (aman: tak menggagalkan proses bila error). */
+    /** Kirim email KONFIRMASI PENDAFTARAN (aman: tak menggagalkan proses bila error). */
     public function sendConfirmationEmail(): bool
+    {
+        return $this->sendMailSafe(new \App\Mail\RegistrationConfirmation($this->fresh('category')));
+    }
+
+    /** Kirim email KONFIRMASI PEMBAYARAN / e-ticket (dipanggil otomatis saat lunas). */
+    public function sendPaymentConfirmation(): bool
+    {
+        return $this->sendMailSafe(new \App\Mail\PaymentConfirmation($this->fresh('category')));
+    }
+
+    private function sendMailSafe(\Illuminate\Mail\Mailable $mailable): bool
     {
         if (! $this->email) {
             return false;
         }
 
         try {
-            \Illuminate\Support\Facades\Mail::to($this->email)
-                ->send(new \App\Mail\RegistrationConfirmation($this->fresh('category')));
+            \Illuminate\Support\Facades\Mail::to($this->email)->send($mailable);
 
             return true;
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Gagal kirim email konfirmasi GTR: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim email GTR: ' . $e->getMessage());
 
             return false;
         }

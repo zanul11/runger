@@ -16,6 +16,11 @@ Route::get('/gtr/laporan-pembayaran', [PageController::class, 'gtrPaymentReport'
     ->middleware('auth')
     ->name('gtr.payment-report');
 
+// Pratinjau format email (pendaftaran / pembayaran) — admin only.
+Route::get('/gtr/email-preview', [PageController::class, 'gtrEmailPreview'])
+    ->middleware('auth')
+    ->name('gtr.email-preview');
+
 // Swagger UI dokumentasi API (dilayani via route agar tidak 404 di /docs).
 Route::get('/docs', fn () => response()->file(public_path('docs/index.html')))->name('api.docs');
 Route::get('/docs/openapi.yaml', fn () => response()->file(public_path('docs/openapi.yaml'), [

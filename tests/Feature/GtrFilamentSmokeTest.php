@@ -57,11 +57,14 @@ class GtrFilamentSmokeTest extends TestCase
             'timing point create' => ['/admin/gtr-timing-points/create'],
             'sponsors' => ['/admin/gtr-sponsors'],
             'sponsor create' => ['/admin/gtr-sponsors/create'],
+            'discounts' => ['/admin/gtr-discounts'],
+            'discount create' => ['/admin/gtr-discounts/create'],
             'marshals' => ['/admin/marshals'],
             'marshal create' => ['/admin/marshals/create'],
             'results' => ['/admin/gtr-results'],
             'monitor' => ['/admin/gtr-monitor'],
             'payment report' => ['/admin/gtr-payment-report'],
+            'email preview' => ['/admin/gtr-email-preview'],
             'registrations' => ['/admin/gtr-registrations'],
         ];
     }

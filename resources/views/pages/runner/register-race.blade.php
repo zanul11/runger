@@ -194,6 +194,13 @@
     @error('pay')<div class="err">{{ $message }}</div>@enderror
   </div>
 
+  <div class="rf-h">Kode Voucher (opsional)</div>
+  <div class="fld">
+    <input class="inp" id="discount_code" name="discount_code" value="{{ old('discount_code') }}"
+           placeholder="Masukkan kode voucher jika punya" autocapitalize="characters" style="text-transform:uppercase">
+    @error('discount_code')<div class="err">{{ $message }}</div>@enderror
+  </div>
+
   @php
     $base = (int) ($category->currentPrice() ?? 0);
     $fee = \App\Models\GtrRegistration::ADMIN_FEE;
@@ -202,6 +209,7 @@
     <div class="row"><span>Biaya Pendaftaran</span><span>IDR {{ number_format($base, 0, ',', '.') }}</span></div>
     <div class="row"><span>Biaya Layanan <span class="info-i">?<span class="bubble">Biaya untuk pengelolaan sistem pendaftaran, e-ticket, dan dukungan peserta.</span></span></span><span>IDR {{ number_format($fee, 0, ',', '.') }}</span></div>
     <div class="row total"><span>Total</span><span>IDR {{ number_format($base + $fee, 0, ',', '.') }}</span></div>
+    <p class="note">Punya kode voucher? Potongan otomatis diterapkan setelah lanjut & tampil di ringkasan pembayaran.</p>
   </div>
 
   <label class="agree">

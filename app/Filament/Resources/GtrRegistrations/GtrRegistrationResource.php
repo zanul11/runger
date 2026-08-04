@@ -148,6 +148,10 @@ class GtrRegistrationResource extends Resource
                 TextColumn::make('previous_bib_number')->label('BIB Lama')->placeholder('-')
                     ->description(fn ($record) => $record->previous_bib_number ? 'sebelum pindah kategori' : null)
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('discount_code')->label('Voucher')->badge()->color('success')
+                    ->placeholder('-')
+                    ->description(fn ($record) => $record->discount_amount ? '− IDR ' . number_format($record->discount_amount, 0, ',', '.') : null)
+                    ->toggleable(),
                 TextColumn::make('race_status')->label('Status Lomba')->badge()
                     ->color(fn ($state) => match ($state) {
                         'finisher' => 'success', 'dnf' => 'warning', 'dq' => 'danger', 'dns' => 'gray', default => 'gray',

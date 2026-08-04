@@ -118,11 +118,25 @@ class RunnerDashboardController extends Controller
                 }
             }],
             'pay' => ['required', 'string', 'max:50'],
+            'discount_code' => ['nullable', 'string', 'max:50'],
             'agree_terms' => ['accepted'],
         ], [
             'nik.digits' => 'NIK harus 16 digit angka.',
             'agree_terms.accepted' => 'Kamu harus menyetujui syarat & ketentuan.',
         ]);
+
+        // Validasi kode voucher (bila diisi) sebelum membuat pendaftaran.
+        $discount = null;
+        if (! empty($request->input('discount_code'))) {
+            $discount = \App\Models\GtrDiscount::findUsable($request->input('discount_code'));
+            if (! $discount) {
+                return back()->withInput()->withErrors([
+                    'discount_code' => 'Kode voucher tidak valid, tidak aktif, atau kuotanya sudah habis.',
+                ]);
+            }
+        }
+
+        unset($validated['discount_code']);
 
         $registration = GtrRegistration::create(array_merge($validated, [
             'runner_id' => $runner->id,
@@ -136,6 +150,28 @@ class RunnerDashboardController extends Controller
         $registration->update([
             'nomor_registrasi' => 'GTR2026' . str_pad($registration->id, 5, '0', STR_PAD_LEFT),
         ]);
+
+        // Terapkan voucher: kunci baris diskon, cek ulang kuota, catat potongan &
+        // pemakai, lalu tambah used_count (atomik) — supaya kuota akurat & tertrack.
+        if ($discount) {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($discount, $registration, $category) {
+                $locked = \App\Models\GtrDiscount::whereKey($discount->id)->lockForUpdate()->first();
+                if (! $locked || ! $locked->isUsable()) {
+                    return; // keburu habis oleh orang lain → lanjut tanpa diskon
+                }
+
+                $potongan = $locked->amountFor((int) ($category->currentPrice() ?? 0));
+
+                $registration->forceFill([
+                    'gtr_discount_id' => $locked->id,
+                    'discount_code' => $locked->code,
+                    'discount_amount' => $potongan,
+                    'discount_consumed' => true, // sedang memakai slot kuota
+                ])->save();
+
+                $locked->increment('used_count');
+            });
+        }
 
         // Kirim email konfirmasi pendaftaran (jangan gagalkan pendaftaran bila email error).
         try {
