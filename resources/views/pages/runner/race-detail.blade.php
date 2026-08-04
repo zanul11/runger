@@ -49,8 +49,7 @@
 
 @section('content')
 @php
-  $qrData = $reg->nomor_registrasi . ' | ' . ($reg->category->name ?? '') . ' | ' . $reg->full_name;
-  $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data=' . urlencode($qrData);
+  $qrUrl = $reg->qrImageUrl(300);
 @endphp
 
 <a class="evd-back" href="{{ route('gtr.account.race') }}">← My Race</a>
