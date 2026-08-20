@@ -14,30 +14,37 @@ class ListGtrRegistrations extends ListRecords
 {
     protected static string $resource = GtrRegistrationResource::class;
 
+    /** Peserta belum lunas yang punya email (pending + cancelled). */
+    protected static function unpaidQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return GtrRegistration::whereIn('payment_status', ['pending', 'cancelled'])
+            ->whereNotNull('email')
+            ->where('email', '!=', '');
+    }
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()->label('Input Peserta')->icon(Heroicon::OutlinedUserPlus),
 
-            // Kirim email pengingat pembayaran ke SEMUA peserta yang masih pending.
+            // Kirim email pengingat pembayaran ke SEMUA yang BELUM lunas (pending + cancelled).
             Action::make('reminderAll')
-                ->label('Reminder Bayar (Pending)')
+                ->label('Reminder Bayar')
                 ->icon(Heroicon::OutlinedBellAlert)
                 ->color('warning')
-                ->badge(fn () => GtrRegistration::where('payment_status', 'pending')->whereNotNull('email')->count() ?: null)
+                ->badge(fn () => self::unpaidQuery()->count() ?: null)
                 ->requiresConfirmation()
                 ->modalHeading('Kirim Pengingat Pembayaran')
-                ->modalDescription(function () {
-                    $n = GtrRegistration::where('payment_status', 'pending')->whereNotNull('email')->count();
-
-                    return "Email pengingat akan dikirim ke {$n} peserta berstatus Pending (harga mengikuti yang berlaku saat ini).";
-                })
+                ->modalDescription(fn () => 'Email pengingat akan dikirim ke ' . self::unpaidQuery()->count()
+                    . ' peserta yang belum lunas (status Pending & Cancelled). Harga mengikuti yang berlaku saat ini.')
                 ->action(function () {
+                    // Batch besar: cegah request timeout & jangan hentikan batch bila 1 gagal.
+                    @set_time_limit(0);
+                    ignore_user_abort(true);
+
                     $ok = 0;
                     $fail = 0;
-                    GtrRegistration::with('category')
-                        ->where('payment_status', 'pending')
-                        ->whereNotNull('email')
+                    self::unpaidQuery()->with('category')
                         ->chunkById(100, function ($regs) use (&$ok, &$fail) {
                             foreach ($regs as $reg) {
                                 $reg->sendPaymentReminder() ? $ok++ : $fail++;
@@ -45,7 +52,7 @@ class ListGtrRegistrations extends ListRecords
                         });
 
                     Notification::make()
-                        ->title("Pengingat terkirim ke {$ok} peserta" . ($fail ? " ({$fail} gagal)" : ''))
+                        ->title("Pengingat terkirim ke {$ok} peserta" . ($fail ? " · {$fail} gagal (cek log)" : ''))
                         ->{$fail ? 'warning' : 'success'}()
                         ->send();
                 }),

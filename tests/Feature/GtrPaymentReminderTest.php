@@ -28,22 +28,22 @@ class GtrPaymentReminderTest extends TestCase
         ]);
     }
 
-    public function test_reminder_sent_only_to_pending_with_email(): void
+    public function test_reminder_sent_to_pending_and_cancelled_with_email(): void
     {
         Mail::fake();
         $this->actingAs(User::create(['name' => 'A', 'email' => 'a@t.id', 'password' => 'x', 'role' => User::ROLE_ADMIN]));
         $cat = GtrCategory::create(['name' => '7K', 'slug' => '7k', 'distance' => '7 KM', 'price_normal' => 100000]);
 
-        $p1 = $this->reg($cat, 'pending', 'p1@t.id');
-        $p2 = $this->reg($cat, 'pending', 'p2@t.id');
-        $this->reg($cat, 'pending', null);      // pending tanpa email → dilewati
-        $this->reg($cat, 'paid', 'paid@t.id');  // sudah lunas → tidak dikirim
+        $this->reg($cat, 'pending', 'p1@t.id');
+        $this->reg($cat, 'cancelled', 'c1@t.id');  // batal juga diingatkan
+        $this->reg($cat, 'pending', null);          // tanpa email → dilewati
+        $this->reg($cat, 'paid', 'paid@t.id');      // sudah lunas → tidak dikirim
 
         Livewire::test(ListGtrRegistrations::class)->callAction('reminderAll');
 
         Mail::assertSent(PaymentReminder::class, 2);
         Mail::assertSent(PaymentReminder::class, fn ($m) => $m->hasTo('p1@t.id'));
-        Mail::assertSent(PaymentReminder::class, fn ($m) => $m->hasTo('p2@t.id'));
+        Mail::assertSent(PaymentReminder::class, fn ($m) => $m->hasTo('c1@t.id'));
         Mail::assertNotSent(PaymentReminder::class, fn ($m) => $m->hasTo('paid@t.id'));
     }
 }

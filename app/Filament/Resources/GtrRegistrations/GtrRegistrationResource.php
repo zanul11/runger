@@ -273,10 +273,11 @@ class GtrRegistrationResource extends Resource
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion()
                         ->action(function (\Illuminate\Support\Collection $records) {
+                            @set_time_limit(0);
                             $ok = 0;
                             $skip = 0;
                             foreach ($records as $record) {
-                                // Hanya yang belum lunas.
+                                // Hanya yang belum lunas (pending/cancelled) & punya email.
                                 if ($record->payment_status === 'paid' || ! $record->email) {
                                     $skip++;
 
