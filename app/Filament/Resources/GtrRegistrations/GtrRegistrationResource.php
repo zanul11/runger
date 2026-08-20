@@ -266,6 +266,28 @@ class GtrRegistrationResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('reminderBulk')
+                        ->label('Kirim Reminder Bayar (terpilih)')
+                        ->icon(Heroicon::OutlinedBellAlert)
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (\Illuminate\Support\Collection $records) {
+                            $ok = 0;
+                            $skip = 0;
+                            foreach ($records as $record) {
+                                // Hanya yang belum lunas.
+                                if ($record->payment_status === 'paid' || ! $record->email) {
+                                    $skip++;
+
+                                    continue;
+                                }
+                                $record->sendPaymentReminder() && $ok++;
+                            }
+                            Notification::make()
+                                ->title("Reminder terkirim ke {$ok} peserta" . ($skip ? " ({$skip} dilewati: lunas/tanpa email)" : ''))
+                                ->success()->send();
+                        }),
                     \Filament\Actions\BulkAction::make('kirimEticketBulk')
                         ->label('Kirim E-Ticket (terpilih)')
                         ->icon(Heroicon::OutlinedQrCode)

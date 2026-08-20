@@ -221,6 +221,12 @@ class GtrRegistration extends Model
         return $this->sendMailSafe(new \App\Mail\PaymentConfirmation($this->fresh('category')));
     }
 
+    /** Kirim email PENGINGAT PEMBAYARAN (untuk yang belum lunas). */
+    public function sendPaymentReminder(): bool
+    {
+        return $this->sendMailSafe(new \App\Mail\PaymentReminder($this->fresh('category')));
+    }
+
     private function sendMailSafe(\Illuminate\Mail\Mailable $mailable): bool
     {
         if (! $this->email) {

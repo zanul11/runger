@@ -6,6 +6,7 @@
                 <select wire:model.live="type"
                     class="rounded-lg border-gray-300 text-sm dark:border-white/10 dark:bg-gray-800">
                     <option value="payment">Konfirmasi Pembayaran (Lunas)</option>
+                    <option value="reminder">Pengingat Pembayaran (Belum Bayar)</option>
                     <option value="registration">Konfirmasi Pendaftaran</option>
                 </select>
             </div>

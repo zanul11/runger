@@ -70,7 +70,9 @@ class PageController extends Controller
     /** Render HTML email (pendaftaran/pembayaran) untuk pratinjau di admin. */
     public function gtrEmailPreview(\Illuminate\Http\Request $request)
     {
-        $type = $request->query('type') === 'registration' ? 'registration' : 'payment';
+        $type = in_array($request->query('type'), ['registration', 'reminder', 'payment'], true)
+            ? $request->query('type')
+            : 'payment';
 
         $reg = $request->filled('registration')
             ? \App\Models\GtrRegistration::with('category')->find($request->query('registration'))
@@ -94,9 +96,11 @@ class PageController extends Controller
                 ?? new \App\Models\GtrCategory(['name' => 'Keteri Trail Run', 'distance' => '7 KM', 'price_normal' => 175000]));
         }
 
-        $mailable = $type === 'registration'
-            ? new \App\Mail\RegistrationConfirmation($reg)
-            : new \App\Mail\PaymentConfirmation($reg);
+        $mailable = match ($type) {
+            'registration' => new \App\Mail\RegistrationConfirmation($reg),
+            'reminder' => new \App\Mail\PaymentReminder($reg),
+            default => new \App\Mail\PaymentConfirmation($reg),
+        };
 
         return response($mailable->render());
     }
