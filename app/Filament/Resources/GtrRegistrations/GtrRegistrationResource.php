@@ -124,6 +124,9 @@ class GtrRegistrationResource extends Resource
             TextEntry::make('pay')->label('Metode Bayar'),
             TextEntry::make('amount')->money('IDR'),
             TextEntry::make('paid_at')->dateTime()->placeholder('-'),
+            TextEntry::make('payment_notes')->label('Catatan Pembayaran')
+                ->state(fn ($record) => $record->payments->pluck('notes')->filter()->implode("\n"))
+                ->placeholder('-')->columnSpanFull(),
             TextEntry::make('registered_at')->dateTime(),
         ]);
     }
