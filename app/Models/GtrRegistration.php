@@ -175,13 +175,15 @@ class GtrRegistration extends Model
     }
 
     /**
-     * Biaya pendaftaran NETO (setelah diskon, tanpa admin fee). Bila sudah terkunci
-     * (amount terisi saat dibayar) pakai itu; kalau belum, harga kategori berlaku
+     * Biaya pendaftaran NETO (setelah diskon, tanpa admin fee). Bila sudah lunas
+     * (amount terkunci saat dibayar) pakai itu; kalau belum, harga kategori berlaku
      * SEKARANG dikurangi potongan voucher.
      */
     public function baseAmount(): int
     {
-        if ($this->amount) {
+        // Hanya terkunci bila sudah lunas; percobaan bayar yang gagal/expired
+        // tidak boleh menahan harga lama (mis. early bird).
+        if ($this->amount && $this->payment_status === 'paid') {
             return (int) $this->amount;
         }
 
