@@ -263,6 +263,49 @@ class GtrRegistrationResource extends Resource
                             ->persistent()
                             ->send();
                     }),
+                // Ubah ukuran jersey + (opsional) kirim email pemberitahuan ke peserta.
+                Action::make('changeSize')
+                    ->label('Ubah Ukuran Jersey')
+                    ->icon(Heroicon::OutlinedSwatch)
+                    ->color('gray')
+                    ->modalHeading('Ubah Ukuran Jersey')
+                    ->modalDescription(fn (GtrRegistration $record) => 'Ukuran saat ini: ' . ($record->size ?: '-'))
+                    ->fillForm(fn (GtrRegistration $record) => ['size' => $record->size, 'send_email' => filled($record->email)])
+                    ->schema([
+                        Select::make('size')
+                            ->label('Ukuran Baru')
+                            ->options(array_combine(GtrRegistration::SIZES, GtrRegistration::SIZES))
+                            ->required()
+                            ->native(false),
+                        \Filament\Forms\Components\Toggle::make('send_email')
+                            ->label('Kirim email pemberitahuan ke peserta')
+                            ->disabled(fn (GtrRegistration $record) => blank($record->email))
+                            ->helperText(fn (GtrRegistration $record) => $record->email ?: 'Peserta tidak punya email.'),
+                    ])
+                    ->action(function (GtrRegistration $record, array $data) {
+                        $oldSize = $record->size;
+                        if ($data['size'] === $oldSize) {
+                            Notification::make()->title('Ukuran tidak berubah')->warning()->send();
+
+                            return;
+                        }
+
+                        $record->update(['size' => $data['size']]);
+
+                        $sent = ($data['send_email'] ?? false) && filled($record->email)
+                            ? $record->sendJerseySizeChanged($oldSize)
+                            : null;
+
+                        Notification::make()
+                            ->title("Ukuran jersey {$oldSize} → {$data['size']}")
+                            ->body(match ($sent) {
+                                true => 'Email pemberitahuan terkirim ke ' . $record->email,
+                                false => 'Ukuran tersimpan, tapi email gagal dikirim (cek log/SMTP).',
+                                null => 'Tanpa email pemberitahuan.',
+                            })
+                            ->{$sent === false ? 'warning' : 'success'}()
+                            ->send();
+                    }),
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),

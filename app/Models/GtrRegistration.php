@@ -229,6 +229,12 @@ class GtrRegistration extends Model
         return $this->sendMailSafe(new \App\Mail\PaymentReminder($this->fresh('category')));
     }
 
+    /** Kirim email PEMBERITAHUAN PERUBAHAN UKURAN JERSEY. */
+    public function sendJerseySizeChanged(?string $oldSize = null): bool
+    {
+        return $this->sendMailSafe(new \App\Mail\JerseySizeChanged($this->fresh('category'), $oldSize));
+    }
+
     private function sendMailSafe(\Illuminate\Mail\Mailable $mailable): bool
     {
         if (! $this->email) {
