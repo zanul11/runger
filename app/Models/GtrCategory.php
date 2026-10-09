@@ -76,7 +76,7 @@ class GtrCategory extends Model
     {
         return $this->header_image
             ? Storage::disk('public')->url($this->header_image)
-            : asset('assets/gtr/gallery/rudi.jpeg');
+            : asset('assets/gtr/gallery/rudi.webp');
     }
 
     public function getGpxUrlAttribute(): ?string

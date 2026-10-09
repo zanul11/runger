@@ -13,21 +13,21 @@ class GtrOverview extends Model
     {
         return $this->photo_main
             ? Storage::disk('public')->url($this->photo_main)
-            : asset('assets/gtr/WhatsApp Image 2026-06-07 at 09.22.00.jpeg');
+            : asset('assets/gtr/overview-1.webp');
     }
 
     public function getPhoto2UrlAttribute(): string
     {
         return $this->photo_2
             ? Storage::disk('public')->url($this->photo_2)
-            : asset('assets/gtr/WhatsApp Image 2026-06-06 at 13.37.28.jpeg');
+            : asset('assets/gtr/overview-2.webp');
     }
 
     public function getPhoto3UrlAttribute(): string
     {
         return $this->photo_3
             ? Storage::disk('public')->url($this->photo_3)
-            : asset('assets/g-sunset.jpeg');
+            : asset('assets/gtr/overview-3.webp');
     }
 
     /** The single overview row (creates one if missing). */

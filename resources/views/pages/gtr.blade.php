@@ -8,12 +8,12 @@
 
 <!-- HERO -->
 <header class="hero" id="home">
-  <img class="hero-video" src="{{ $gtrSetting?->header_url ?? asset('assets/gtr/gallery/ari.jpeg') }}" alt="Gerung Trail Run">
+  <img class="hero-video" src="{{ $gtrSetting?->header_url ?? asset('assets/gtr/gallery/ari.webp') }}" alt="Gerung Trail Run" fetchpriority="high" decoding="async">
   <div class="hero-overlay"></div>
   <div class="hero-logos">
-    <img src="{{ asset('assets/gtr/lobar.png') }}" alt="Pemkab Lombok Barat">
-    <img src="{{ asset('assets/gtr/dispar.png') }}" alt="Dinas Pariwisata">
-    <img src="{{ asset('assets/gtr/keteri.png') }}" alt="Bukit Keteri">
+    <img src="{{ asset('assets/gtr/lobar.webp') }}" alt="Pemkab Lombok Barat" width="66" height="66">
+    <img src="{{ asset('assets/gtr/dispar.webp') }}" alt="Dinas Pariwisata" width="66" height="66">
+    <img src="{{ asset('assets/gtr/keteri.webp') }}" alt="Bukit Keteri" width="66" height="66">
   </div>
   <div class="hero-inner wrap">
     <div class="hero-eye">{{ $gtrSetting->eyebrow ?? '1st Edition · Keteri Hill' }}</div>
@@ -160,15 +160,15 @@
     </div>
     <div class="support-grid">
       <div class="support-item">
-        <div class="support-logo s-dispar"><img src="{{ asset('assets/gtr/alti.png') }}" alt="ALTI NTB"></div>
+        <div class="support-logo s-dispar"><img src="{{ asset('assets/gtr/alti.webp') }}" alt="ALTI NTB" loading="lazy" decoding="async"></div>
         <div class="support-name">Asosiasi Lari Trail Indonesia Pengurus Daerah NTB</div>
       </div>
       <div class="support-item">
-        <div class="support-logo s-lobar"><img src="{{ asset('assets/gtr/lobar.png') }}" alt="Pemerintah Kabupaten Lombok Barat"></div>
+        <div class="support-logo s-lobar"><img src="{{ asset('assets/gtr/lobar.webp') }}" alt="Pemerintah Kabupaten Lombok Barat" loading="lazy" decoding="async"></div>
         <div class="support-name">Pemerintah Kabupaten Lombok Barat</div>
       </div>
       <div class="support-item">
-        <div class="support-logo s-dispar"><img src="{{ asset('assets/gtr/dispar2.png') }}" alt="Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat"></div>
+        <div class="support-logo s-dispar"><img loading="lazy" decoding="async" src="{{ asset('assets/gtr/dispar2.webp') }}" alt="Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat"></div>
         <div class="support-name">Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat</div>
       </div>
       
@@ -177,20 +177,16 @@
 </section>
 
 <!-- SPONSORS -->
+@php
+  // Tier "official_partner" tampil di blok Official Partners terpisah.
+  [$gtrPartners, $gtrMainSponsors] = $gtrSponsors->partition(fn ($sp) => $sp->tier === 'official_partner');
+@endphp
 <section class="sponsor-section">
   <div class="wrap sponsor-inner">
     <h2>Official Sponsors</h2>
     <div class="sponsor-row">
-      @forelse($gtrSponsors as $sp)
-        @php($logo = $sp->logo_url)
-        <{{ $sp->link ? 'a' : 'div' }} class="sponsor-item"
-          @if($sp->link) href="{{ $sp->link }}" target="_blank" rel="noopener" @endif
-          title="{{ $sp->name }}">
-          <span class="sponsor-slot">
-            @if($logo)<img src="{{ $logo }}" alt="{{ $sp->name }}" loading="lazy">@else{{ $sp->name }}@endif
-          </span>
-          @if($sp->role)<span class="sponsor-role">{{ $sp->role }}</span>@endif
-        </{{ $sp->link ? 'a' : 'div' }}>
+      @forelse($gtrMainSponsors as $sp)
+        @include('pages.partials.gtr-sponsor-item', ['sp' => $sp])
       @empty
         <div class="sponsor-slot">Slot Sponsor</div>
         <div class="sponsor-slot">Slot Sponsor</div>
@@ -198,6 +194,14 @@
         <div class="sponsor-slot">Slot Sponsor</div>
       @endforelse
     </div>
+    @if($gtrPartners->isNotEmpty())
+    <h2 class="partner-title">Official Partners</h2>
+    <div class="sponsor-row partner-row">
+      @foreach($gtrPartners as $sp)
+        @include('pages.partials.gtr-sponsor-item', ['sp' => $sp])
+      @endforeach
+    </div>
+    @endif
     <div class="sponsor-cta">
       <h3>Interested in Becoming a Sponsor?</h3>
       <p>Jadilah bagian dari edisi perdana Gerung Trail Run dan terhubung dengan komunitas trail running yang berdedikasi di Lombok Barat.</p>
@@ -214,7 +218,7 @@
     <div class="course-grid" id="scenic-grid">
       @foreach($gtrScenics as $i => $s)
         <button type="button" class="course-tile" data-idx="{{ $i }}" aria-label="{{ $s->label ?? 'Lihat foto rute' }}">
-          <img src="{{ $s->image_url }}" alt="{{ $s->label ?? 'Scenic course' }}" loading="lazy">
+          <img src="{{ $s->image_url }}" alt="{{ $s->label ?? 'Scenic course' }}" loading="lazy" decoding="async">
           <span class="zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></span>
           @if($s->label)<span class="label">{{ $s->label }}</span>@endif
         </button>

@@ -25,7 +25,7 @@
 <link rel="apple-touch-icon" href="{{ asset('assets/gtr/logo.jpeg') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500..900&family=Plus+Jakarta+Sans:wght@400..800&display=swap" rel="stylesheet">
 @verbatim
 <style>
   :root{
@@ -408,6 +408,9 @@
   .sponsor-slot img{height:46px;width:auto;max-width:160px;object-fit:contain;display:block}
   .sponsor-slot:has(img){background:#fff;border:1px solid rgba(255,255,255,.14);padding:12px 20px}
   .sponsor-row:has(.sponsor-item){opacity:1}
+  /* Official Partners: di bawah sponsor utama, logo sedikit lebih kecil. */
+  .sponsor-inner h2.partner-title{font-size:24px;margin:8px 0 0}
+  .partner-row .sponsor-slot img{height:36px;max-width:130px}
   .sponsor-cta{
     margin-top:24px;padding:26px 22px;background:var(--card);border:1px solid var(--line);
     border-radius:18px;
@@ -732,6 +735,7 @@
     /* Sponsor */
     .sponsor-section{padding:140px 0}
     .sponsor-inner h2{font-size:clamp(40px,5vw,58px)}
+    .sponsor-inner h2.partner-title{font-size:clamp(28px,3vw,38px)}
     .sponsor-cta{padding:32px 28px;max-width:540px;margin:24px auto 0}
 
     /* Footer */
@@ -754,9 +758,9 @@
 <nav class="top">
   <div class="nav-inner">
     <a class="nav-logo" href="{{ route('gtr') }}">
-      <img src="{{ asset('assets/gtr/logo.jpeg') }}" alt="Gerung Trail Run">
+      <img src="{{ asset('assets/gtr/logo.webp') }}" alt="Gerung Trail Run" width="43" height="32">
       <span class="nav-divider"></span>
-      <img class="nav-runger" src="{{ asset('assets/gtr/logo-white.png') }}" alt="Runger · Runners Gerung">
+      <img class="nav-runger" src="{{ asset('assets/gtr/logo-white.webp') }}" alt="Runger · Runners Gerung" width="98" height="24">
     </a>
     <div class="nav-links">
       <a href="{{ route('gtr') }}" @class(['nav-link', 'active' => $navActive === 'home'])>Home</a>
@@ -825,14 +829,14 @@
 <footer>
   <div class="foot-grid">
     <div class="foot-brand">
-      <img src="{{ asset('assets/gtr/logo.jpeg') }}" alt="Gerung Trail Run">
+      <img src="{{ asset('assets/gtr/logo.webp') }}" alt="Gerung Trail Run" loading="lazy">
       <div>
         <div class="foot-brand-text">Gerung Trail Run <span class="accent">2026.</span></div>
         <div class="foot-brand-sub">1st Edition · Keteri Hill</div>
       </div>
       <div class="foot-by">
         <span class="lab">Presented by</span>
-        <img src="{{ asset('assets/gtr/logo-white.png') }}" alt="Runger · Runners Gerung">
+        <img src="{{ asset('assets/gtr/logo-white.webp') }}" alt="Runger · Runners Gerung" loading="lazy">
       </div>
     </div>
     <div class="foot-nav">

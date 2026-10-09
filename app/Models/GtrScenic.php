@@ -17,6 +17,6 @@ class GtrScenic extends Model
     {
         return $this->image
             ? Storage::disk('public')->url($this->image)
-            : asset('assets/gtr/gallery/ari.jpeg');
+            : asset('assets/gtr/gallery/ari.webp');
     }
 }

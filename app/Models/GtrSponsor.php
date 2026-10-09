@@ -15,6 +15,7 @@ class GtrSponsor extends Model
 
     public const TIERS = [
         'title' => 'Title Sponsor',
+        'official_partner' => 'Official Partner',
         'gold' => 'Gold',
         'silver' => 'Silver',
         'partner' => 'Partner',
