@@ -5,4 +5,12 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewRunner extends ViewRecord
 {
     protected static string $resource = RunnerResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            RunnerResource::setPasswordAction(),
+            RunnerResource::sendResetLinkAction(),
+        ];
+    }
 }

@@ -31,9 +31,12 @@
     @error('password')<div class="err">{{ $message }}</div>@enderror
   </div>
 
-  <label class="remember">
-    <input type="checkbox" name="remember" value="1"> Ingat saya
-  </label>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+    <label class="remember">
+      <input type="checkbox" name="remember" value="1"> Ingat saya
+    </label>
+    <a href="{{ route('gtr.password.request') }}" style="color:var(--red);font-weight:700;font-size:13.5px;margin:2px 0 16px">Lupa password?</a>
+  </div>
 
   <button type="submit" class="btn-submit">Masuk</button>
 </form>

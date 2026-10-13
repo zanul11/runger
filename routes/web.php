@@ -3,6 +3,7 @@
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RunnerAuthController;
+use App\Http\Controllers\RunnerPasswordController;
 use App\Http\Controllers\RunnerDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,10 @@ Route::middleware('guest:runner')->group(function () {
     Route::post('/runger-app/masuk', [RunnerAuthController::class, 'login'])->name('gtr.login.store');
     Route::get('/runger-app/daftar', [RunnerAuthController::class, 'showRegister'])->name('gtr.register');
     Route::post('/runger-app/daftar', [RunnerAuthController::class, 'register'])->name('gtr.register.store');
+    Route::get('/runger-app/lupa-password', [RunnerPasswordController::class, 'showForgot'])->name('gtr.password.request');
+    Route::post('/runger-app/lupa-password', [RunnerPasswordController::class, 'sendResetLink'])->middleware('throttle:5,1')->name('gtr.password.email');
+    Route::get('/runger-app/reset-password/{token}', [RunnerPasswordController::class, 'showReset'])->name('gtr.password.reset');
+    Route::post('/runger-app/reset-password', [RunnerPasswordController::class, 'reset'])->middleware('throttle:5,1')->name('gtr.password.update');
 });
 Route::middleware('auth:runner')->group(function () {
     Route::get('/runger-app', [RunnerDashboardController::class, 'index'])->name('gtr.dashboard');
@@ -52,6 +57,7 @@ Route::middleware('auth:runner')->group(function () {
     Route::get('/runger-app/transaksi/selesai', [PaymentController::class, 'finish'])->name('gtr.payment.finish');
     Route::post('/runger-app/transaksi/{registration}/bayar', [PaymentController::class, 'pay'])->name('gtr.payment.pay');
     Route::get('/runger-app/profil', [RunnerDashboardController::class, 'profile'])->name('gtr.account.profile');
+    Route::put('/runger-app/profil/password', [RunnerPasswordController::class, 'update'])->middleware('throttle:5,1')->name('gtr.account.password');
     Route::get('/runger-app/daftar/{category}', [RunnerDashboardController::class, 'registrationForm'])->name('gtr.register.form');
     Route::post('/runger-app/daftar/{category}', [RunnerDashboardController::class, 'storeRegistration'])->name('gtr.register.submit');
     Route::post('/runger-app/keluar', [RunnerAuthController::class, 'logout'])->name('gtr.logout');
