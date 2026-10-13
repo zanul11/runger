@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#1B3FAE">
 <title>@yield('title', 'Akun Peserta — Gerung Trail Run')</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,13 +21,36 @@
       var(--ink);
   }
   .app-top{
-    position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:11px;
-    padding:13px 18px;
-    background:linear-gradient(110deg,#1B3FAE 0%,#1638A0 52%,#0F2680 100%);
-    box-shadow:0 6px 18px rgba(15,38,128,.28);
+    position:sticky;top:0;z-index:10;overflow:hidden;isolation:isolate;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:calc(16px + env(safe-area-inset-top)) 18px 18px;
+    background:linear-gradient(120deg,#2348C4 0%,#1B3FAE 45%,#0F2680 100%);
+    border-radius:0 0 24px 24px;
+    box-shadow:0 10px 26px rgba(15,38,128,.32);
+    transition:padding .25s ease, border-radius .25s ease;
   }
-  .app-top img{height:26px;width:auto}
-  .app-top .app-title{font-family:'Poppins',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:#fff}
+  /* garis kontur topografi + kilau */
+  .app-top::before{
+    content:'';position:absolute;inset:-40%;z-index:-1;opacity:.14;transform:rotate(-8deg);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1.2'%3E%3Cpath d='M-20 60c45-30 90 22 142-4s105-38 188 8'/%3E%3Cpath d='M-20 100c52-26 98 26 150 0s112-34 180 11'/%3E%3Cpath d='M-20 145c41-22 94 30 154 4s108-30 176 13'/%3E%3Cpath d='M-20 190c49-28 101 24 157-2s105-36 173 9'/%3E%3Cpath d='M-20 235c45-21 96 28 148 3s114-32 182 12'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:300px 300px
+  }
+  .app-top::after{content:'';position:absolute;right:-60px;top:-80px;width:220px;height:220px;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 65%)}
+  .app-top .app-logo{display:block;line-height:0}
+  .app-top img{height:40px;width:auto;filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));transition:height .25s ease}
+  .app-top .app-title{
+    font-family:'Poppins',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#fff;
+    display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:999px;
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);white-space:nowrap
+  }
+  .app-top .app-title::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 0 3px rgba(229,57,53,.28)}
+  .app-top .app-title{min-width:0;overflow:hidden;text-overflow:ellipsis}
+  @media (max-width:380px){
+    .app-top img{height:32px}
+    .app-top .app-title{font-size:10px;letter-spacing:.1em;padding:7px 11px}
+  }
+  .app-top.compact{padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:10px;border-radius:0 0 18px 18px}
+  .app-top.compact img{height:28px}
   .app-main{flex:1;padding:18px 18px calc(96px + env(safe-area-inset-bottom))}
   .app-ok{background:#DCFCE7;border:1px solid #A7F3D0;color:#15803D;padding:12px 14px;border-radius:12px;font-size:13.5px;margin-bottom:16px}
 
@@ -71,7 +95,12 @@
 @php $t = $tab ?? 'home'; @endphp
 <div class="app">
   <header class="app-top">
-    <img src="{{ asset('logo-white.png') }}" alt="Runger">
+    <a class="app-logo" href="{{ route('gtr.dashboard') }}">
+      <picture>
+        <source srcset="{{ asset('assets/runger-logo-white.webp') }}" type="image/webp">
+        <img src="{{ asset('assets/runger-logo-white.png') }}" alt="Runger — Runners Gerung" width="1000" height="245">
+      </picture>
+    </a>
     <span class="app-title">@yield('app-title', 'Akun Peserta')</span>
   </header>
 
@@ -102,6 +131,12 @@
   </nav>
 </div>
 <script>
+  (function () {
+    var top = document.querySelector('.app-top');
+    var onScroll = function () { top.classList.toggle('compact', window.scrollY > 24); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
   document.addEventListener('click', function (e) {
     const icon = e.target.closest('.info-i');
     document.querySelectorAll('.info-i.open').forEach(function (el) { if (el !== icon) el.classList.remove('open'); });

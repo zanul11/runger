@@ -1,6 +1,6 @@
 @extends('layouts.runner-app')
 @section('title', 'Home — Runger')
-@section('app-title', 'Runger')
+@section('app-title', 'Home')
 
 @push('styles')
 @verbatim
