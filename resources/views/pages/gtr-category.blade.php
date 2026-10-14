@@ -17,6 +17,7 @@
   .leaflet-popup.ws-popup .leaflet-popup-tip{background:#101010}
   /* elevation profile */
   .elev-profile{margin-top:18px}
+  #course-map{border-radius:18px}
   .elev-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
   .elev-title{font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#101010}
   .elev-meta{font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;color:#8A8A8A}
@@ -24,7 +25,17 @@
   .elev-svg{width:100%;height:170px;display:block;border-bottom:1px solid #E6E6E6}
   .elev-cursor{position:absolute;top:0;bottom:0;width:0;border-left:1.5px solid #101010;display:none;pointer-events:none;transform:translateX(-50%);z-index:2}
   .elev-cursor .cdot{position:absolute;left:50%;top:0;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:#101010;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45)}
-  .elev-tip{position:absolute;top:-6px;transform:translate(-50%,-100%);background:#101010;color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;padding:4px 9px;border-radius:7px;white-space:nowrap;display:none;pointer-events:none;z-index:4}
+  .elev-tip{position:absolute;top:-6px;transform:translate(-50%,calc(-100% - 12px));background:#101010;color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;padding:9px 11px;border-radius:10px;white-space:nowrap;display:none;pointer-events:none;z-index:4;box-shadow:0 10px 26px rgba(0,0,0,.35);min-width:150px}
+  .elev-tip.al{transform:translate(-12px,calc(-100% - 12px))}
+  .elev-tip.ar{transform:translate(calc(-100% + 12px),calc(-100% - 12px))}
+  .elev-tip .tt-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:7px;margin-bottom:7px;border-bottom:1px solid rgba(255,255,255,.12)}
+  .elev-tip .tt-km{font-weight:900;font-size:15px;letter-spacing:-.01em}
+  .elev-tip .tt-ele{font-weight:800;font-size:13px;color:#fff}
+  .elev-tip .tt-row{display:flex;justify-content:space-between;gap:14px;font-size:11px;line-height:1.75;color:rgba(255,255,255,.6);font-weight:600}
+  .elev-tip .tt-row b{color:#fff;font-weight:800}
+  .elev-tip .up{color:#FF7A6B!important}
+  .elev-tip .dn{color:#5CC8FF!important}
+  .elev-tip .flat{color:#B4B4B4!important}
   .elev-ymax,.elev-ymin{position:absolute;left:6px;font-family:'Archivo',sans-serif;font-size:10.5px;font-weight:700;color:#8A8A8A;background:rgba(255,255,255,.72);padding:1px 5px;border-radius:5px}
   .elev-ymax{top:4px}
   .elev-ymin{bottom:6px}
@@ -57,49 +68,84 @@
 @section('content')
 
 <!-- DETAIL HEAD: mobile = foto full bg + judul overlay; desktop = poster kiri + judul & statistik kanan -->
-<div class="cat-detail" style="--cat-photo:url('{{ $cat->header_url }}')">
+@php
+  $norm = fn ($s) => strtoupper(preg_replace('/\s+/', '', (string) $s));
+  $showName = $norm($cat->name) !== $norm($cat->distance);
+  $awards = collect(preg_split('/\r?\n/', (string) $cat->award_prize))
+    ->map(fn ($l) => trim(ltrim(trim($l), '-•*· ')))
+    ->filter()->values();
+@endphp
+<div class="cat-detail" style="--cat-photo:url('{{ $cat->header_url }}');--cat-color:{{ $cat->color }}">
   <div class="cat-hero-bg"></div>
   <div class="cat-poster">
     <img src="{{ $cat->header_url }}" alt="{{ $cat->name }}">
+    <div class="poster-badge"><span class="pb-day">29</span><span class="pb-mon">Nov 2026</span></div>
   </div>
   <div class="cat-hero-inner">
     <a class="back" href="{{ route('gtr') }}#category">← Semua Kategori</a>
     <span class="ch-tag"><span class="dot" style="background:{{ $cat->color }}"></span>{{ $cat->tag }}</span>
     <h1>{{ $cat->distance }}</h1>
-    <div class="ch-name">{{ $cat->name }}</div>
+    @if($showName)<div class="ch-name">{{ $cat->name }}</div>@endif
   </div>
   <div class="cat-stats-wrap">
-    <div class="cat-stats">
-      <div class="cat-stat">
-        <div class="lab">Reg Fee</div>
-        @if($cat->earlyBirdActive())
-          <div class="val">{{ $cat->early_bird_formatted }} <span class="strike">{{ $cat->normal_formatted }}</span></div>
-          <div class="sub">Early Bird{{ $cat->early_bird_until ? ' s/d ' . $cat->early_bird_until->translatedFormat('d M Y') : '' }}</div>
+    <div class="cat-metrics">
+      <div class="cat-metric">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></span>
+        <div>
+          <div class="lab">Start</div>
+          <div class="val">{{ $cat->start_time ?: '-' }}</div>
+          <div class="sub">29 November 2026</div>
+        </div>
+      </div>
+      <div class="cat-metric">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-11 4 6 3-4 5 9z"/></svg></span>
+        <div>
+          <div class="lab">Elevation Gain</div>
+          <div class="val">{{ $cat->elevation_gain ?: '-' }}</div>
+        </div>
+      </div>
+      <div class="cat-metric">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M7 2v4l5 6-5 6v4M17 2v4l-5 6 5 6v4"/></svg></span>
+        <div>
+          <div class="lab">Cut-Off Time</div>
+          <div class="val">{{ $cat->cut_off_time ?: '-' }}</div>
+        </div>
+      </div>
+      <div class="cat-metric">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 3c0 0-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z"/></svg></span>
+        <div>
+          <div class="lab">Water Station</div>
+          <div class="val">{{ $cat->water_station_label }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cat-cards">
+      <div class="price-card">
+        <div>
+          <div class="lab">Reg Fee</div>
+          @if($cat->earlyBirdActive())
+            <div class="val">{{ $cat->early_bird_formatted }} <span class="strike">{{ $cat->normal_formatted }}</span></div>
+            <span class="sub">⚡ Early Bird{{ $cat->early_bird_until ? ' s/d ' . $cat->early_bird_until->translatedFormat('d M Y') : '' }}</span>
+          @else
+            <div class="val">{{ $cat->current_price_formatted }}</div>
+            <span class="sub">Harga Normal @if($cat->earlyBirdEnded())· early bird selesai @endif</span>
+          @endif
+        </div>
+        <a class="btn-reg" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>
+      </div>
+      <div class="award-card">
+        <div class="head">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span>
+          <span class="lab">Award & Prize</span>
+        </div>
+        @if($awards->count())
+          <ul class="award-list">
+            @foreach($awards as $a)<li>{{ $a }}</li>@endforeach
+          </ul>
         @else
-          <div class="val">{{ $cat->current_price_formatted }}</div>
-          <div class="sub">Harga Normal @if($cat->earlyBirdEnded())· early bird selesai @endif</div>
+          <ul class="award-list"><li>-</li></ul>
         @endif
-      </div>
-      <div class="cat-stat">
-        <div class="lab">Start</div>
-        <div class="val">{{ $cat->start_time ?: '-' }}</div>
-        <div class="sub">29 November 2026</div>
-      </div>
-      <div class="cat-stat">
-        <div class="lab">Elevation Gain</div>
-        <div class="val">{{ $cat->elevation_gain ?: '-' }}</div>
-      </div>
-      <div class="cat-stat">
-        <div class="lab">Cut-Off Time</div>
-        <div class="val">{{ $cat->cut_off_time ?: '-' }}</div>
-      </div>
-      <div class="cat-stat">
-        <div class="lab">Water Station</div>
-        <div class="val">{{ $cat->water_station_label }}</div>
-      </div>
-      <div class="cat-stat">
-        <div class="lab">Award & Prize</div>
-        <div class="val" style="font-size:15px;line-height:1.5;white-space:pre-line">{{ $cat->award_prize ?: '-' }}</div>
       </div>
     </div>
   </div>
@@ -112,10 +158,10 @@
     <!-- TABS -->
     <div class="tabs" id="cat-tabs">
       <div class="tab-btns" role="tablist">
-        <button class="tab-btn active" data-tab="map" type="button">Course Map</button>
-        <button class="tab-btn" data-tab="rundown" type="button">Event Rundown</button>
-        <button class="tab-btn" data-tab="gear" type="button">Mandatory Gear</button>
-        <button class="tab-btn" data-tab="gpx" type="button">GPX File</button>
+        <button class="tab-btn active" data-tab="map" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Course Map</button>
+        <button class="tab-btn" data-tab="rundown" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Event Rundown</button>
+        <button class="tab-btn" data-tab="gear" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Mandatory Gear</button>
+        <button class="tab-btn" data-tab="gpx" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>GPX File</button>
       </div>
 
       <div class="tab-panel active" data-panel="map">
@@ -219,7 +265,7 @@
                 </span>
                 <span class="a">
                   <span class="act">{{ $row['activity'] ?? '' }}</span>
-                  @if(!empty($row['location']))<span class="loc">📍 {{ $row['location'] }}</span>@endif
+                  @if(!empty($row['location']))<span class="loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{{ $row['location'] }}</span>@endif
                 </span>
               </div>
             @endforeach
@@ -234,7 +280,7 @@
           <div class="gear-list">
             @foreach($cat->mandatory_gear as $item)
               <div class="gear-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
                 <span>{{ $item }}</span>
               </div>
             @endforeach
@@ -246,7 +292,13 @@
 
       <div class="tab-panel" data-panel="gpx">
         <div class="gpx-box">
-          <p>File GPX rute <strong>{{ $cat->name }} ({{ $cat->distance }})</strong> bisa diunduh untuk dipakai di GPS / smartwatch.</p>
+          <div class="gpx-file">
+            <span class="ic">GPX</span>
+            <div>
+              <div class="nm">{{ $cat->name }} · {{ $cat->distance }}</div>
+              <p class="ds">Bisa diunduh untuk dipakai di GPS / smartwatch.</p>
+            </div>
+          </div>
           @if($cat->gpx_url)
             <a class="btn-primary" href="{{ $cat->gpx_url }}" download>Download GPX <span class="arr">↓</span></a>
           @else
@@ -256,7 +308,11 @@
       </div>
     </div>
 
-    <div style="margin-top:40px">
+    <div class="cat-cta">
+      <div>
+        <div class="k">Gerung Trail Run 2026</div>
+        <h3>Siap taklukkan {{ $cat->distance }}?</h3>
+      </div>
       <a class="btn-primary" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>
     </div>
   </div>
@@ -265,6 +321,10 @@
 @push('scripts')
 @if($cat->route_points)
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+@if(config('services.google_maps.key'))
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}"></script>
+<script src="https://unpkg.com/leaflet.gridlayer.googlemutant@0.14.1/dist/Leaflet.GoogleMutant.js"></script>
+@endif
 @endif
 @verbatim
 <script>
@@ -288,13 +348,20 @@
       if(pts.length){
         const map = L.map(el, {scrollWheelZoom:false, attributionControl:false});
         window._gtrMap = map;
-        const baseLayers = {
+        // Google basemaps when the Maps API key is configured, free tiles otherwise
+        const hasGoogle = !!(window.google && window.google.maps && L.gridLayer.googleMutant);
+        const baseLayers = hasGoogle ? {
+          'Google': L.gridLayer.googleMutant({type:'roadmap', maxZoom:20}),
+          'Satelit': L.gridLayer.googleMutant({type:'hybrid', maxZoom:20}),
+          'Terrain': L.gridLayer.googleMutant({type:'terrain', maxZoom:20}),
+          'Light': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom:19, subdomains:'abcd'})
+        } : {
           'Light': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom:19, subdomains:'abcd'}),
           'Street': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}),
           'Satelit': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom:19}),
           'Terrain': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {maxZoom:17})
         };
-        baseLayers['Light'].addTo(map);
+        baseLayers[hasGoogle ? 'Google' : 'Light'].addTo(map);
         L.control.layers(baseLayers, null, {position:'topright', collapsed:false}).addTo(map);
         const line = L.polyline(pts, {color: el.dataset.color || '#E53935', weight:4, opacity:.95}).addTo(map);
         map.fitBounds(line.getBounds(), {padding:[28,28]});
@@ -355,6 +422,30 @@
             }
             return ep[ep.length-1][1];
           }
+          // cumulative ascent / descent along the profile
+          const gainAt = [0], lossAt = [0];
+          for(let i=1;i<ep.length;i++){
+            const d = ep[i][1] - ep[i-1][1];
+            gainAt[i] = gainAt[i-1] + Math.max(0, d);
+            lossAt[i] = lossAt[i-1] + Math.max(0, -d);
+          }
+          function climbAtKm(km){
+            if(!ep.length) return [0, 0];
+            let i = 1; while(i < ep.length && ep[i][0] < km) i++;
+            if(i >= ep.length) return [gainAt[ep.length-1], lossAt[ep.length-1]];
+            const k0=ep[i-1][0], k1=ep[i][0], t=(k1-k0)?(km-k0)/(k1-k0):0;
+            const d = (ep[i][1]-ep[i-1][1])*t;
+            return [gainAt[i-1] + Math.max(0, d), lossAt[i-1] + Math.max(0, -d)];
+          }
+          // grade (%) over a ~200 m window around km
+          function gradeAtKm(km){
+            const w = 0.1;
+            const a = Math.max(minKm, km - w), b = Math.min(maxKm, km + w);
+            if(b - a < 0.001) return 0;
+            return (eleAtKm(b) - eleAtKm(a)) / ((b - a) * 1000) * 100;
+          }
+          const wsSorted = ws.map((w, i) => ({km: Number(w.km), name: w.name || ('WS ' + (i+1))})).sort((a, b) => a.km - b.km);
+          const fmt = n => (Math.round(n * 10) / 10).toFixed(1);
           function move(clientX){
             const rect = chart.getBoundingClientRect();
             const frac = Math.min(1, Math.max(0, (clientX-rect.left)/rect.width));
@@ -365,8 +456,23 @@
             cursor.style.left = (frac*100)+'%'; cursor.style.display='block';
             cdot.style.top = topPct+'%';
             tip.style.left = (frac*100)+'%'; tip.style.top = topPct+'%'; tip.style.display='block';
-            tip.textContent = 'KM '+km.toFixed(1)+' · '+Math.round(ele)+' m';
+            tip.classList.toggle('al', frac < .2);
+            tip.classList.toggle('ar', frac > .8);
+
+            const g = gradeAtKm(km);
+            const gCls = g > 1.5 ? 'up' : (g < -1.5 ? 'dn' : 'flat');
+            const gTxt = (g > 1.5 ? '↗ +' : (g < -1.5 ? '↘ ' : '→ ')) + Math.round(g) + '%';
+            const [up, down] = climbAtKm(km);
+            const next = wsSorted.find(w => w.km > km + 0.05);
+            const nextTxt = next ? next.name + ' · ' + fmt(next.km - km) + ' km' : 'Finish · ' + fmt(Math.max(0, maxKm - km)) + ' km';
+            tip.innerHTML =
+              '<div class="tt-head"><span class="tt-km">KM ' + fmt(km) + '</span><span class="tt-ele">' + Math.round(ele) + ' mdpl</span></div>' +
+              '<div class="tt-row"><span>Gradien</span><b class="' + gCls + '">' + gTxt + '</b></div>' +
+              '<div class="tt-row"><span>Total naik / turun</span><b><span class="up">+' + Math.round(up) + '</span> / <span class="dn">−' + Math.round(down) + '</span> m</b></div>' +
+              '<div class="tt-row"><span>Berikutnya</span><b>' + nextTxt + '</b></div>';
+            cdot.style.background = gCls === 'up' ? '#E53935' : (gCls === 'dn' ? '#2EA6E6' : '#101010');
             hover.setLatLng(kmToLatLng(km));
+            hover.setStyle({fillColor: cdot.style.background});
             if(!map.hasLayer(hover)) hover.addTo(map);
           }
           function hide(){ cursor.style.display='none'; tip.style.display='none'; if(map.hasLayer(hover)) map.removeLayer(hover); }

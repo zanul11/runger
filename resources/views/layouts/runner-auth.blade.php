@@ -42,6 +42,7 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1.2'%3E%3Cpath d='M-20 80c60-40 120 30 190-5s140-50 250 10'/%3E%3Cpath d='M-20 120c70-35 130 35 200 0s150-45 240 15'/%3E%3Cpath d='M-20 165c55-30 125 40 205 5s145-40 235 18'/%3E%3Cpath d='M-20 215c65-38 135 32 210-2s140-48 230 12'/%3E%3Cpath d='M-20 262c60-28 128 38 198 4s152-42 242 16'/%3E%3Cpath d='M-20 310c70-36 132 30 206-3s144-46 234 14'/%3E%3Cpath d='M-20 356c58-30 126 36 200 3s150-44 240 15'/%3E%3C/g%3E%3C/svg%3E");
     background-size:400px 400px;transform:rotate(-8deg)
   }
+  .hero-home{display:inline-block;color:inherit;text-decoration:none}
   .hero-logo{
     width:min(82vw,330px);height:auto;display:block;
     filter:drop-shadow(0 10px 30px rgba(0,0,0,.35));
@@ -153,11 +154,13 @@
     <div class="hero-photo" style="background-image:url('{{ asset('assets/gtr/gallery/ari.webp') }}')"></div>
 
     <div>
-      <picture>
-        <source srcset="{{ asset('assets/runger-logo-white.webp') }}" type="image/webp">
-        <img class="hero-logo" src="{{ asset('assets/runger-logo-white.png') }}" alt="Runger — Runners Gerung" width="1000" height="245">
-      </picture>
-      <div class="hero-tag">Gerung Trail Run 2026</div>
+      <a class="hero-home" href="{{ route('gtr') }}" aria-label="Gerung Trail Run 2026">
+        <picture>
+          <source srcset="{{ asset('assets/runger-logo-white.webp') }}" type="image/webp">
+          <img class="hero-logo" src="{{ asset('assets/runger-logo-white.png') }}" alt="Runger — Runners Gerung" width="1000" height="245">
+        </picture>
+        <div class="hero-tag">Gerung Trail Run 2026</div>
+      </a>
     </div>
 
     <div class="hero-bottom">

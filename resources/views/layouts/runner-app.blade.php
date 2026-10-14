@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#1B3FAE">
+<meta name="theme-color" content="#101010">
 <title>@yield('title', 'Akun Peserta — Gerung Trail Run')</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,9 +24,11 @@
     position:sticky;top:0;z-index:10;overflow:hidden;isolation:isolate;
     display:flex;align-items:center;justify-content:space-between;gap:12px;
     padding:calc(16px + env(safe-area-inset-top)) 18px 18px;
-    background:linear-gradient(120deg,#2348C4 0%,#1B3FAE 45%,#0F2680 100%);
+    background:
+      radial-gradient(260px 160px at 100% 0%, rgba(229,57,53,.38), transparent 70%),
+      linear-gradient(120deg,#1A1A1A 0%,#101010 55%,#0A0A0A 100%);
     border-radius:0 0 24px 24px;
-    box-shadow:0 10px 26px rgba(15,38,128,.32);
+    box-shadow:0 10px 26px rgba(10,10,10,.38);
     transition:padding .25s ease, border-radius .25s ease;
   }
   /* garis kontur topografi + kilau */
@@ -35,9 +37,12 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1.2'%3E%3Cpath d='M-20 60c45-30 90 22 142-4s105-38 188 8'/%3E%3Cpath d='M-20 100c52-26 98 26 150 0s112-34 180 11'/%3E%3Cpath d='M-20 145c41-22 94 30 154 4s108-30 176 13'/%3E%3Cpath d='M-20 190c49-28 101 24 157-2s105-36 173 9'/%3E%3Cpath d='M-20 235c45-21 96 28 148 3s114-32 182 12'/%3E%3C/g%3E%3C/svg%3E");
     background-size:300px 300px
   }
-  .app-top::after{content:'';position:absolute;right:-60px;top:-80px;width:220px;height:220px;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 65%)}
-  .app-top .app-logo{display:block;line-height:0}
+  .app-top::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;z-index:-1;background:linear-gradient(90deg,transparent,var(--red) 30%,var(--red) 70%,transparent);opacity:.7}
+  .app-top .app-logo{display:flex;align-items:center;gap:10px;line-height:0;min-width:0}
   .app-top img{height:40px;width:auto;filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));transition:height .25s ease}
+  .app-top .app-logo .gtr{border-radius:7px;filter:none;box-shadow:0 4px 12px rgba(0,0,0,.45)}
+  .app-top .app-logo .sep{width:1px;align-self:stretch;margin:4px 0;background:rgba(255,255,255,.22)}
+  .app-top .app-logo .rg{height:26px}
   .app-top .app-title{
     font-family:'Poppins',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#fff;
     display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:999px;
@@ -47,10 +52,12 @@
   .app-top .app-title{min-width:0;overflow:hidden;text-overflow:ellipsis}
   @media (max-width:380px){
     .app-top img{height:32px}
+    .app-top .app-logo .rg{height:20px}
     .app-top .app-title{font-size:10px;letter-spacing:.1em;padding:7px 11px}
   }
   .app-top.compact{padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:10px;border-radius:0 0 18px 18px}
   .app-top.compact img{height:28px}
+  .app-top.compact .app-logo .rg{height:19px}
   .app-main{flex:1;padding:18px 18px calc(96px + env(safe-area-inset-bottom))}
   .app-ok{background:#DCFCE7;border:1px solid #A7F3D0;color:#15803D;padding:12px 14px;border-radius:12px;font-size:13.5px;margin-bottom:16px}
 
@@ -95,10 +102,15 @@
 @php $t = $tab ?? 'home'; @endphp
 <div class="app">
   <header class="app-top">
-    <a class="app-logo" href="{{ route('gtr.dashboard') }}">
+    <a class="app-logo" href="{{ route('gtr') }}" aria-label="Gerung Trail Run 2026">
+      <picture>
+        <source srcset="{{ asset('assets/gtr/logo.webp') }}" type="image/webp">
+        <img class="gtr" src="{{ asset('assets/gtr/logo.jpeg') }}" alt="Gerung Trail Run" width="240" height="181">
+      </picture>
+      <span class="sep"></span>
       <picture>
         <source srcset="{{ asset('assets/runger-logo-white.webp') }}" type="image/webp">
-        <img src="{{ asset('assets/runger-logo-white.png') }}" alt="Runger — Runners Gerung" width="1000" height="245">
+        <img class="rg" src="{{ asset('assets/runger-logo-white.png') }}" alt="Runger — Runners Gerung" width="1000" height="245">
       </picture>
     </a>
     <span class="app-title">@yield('app-title', 'Akun Peserta')</span>

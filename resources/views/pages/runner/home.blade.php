@@ -5,35 +5,42 @@
 @push('styles')
 @verbatim
 <style>
-  /* greeting header — banner sapaan user */
-  .welcome{
-    position:relative;overflow:hidden;border-radius:22px;padding:20px;margin-bottom:20px;color:#fff;
-    background:
-      radial-gradient(420px 230px at 88% -32%, rgba(108,150,255,.6), transparent 60%),
-      radial-gradient(320px 250px at -6% 132%, rgba(63,98,216,.5), transparent 62%),
-      linear-gradient(135deg,#2A4FC8 0%,#1B3FAE 46%,#0F2680 100%);
-    box-shadow:0 18px 44px rgba(15,38,128,.46);
+  /* event header — banner GTR (foto event + countdown) */
+  .ev{
+    display:block;position:relative;overflow:hidden;isolation:isolate;border-radius:24px;margin-bottom:20px;color:#fff;
+    background:#0A0A0A;box-shadow:0 20px 46px rgba(10,10,10,.42);
   }
-  .welcome::before{content:'';position:absolute;top:-66px;right:-46px;width:188px;height:188px;border-radius:50%;border:1.5px solid rgba(255,255,255,.16)}
-  .welcome::after{content:'';position:absolute;top:-30px;right:10px;width:104px;height:104px;border-radius:50%;background:rgba(255,255,255,.08)}
-  .wel-top{position:relative;z-index:1;display:flex;align-items:center;gap:13px}
-  .wel-ava{width:48px;height:48px;flex-shrink:0;border-radius:15px;display:flex;align-items:center;justify-content:center;
-    background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(6px);
-    font-family:'Poppins',sans-serif;font-weight:900;font-size:22px}
-  .wel-hi{min-width:0;flex:1}
-  .wel-hi .k{font-family:'Poppins',sans-serif;font-weight:800;font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;opacity:.82}
-  .wel-hi h1{font-family:'Poppins',sans-serif;font-weight:900;font-size:23px;line-height:1.04;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .wel-logo{height:22px;width:auto;opacity:.95;flex-shrink:0;align-self:flex-start}
-  .wel-sub{position:relative;z-index:1;font-size:12.5px;opacity:.9;margin-top:13px;max-width:42ch;line-height:1.5}
-  .wel-row{position:relative;z-index:1;display:flex;align-items:stretch;gap:12px;margin-top:16px}
-  .wel-stat{display:flex;align-items:center;gap:11px;padding:9px 15px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.22)}
-  .wel-stat .n{font-family:'Poppins',sans-serif;font-weight:900;font-size:26px;line-height:1}
-  .wel-stat .l{font-family:'Poppins',sans-serif;font-weight:700;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.82;line-height:1.15}
-  .wel-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:#fff;color:#0F2680;
-    font-family:'Poppins',sans-serif;font-weight:800;font-size:11px;letter-spacing:.03em;text-transform:uppercase;
-    padding:0 16px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.24);transition:transform .15s}
-  .wel-btn .arr{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;background:rgba(15,38,128,.12);border-radius:50%;font-size:12px}
-  .wel-btn:active{transform:translateY(1px)}
+  .ev-photo{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;transform:scale(1.04)}
+  .ev::before{content:'';position:absolute;inset:0;z-index:-1;
+    background:linear-gradient(180deg,rgba(10,10,10,.35) 0%,rgba(10,10,10,.55) 45%,rgba(10,10,10,.94) 100%),
+               radial-gradient(260px 200px at 100% 0%,rgba(229,57,53,.45),transparent 70%)}
+  .ev-in{padding:16px 18px 18px}
+  .ev-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .ev-hi{display:inline-flex;align-items:center;gap:9px;min-width:0;padding:5px 12px 5px 5px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px)}
+  .ev-ava{width:26px;height:26px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:var(--red);font-weight:900;font-size:12px}
+  .ev-hi span{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ev-hi b{font-weight:800}
+  .ev-body{margin-top:56px}
+  .ev-k{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#FF8A80}
+  .ev-k::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 0 3px rgba(229,57,53,.3)}
+  .ev h1{font-weight:900;font-size:27px;line-height:1.02;letter-spacing:-.01em;margin-top:7px;text-transform:uppercase}
+  .ev-meta{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+  .ev-meta span{display:flex;align-items:flex-start;gap:7px;font-size:12px;line-height:1.4;color:rgba(255,255,255,.85)}
+  .ev-meta svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;color:#FF8A80}
+  .ev-cd{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:16px}
+  .ev-cd div{text-align:center;padding:9px 0 8px;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px)}
+  .ev-cd b{display:block;font-weight:900;font-size:21px;line-height:1;font-variant-numeric:tabular-nums}
+  .ev-cd small{display:block;margin-top:4px;font-weight:700;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+  .ev-row{display:flex;align-items:stretch;gap:10px;margin-top:14px}
+  .ev-stat{display:flex;align-items:center;gap:10px;padding:8px 13px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}
+  .ev-stat .n{font-weight:900;font-size:22px;line-height:1}
+  .ev-stat .l{font-weight:700;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.75;line-height:1.15}
+  .ev-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;
+    font-weight:800;font-size:11px;letter-spacing:.04em;text-transform:uppercase;
+    padding:0 16px;border-radius:14px;box-shadow:0 8px 20px rgba(229,57,53,.4);transition:transform .15s}
+  .ev-btn .arr{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;background:rgba(255,255,255,.22);border-radius:50%;font-size:12px}
+  .ev-btn:active{transform:translateY(1px)}
 
   /* section header — beda gaya dari kartu kategori (light, accent biru) */
   .home-head{position:relative;display:flex;align-items:center;gap:13px;margin:14px 2px 16px;padding:2px 0 2px 1px}
@@ -100,24 +107,41 @@
 @endpush
 
 @section('content')
-<div class="welcome">
-  <div class="wel-top">
-    <div class="wel-ava">{{ strtoupper(mb_substr($runner->first_name ?: 'R', 0, 1)) }}</div>
-    <div class="wel-hi">
-      <span class="k">Selamat Datang 👋</span>
-      <h1>Halo, {{ $runner->first_name }}</h1>
+<a class="ev" href="{{ route('gtr') }}" aria-label="Lihat event Gerung Trail Run">
+  <div class="ev-photo" style="background-image:url('{{ $gtrSetting?->header_url ?? asset('assets/gtr/gallery/ari.jpeg') }}')"></div>
+  <div class="ev-in">
+    <div class="ev-top">
+      <div class="ev-hi">
+        <span class="ev-ava">{{ strtoupper(mb_substr($runner->first_name ?: 'R', 0, 1)) }}</span>
+        <span>Halo, <b>{{ $runner->first_name }}</b> 👋</span>
+      </div>
     </div>
-    <img class="wel-logo" src="{{ asset('logo-white.png') }}" alt="Runger">
-  </div>
-  <p class="wel-sub">Portal peserta Komunitas Runger — daftar &amp; kelola race Gerung Trail Run kamu di sini.</p>
-  <div class="wel-row">
-    <div class="wel-stat">
-      <span class="n">{{ count($registeredIds) }}</span>
-      <span class="l">Pendaftaran<br>Aktif</span>
+
+    <div class="ev-body">
+      <span class="ev-k">{{ $gtrSetting->eyebrow ?? '1st Edition · Keteri Hill' }}</span>
+      <h1>{{ $gtrSetting->title ?? 'Gerung Trail Run 2026' }}</h1>
+      <div class="ev-meta">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>{{ $gtrSetting->date_text ?? 'Minggu, 29 November 2026' }}</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{{ $gtrSetting->location_text ?? 'Bukit Keteri, Gerung — Lombok Barat' }}</span>
+      </div>
+
+      <div class="ev-cd" id="ev-cd">
+        <div><b data-u="d">--</b><small>Hari</small></div>
+        <div><b data-u="h">--</b><small>Jam</small></div>
+        <div><b data-u="m">--</b><small>Menit</small></div>
+        <div><b data-u="s">--</b><small>Detik</small></div>
+      </div>
+
+      <div class="ev-row">
+        <div class="ev-stat">
+          <span class="n">{{ count($registeredIds) }}</span>
+          <span class="l">Pendaftaran<br>Aktif</span>
+        </div>
+        <span class="ev-btn">Info Event <span class="arr">→</span></span>
+      </div>
     </div>
-    <a class="wel-btn" href="{{ route('gtr') }}">Event GTR <span class="arr">→</span></a>
   </div>
-</div>
+</a>
 
 <div class="home-head">
   <span class="hh-bar"></span>
@@ -165,3 +189,26 @@
 @endforeach
 </div>
 @endsection
+
+@push('scripts')
+<script>
+  (function () {
+    var box = document.getElementById('ev-cd');
+    if (!box) return;
+    // race start: Minggu 29 Nov 2026, 05:30 WITA (UTC+8) — sama dengan countdown halaman GTR
+    var target = Date.UTC(2026, 10, 29, 5, 30) - 8 * 3600000;
+    var el = {};
+    box.querySelectorAll('[data-u]').forEach(function (b) { el[b.dataset.u] = b; });
+    var pad = function (n) { return String(n).padStart(2, '0'); };
+    function tick() {
+      var diff = Math.max(0, target - Date.now());
+      el.d.textContent = pad(Math.floor(diff / 86400000));
+      el.h.textContent = pad(Math.floor(diff / 3600000) % 24);
+      el.m.textContent = pad(Math.floor(diff / 60000) % 60);
+      el.s.textContent = pad(Math.floor(diff / 1000) % 60);
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
+@endpush

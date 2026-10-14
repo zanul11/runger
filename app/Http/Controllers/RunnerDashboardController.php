@@ -27,6 +27,7 @@ class RunnerDashboardController extends Controller
             'runner' => $runner,
             'categories' => $categories,
             'registeredIds' => $registeredIds,
+            'gtrSetting' => \App\Models\GtrSetting::first(),
         ]);
     }
 
