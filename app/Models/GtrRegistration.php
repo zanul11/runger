@@ -19,6 +19,9 @@ class GtrRegistration extends Model
         'agree_terms' => 'boolean',
         'discount_consumed' => 'boolean',
         'discount_amount' => 'integer',
+        'racepack_collected_at' => 'datetime',
+        'h7_reminder_sent_at' => 'datetime',
+        'briefing_sent_at' => 'datetime',
     ];
 
     public const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
@@ -235,7 +238,19 @@ class GtrRegistration extends Model
         return $this->sendMailSafe(new \App\Mail\JerseySizeChanged($this->fresh('category'), $oldSize));
     }
 
-    private function sendMailSafe(\Illuminate\Mail\Mailable $mailable): bool
+    /** Email pengingat pengambilan race pack (H-7). */
+    public function sendRacepackReminder(): bool
+    {
+        return $this->sendMailSafe(new \App\Mail\RacepackReminder($this->fresh('category')));
+    }
+
+    /** Email briefing race day (H-1): race plan, cuaca, gear, jam kumpul. */
+    public function sendRaceBriefing(): bool
+    {
+        return $this->sendMailSafe(new \App\Mail\RaceBriefing($this->fresh('category')));
+    }
+
+        private function sendMailSafe(\Illuminate\Mail\Mailable $mailable): bool
     {
         if (! $this->email) {
             return false;
@@ -279,7 +294,18 @@ class GtrRegistration extends Model
         return $this->hasMany(GtrPayment::class, 'gtr_registration_id');
     }
 
-    public function scanLogs(): HasMany
+    public function racepackCollector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'racepack_collected_by');
+    }
+
+    /** Foto race yang ditandai dengan BIB peserta ini. */
+    public function photos()
+    {
+        return GtrPhoto::query()->where('is_published', true)->whereJsonContains('bibs', (string) $this->bib_number)->latest();
+    }
+
+        public function scanLogs(): HasMany
     {
         return $this->hasMany(GtrScanLog::class, 'gtr_registration_id');
     }

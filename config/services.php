@@ -28,6 +28,13 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'gtr' => [
+        // Tanggal race (WITA) — dipakai info cuaca race day
+        'race_date' => env('GTR_RACE_DATE', '2026-11-29'),
+        // Kartu "Live Tracking" di detail race Runger App (sementara disembunyikan)
+        'app_live_tracking' => env('GTR_APP_LIVE_TRACKING', false),
+    ],
+
     'google_maps' => [
         'key' => env('GOOGLE_MAPS_API_KEY'),
     ],

@@ -70,7 +70,7 @@ class PageController extends Controller
     /** Render HTML email (pendaftaran/pembayaran) untuk pratinjau di admin. */
     public function gtrEmailPreview(\Illuminate\Http\Request $request)
     {
-        $type = in_array($request->query('type'), ['registration', 'reminder', 'payment'], true)
+        $type = in_array($request->query('type'), ['registration', 'reminder', 'payment', 'racepack', 'briefing'], true)
             ? $request->query('type')
             : 'payment';
 
@@ -99,6 +99,8 @@ class PageController extends Controller
         $mailable = match ($type) {
             'registration' => new \App\Mail\RegistrationConfirmation($reg),
             'reminder' => new \App\Mail\PaymentReminder($reg),
+            'racepack' => new \App\Mail\RacepackReminder($reg),
+            'briefing' => new \App\Mail\RaceBriefing($reg),
             default => new \App\Mail\PaymentConfirmation($reg),
         };
 
@@ -143,7 +145,57 @@ class PageController extends Controller
 
     public function gtrResults()
     {
-        return view('pages.gtr-results', ['active' => 'results']);
+        $published = (bool) \App\Models\GtrSetting::first()?->results_published;
+        $categories = collect();
+
+        if ($published) {
+            $categories = \App\Models\GtrCategory::where('is_active', true)->orderBy('sort_order')->get()
+                ->map(function ($cat) {
+                    $rows = \App\Models\GtrResult::with('registration')
+                        ->whereHas('registration', fn ($q) => $q->where('gtr_category_id', $cat->id)->where('payment_status', 'paid'))
+                        ->whereIn('status', ['finisher', 'dnf', 'dq'])
+                        ->get()
+                        ->sortBy(fn ($r) => [$r->status === 'finisher' ? 0 : 1, $r->rank_category ?? PHP_INT_MAX, $r->registration->full_name])
+                        ->values();
+
+                    return ['cat' => $cat, 'rows' => $rows];
+                })
+                ->filter(fn ($c) => $c['rows']->count());
+        }
+
+        return view('pages.gtr-results', ['active' => 'results', 'published' => $published, 'categories' => $categories]);
+    }
+
+    /** Hasil personal: waktu, ranking, split per pos, perbandingan race plan, e-sertifikat & kartu story. */
+    public function gtrResult(string $bib)
+    {
+        abort_unless(\App\Models\GtrSetting::first()?->results_published, 404);
+
+        $reg = \App\Models\GtrRegistration::with(['category', 'result'])
+            ->where('payment_status', 'paid')->where('bib_number', $bib)->firstOrFail();
+        $result = $reg->result;
+        abort_unless($result && in_array($result->status, ['finisher', 'dnf', 'dq'], true), 404);
+
+        $finishers = \App\Models\GtrResult::where('status', 'finisher')->whereNotNull('net_time_seconds')
+            ->whereHas('registration', fn ($q) => $q->where('gtr_category_id', $reg->gtr_category_id));
+        $genderRank = null;
+        $genderTotal = 0;
+        if ($result->status === 'finisher' && $result->net_time_seconds !== null) {
+            $sameGender = (clone $finishers)->whereHas('registration', fn ($q) => $q->where('gender', $reg->gender));
+            $genderTotal = (clone $sameGender)->count();
+            $genderRank = (clone $sameGender)->where('net_time_seconds', '<', $result->net_time_seconds)->count() + 1;
+        }
+
+        return view('pages.gtr-result', [
+            'active' => 'results',
+            'reg' => $reg,
+            'cat' => $reg->category,
+            'result' => $result,
+            'catTotal' => (clone $finishers)->count(),
+            'genderRank' => $genderRank,
+            'genderTotal' => $genderTotal,
+            'track' => app(\App\Services\LiveTracker::class)->build($reg),
+        ]);
     }
 
     public function gtrRules()
@@ -167,7 +219,75 @@ class PageController extends Controller
         ]);
     }
 
-    public function volunteer()
+    /** Unduh GPX kategori — hanya bila diizinkan admin. */
+    public function gtrCategoryGpx(string $slug)
+    {
+        $cat = \App\Models\GtrCategory::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        abort_unless($cat->canDownloadGpx(), 404);
+
+        $filename = 'GTR2026-' . strtoupper(preg_replace('/[^A-Za-z0-9]+/', '', $cat->distance ?: $cat->slug)) . '.gpx';
+
+        return \Illuminate\Support\Facades\Storage::disk('public')
+            ->download($cat->gpx_file, $filename, ['Content-Type' => 'application/gpx+xml']);
+    }
+
+    /** Live tracking: cari peserta (BIB / nama). */
+    public function gtrTrackSearch(\Illuminate\Http\Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        $results = collect();
+
+        if ($q !== '') {
+            $exact = \App\Models\GtrRegistration::where('payment_status', 'paid')->where('bib_number', $q)->first();
+            if ($exact) {
+                return redirect()->route('gtr.track', $exact->bib_number);
+            }
+            if (mb_strlen($q) >= 3) {
+                $results = \App\Models\GtrRegistration::with('category')
+                    ->where('payment_status', 'paid')
+                    ->whereNotNull('bib_number')
+                    ->where('full_name', 'like', '%' . $q . '%')
+                    ->orderBy('full_name')
+                    ->limit(20)
+                    ->get();
+            }
+        }
+
+        return view('pages.gtr-track-search', ['active' => 'track', 'q' => $q, 'results' => $results]);
+    }
+
+    /** Live tracking satu peserta. */
+    public function gtrTrack(string $bib)
+    {
+        $reg = $this->trackedRegistration($bib);
+
+        return view('pages.gtr-track', [
+            'active' => 'track',
+            'reg' => $reg,
+            'cat' => $reg->category,
+            'data' => app(\App\Services\LiveTracker::class)->build($reg),
+        ]);
+    }
+
+    /** Data live tracking (JSON) untuk refresh otomatis. */
+    public function gtrTrackData(string $bib)
+    {
+        return response()->json(app(\App\Services\LiveTracker::class)->build($this->trackedRegistration($bib)))
+            ->header('Cache-Control', 'no-store');
+    }
+
+    private function trackedRegistration(string $bib): \App\Models\GtrRegistration
+    {
+        return \App\Models\GtrRegistration::with('category')
+            ->where('payment_status', 'paid')
+            ->where('bib_number', $bib)
+            ->firstOrFail();
+    }
+
+        public function volunteer()
     {
         return view('pages.volunteer');
     }

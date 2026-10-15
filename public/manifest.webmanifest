@@ -1,0 +1,17 @@
+{
+  "name": "Runger App — Gerung Trail Run 2026",
+  "short_name": "Runger App",
+  "description": "Akun peserta Gerung Trail Run: race plan, course map, dan pace band — bisa dibuka offline saat race day.",
+  "id": "/runger-app",
+  "start_url": "/runger-app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#101010",
+  "theme_color": "#101010",
+  "lang": "id",
+  "icons": [
+    { "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

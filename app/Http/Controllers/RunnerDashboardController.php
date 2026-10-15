@@ -50,14 +50,90 @@ class RunnerDashboardController extends Controller
 
         $registration->load('category');
 
+        $target = $registration->target_finish_minutes ?: self::defaultTarget($registration->category);
+        $plan = $target && $registration->category ? $registration->category->racePlan($target) : [];
+
         return view('pages.runner.race-detail', [
             'tab' => 'race',
             'runner' => $runner,
             'reg' => $registration,
+            'plan' => $plan,
+            'planTarget' => $target,
         ]);
     }
 
-    public function transaction()
+    /** Simpan target finish peserta (race plan). */
+    public function saveRacePlan(\Illuminate\Http\Request $request, GtrRegistration $registration)
+    {
+        abort_unless($registration->runner_id === $this->runner()->id, 403);
+
+        $data = $request->validate([
+            'target_finish_minutes' => ['required', 'integer', 'min:20', 'max:720'],
+            'race_plan_mode' => ['nullable', 'in:pos,km'],
+        ]);
+        $registration->update($data);
+
+        $t = $data['target_finish_minutes'];
+
+        return back()->with('success', 'Race plan disimpan — target finish ' . intdiv($t, 60) . ':' . str_pad((string) ($t % 60), 2, '0', STR_PAD_LEFT) . '.');
+    }
+
+    /** Pace band (gambar/print) dari race plan peserta. */
+    public function paceBand(\Illuminate\Http\Request $request, GtrRegistration $registration)
+    {
+        abort_unless($registration->runner_id === $this->runner()->id, 403);
+        $registration->load('category');
+
+        $cat = $registration->category;
+        $target = $registration->target_finish_minutes ?: self::defaultTarget($cat);
+        $plan = $target ? $cat->racePlan($target) : [];
+        abort_if(empty($plan), 404);
+
+        // mode mengikuti pilihan saat menyimpan race plan; bisa diganti lewat ?mode=
+        $mode = in_array($request->query('mode'), ['pos', 'km'], true)
+            ? $request->query('mode')
+            : ($registration->race_plan_mode ?: 'pos');
+
+        return view('pages.runner.pace-band', [
+            'tab' => 'race',
+            'reg' => $registration,
+            'cat' => $cat,
+            'target' => $target,
+            'plan' => $plan,
+            'splits' => $mode === 'km' ? $cat->racePlanSplits($target) : [],
+            'mode' => $mode,
+            'isDefault' => ! $registration->target_finish_minutes,
+        ]);
+    }
+
+    /** Galeri foto race peserta (ditandai BIB oleh panitia). */
+    public function photos(GtrRegistration $registration)
+    {
+        abort_unless($registration->runner_id === $this->runner()->id, 403);
+
+        return view('pages.runner.photos', [
+            'tab' => 'race',
+            'reg' => $registration,
+            'photos' => $registration->bib_number ? $registration->photos()->get() : collect(),
+        ]);
+    }
+
+        /** Target bawaan bila peserta belum menyimpan: ~72% COT (sama dengan estimator). */
+    public static function defaultTarget(?GtrCategory $cat): ?int
+    {
+        if (! $cat) {
+            return null;
+        }
+        $cot = $cat->cutOffMinutes();
+        if ($cot) {
+            return (int) (round($cot * 0.72 / 5) * 5);
+        }
+        $effort = array_sum(array_column($cat->courseSegments()['segments'] ?? [], 'effort'));
+
+        return $effort ? (int) (round($effort * 7.5 / 5) * 5) : null;
+    }
+
+        public function transaction()
     {
         $runner = $this->runner();
         $registrations = $runner->registrations()->with('category')->latest()->get();
@@ -77,7 +153,22 @@ class RunnerDashboardController extends Controller
         ]);
     }
 
-    public function registrationForm(GtrCategory $category)
+    /** Detail kategori di app: course map, pos, segmen & estimasi, rundown, gear, GPX. */
+    public function category(GtrCategory $category)
+    {
+        abort_unless($category->is_active, 404);
+
+        $runner = $this->runner();
+
+        return view('pages.runner.category', [
+            'tab' => 'home',
+            'runner' => $runner,
+            'cat' => $category,
+            'registration' => $runner->registrations()->where('gtr_category_id', $category->id)->first(),
+        ]);
+    }
+
+        public function registrationForm(GtrCategory $category)
     {
         $runner = $this->runner();
 

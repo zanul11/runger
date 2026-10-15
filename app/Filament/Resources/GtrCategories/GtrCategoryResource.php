@@ -7,6 +7,7 @@ use App\Filament\Resources\GtrCategories\Pages\EditGtrCategory;
 use App\Filament\Resources\GtrCategories\Pages\ListGtrCategories;
 use App\Models\GtrCategory;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -15,12 +16,15 @@ use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -96,7 +100,11 @@ class GtrCategoryResource extends Resource
                             ->label('File GPX (Course Map)')
                             ->disk('public')
                             ->directory('gtr/gpx')
-                            ->helperText('Upload .gpx — otomatis tampil di Course Map & bisa diunduh.'),
+                            ->helperText('Upload .gpx — otomatis tampil di Course Map.'),
+                        Toggle::make('gpx_downloadable')
+                            ->label('Izinkan peserta download GPX')
+                            ->helperText('Matikan bila file GPX belum boleh dibagikan. Rute tetap tampil di Course Map.')
+                            ->default(true),
                     ]),
 
                 Section::make('Pendaftaran & Detail')
@@ -117,7 +125,18 @@ class GtrCategoryResource extends Resource
                             ->placeholder('06:00 WITA'),
                         TextInput::make('elevation_gain')
                             ->label('Elevation Gain')
-                            ->placeholder('+344 M'),
+                            ->placeholder('+344 M')
+                            ->hintAction(
+                                Action::make('elevationFromGpx')
+                                    ->label('Isi dari GPX')
+                                    ->icon(Heroicon::OutlinedArrowPath)
+                                    ->visible(fn (?GtrCategory $record) => filled($record?->gpx_file))
+                                    ->action(function (Set $set, ?GtrCategory $record) {
+                                        if ($gain = $record?->gpxElevationGain()) {
+                                            $set('elevation_gain', $gain);
+                                        }
+                                    })
+                            ),
                         TextInput::make('cut_off_time')
                             ->label('Cut-Off Time (teks display)')
                             ->placeholder('2 Jam'),
@@ -132,21 +151,99 @@ class GtrCategoryResource extends Resource
                         Textarea::make('award_prize')
                             ->label('Award & Prize')
                             ->columnSpanFull(),
+                    ]),
+
+                Section::make('Rute: Pos & Info Jalur')
+                    ->description('Klik rute di peta untuk mengambil posisi KM, lalu tambahkan WS / CP / Info Jalur. Peringatan data muncul di bawah peta.')
+                    ->columns(1)
+                    ->components([
+                        View::make('filament.gtr.course-picker')
+                            ->viewData(fn (?GtrCategory $record) => ['record' => $record])
+                            ->columnSpanFull(),
                         Repeater::make('water_stations')
-                            ->label('Water Station')
-                            ->helperText('Tambahkan tiap WS beserta posisi KM-nya — akan muncul di Course Map & profil elevasi.')
+                            ->label('Titik di Rute (Water Station & Check Point)')
+                            ->helperText('Tiap WS / CP beserta posisi KM-nya akan muncul di Course Map, profil elevasi, dan tabel segmen. Kode WS1/CP1 dibuat otomatis sesuai urutan KM.')
                             ->schema([
+                                Select::make('type')
+                                    ->label('Tipe')
+                                    ->options(GtrCategory::POINT_TYPES)
+                                    ->default('ws')
+                                    ->selectablePlaceholder(false)
+                                    ->required(),
                                 TextInput::make('km')
                                     ->label('KM')
                                     ->numeric()
-                                    ->step('0.1')
+                                    ->step('0.01')
                                     ->required(),
                                 TextInput::make('name')
-                                    ->label('Keterangan')
-                                    ->placeholder('WS 1 — Pos Air'),
+                                    ->label('Nama Pos')
+                                    ->placeholder('Air Terjun Meledos'),
+                                TextInput::make('cutoff')
+                                    ->label('Cut-off (jam WITA)')
+                                    ->placeholder('08:30')
+                                    ->regex('/^\d{1,2}[:.]\d{2}$/')
+                                    ->validationMessages(['regex' => 'Format jam HH:MM, contoh 08:30.'])
+                                    ->helperText('Kosongkan bila tidak ada.'),
+                                TextInput::make('location')
+                                    ->label('Lokasi')
+                                    ->placeholder('Pertigaan Dusun Bantir, depan masjid')
+                                    ->columnSpanFull(),
+                                TagsInput::make('facilities')
+                                    ->label('Isi / Fasilitas')
+                                    ->placeholder('Ketik lalu Enter')
+                                    ->suggestions(['Air mineral', 'Isotonik', 'Pisang', 'Semangka', 'Jeruk', 'Gula merah', 'Garam', 'Medis', 'Toilet', 'Refill bottle'])
+                                    ->columnSpanFull(),
+                                Textarea::make('notes')
+                                    ->label('Catatan untuk Peserta')
+                                    ->placeholder('Wajib scan BIB. Bawa gelas sendiri (cupless).')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
                             ])
-                            ->columns(2)
-                            ->addActionLabel('Tambah Water Station')
+                            ->columns(4)
+                            ->collapsible()
+                            ->rules([fn (?GtrCategory $record) => self::courseKmRule($record, true)])
+                            ->itemLabel(fn (array $state): ?string => isset($state['km']) && $state['km'] !== ''
+                                ? (GtrCategory::POINT_TYPES[$state['type'] ?? 'ws'] ?? 'Titik') . ' · KM ' . $state['km'] . (filled($state['name'] ?? null) ? ' — ' . $state['name'] : '')
+                                : null)
+                            ->addActionLabel('Tambah Titik (WS / CP)')
+                            ->columnSpanFull(),
+                        Repeater::make('course_pois')
+                            ->label('Info & Bahaya Jalur')
+                            ->helperText('Mis. jalur licin, sungai, turunan curam, marshal, medis, spot foto. Bahaya juga muncul sebagai peringatan di split per KM.')
+                            ->schema([
+                                Select::make('type')
+                                    ->label('Tipe')
+                                    ->options(GtrCategory::poiTypeOptions())
+                                    ->default('technical')
+                                    ->selectablePlaceholder(false)
+                                    ->required(),
+                                TextInput::make('km')
+                                    ->label('KM')
+                                    ->numeric()
+                                    ->step('0.01')
+                                    ->required(),
+                                TextInput::make('km_end')
+                                    ->label('s/d KM (opsional)')
+                                    ->numeric()
+                                    ->step('0.01')
+                                    ->helperText('Isi bila berupa ruas.'),
+                                TextInput::make('title')
+                                    ->label('Judul')
+                                    ->placeholder('Turunan tanah licin'),
+                                Textarea::make('note')
+                                    ->label('Keterangan')
+                                    ->placeholder('Gunakan sepatu trail, ada tali bantu di sisi kanan.')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(4)
+                            ->collapsible()
+                            ->collapsed()
+                            ->rules([fn (?GtrCategory $record) => self::courseKmRule($record, false)])
+                            ->itemLabel(fn (array $state): ?string => isset($state['km']) && $state['km'] !== ''
+                                ? (GtrCategory::POI_TYPES[$state['type'] ?? '']['icon'] ?? '') . ' KM ' . $state['km'] . (filled($state['km_end'] ?? null) ? '–' . $state['km_end'] : '') . (filled($state['title'] ?? null) ? ' — ' . $state['title'] : '')
+                                : null)
+                            ->addActionLabel('Tambah Info Jalur')
                             ->columnSpanFull(),
                     ]),
 
@@ -183,7 +280,43 @@ class GtrCategoryResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
+    /**
+     * Validasi repeater pos / info jalur: KM tidak melebihi panjang rute;
+     * untuk pos, jam cut-off harus makin lambat mengikuti urutan KM.
+     */
+    protected static function courseKmRule(?GtrCategory $record, bool $checkCutoff): \Closure
+    {
+        return function (string $attribute, $value, \Closure $fail) use ($record, $checkCutoff) {
+            $items = collect(is_array($value) ? $value : [])->filter(fn ($p) => is_array($p) && is_numeric($p['km'] ?? null));
+            $ep = $record?->elevation_profile ?? [];
+            $max = count($ep) ? (float) end($ep)[0] : null;
+
+            if ($max !== null && ($over = $items->first(fn ($p) => (float) $p['km'] > $max + 0.05))) {
+                $fail('KM ' . $over['km'] . ' melebihi panjang rute (' . number_format($max, 1) . ' km).');
+            }
+            if ($bad = $items->first(fn ($p) => is_numeric($p['km_end'] ?? null) && (float) $p['km_end'] < (float) $p['km'])) {
+                $fail('"s/d KM" di KM ' . $bad['km'] . ' harus lebih besar dari KM awal.');
+            }
+
+            if ($checkCutoff) {
+                $last = null;
+                foreach ($items->sortBy(fn ($p) => (float) $p['km']) as $p) {
+                    if (! preg_match('/^\s*(\d{1,2})[:.](\d{2})\s*$/', (string) ($p['cutoff'] ?? ''), $m)) {
+                        continue;
+                    }
+                    $min = (int) $m[1] * 60 + (int) $m[2];
+                    if ($last !== null && $min <= $last[0]) {
+                        $fail('Cut-off di KM ' . $p['km'] . ' harus lebih lambat dari pos sebelumnya (KM ' . $last[1] . ').');
+
+                        return;
+                    }
+                    $last = [$min, $p['km']];
+                }
+            }
+        };
+    }
+
+        public static function table(Table $table): Table
     {
         return $table
             ->columns([

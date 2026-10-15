@@ -35,8 +35,13 @@ Route::get('/galeri', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/gerung-trail-run', [PageController::class, 'gtr'])->name('gtr');
 Route::get('/gerung-trail-run/entry-list', [PageController::class, 'gtrEntryList'])->name('gtr.entry');
 Route::get('/gerung-trail-run/results', [PageController::class, 'gtrResults'])->name('gtr.results');
+Route::get('/gerung-trail-run/results/{bib}', [PageController::class, 'gtrResult'])->name('gtr.result');
 Route::get('/gerung-trail-run/rules', [PageController::class, 'gtrRules'])->name('gtr.rules');
 Route::get('/gerung-trail-run/category/{slug}', [PageController::class, 'gtrCategory'])->name('gtr.category');
+Route::get('/gerung-trail-run/category/{slug}/gpx', [PageController::class, 'gtrCategoryGpx'])->name('gtr.category.gpx');
+Route::get('/gerung-trail-run/lacak', [PageController::class, 'gtrTrackSearch'])->name('gtr.track.search');
+Route::get('/gerung-trail-run/lacak/{bib}', [PageController::class, 'gtrTrack'])->name('gtr.track');
+Route::get('/gerung-trail-run/lacak/{bib}/data', [PageController::class, 'gtrTrackData'])->middleware('throttle:60,1')->name('gtr.track.data');
 
 // Runger participant portal app (runner account system)
 Route::middleware('guest:runner')->group(function () {
@@ -53,11 +58,15 @@ Route::middleware('auth:runner')->group(function () {
     Route::get('/runger-app', [RunnerDashboardController::class, 'index'])->name('gtr.dashboard');
     Route::get('/runger-app/race', [RunnerDashboardController::class, 'race'])->name('gtr.account.race');
     Route::get('/runger-app/race/{registration}', [RunnerDashboardController::class, 'raceDetail'])->name('gtr.account.race.detail');
+    Route::post('/runger-app/race/{registration}/plan', [RunnerDashboardController::class, 'saveRacePlan'])->name('gtr.account.race.plan');
+    Route::get('/runger-app/race/{registration}/pace-band', [RunnerDashboardController::class, 'paceBand'])->name('gtr.account.race.paceband');
+    Route::get('/runger-app/race/{registration}/foto', [RunnerDashboardController::class, 'photos'])->name('gtr.account.race.photos');
     Route::get('/runger-app/transaksi', [RunnerDashboardController::class, 'transaction'])->name('gtr.account.transaction');
     Route::get('/runger-app/transaksi/selesai', [PaymentController::class, 'finish'])->name('gtr.payment.finish');
     Route::post('/runger-app/transaksi/{registration}/bayar', [PaymentController::class, 'pay'])->name('gtr.payment.pay');
     Route::get('/runger-app/profil', [RunnerDashboardController::class, 'profile'])->name('gtr.account.profile');
     Route::put('/runger-app/profil/password', [RunnerPasswordController::class, 'update'])->middleware('throttle:5,1')->name('gtr.account.password');
+    Route::get('/runger-app/kategori/{category}', [RunnerDashboardController::class, 'category'])->name('gtr.account.category');
     Route::get('/runger-app/daftar/{category}', [RunnerDashboardController::class, 'registrationForm'])->name('gtr.register.form');
     Route::post('/runger-app/daftar/{category}', [RunnerDashboardController::class, 'storeRegistration'])->name('gtr.register.submit');
     Route::post('/runger-app/keluar', [RunnerAuthController::class, 'logout'])->name('gtr.logout');

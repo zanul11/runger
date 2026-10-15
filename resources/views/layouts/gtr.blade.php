@@ -449,8 +449,7 @@
     background:linear-gradient(180deg, rgba(10,10,10,.45) 0%, rgba(10,10,10,.15) 35%, rgba(10,10,10,.85) 80%, var(--bg) 100%);
   }
   .cat-poster{display:none}
-  .cat-poster img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s ease}
-  .cat-poster:hover img{transform:scale(1.04)}
+  .cat-poster img{width:100%;height:100%;object-fit:cover;display:block}
   .poster-badge{
     position:absolute;left:16px;bottom:16px;display:flex;flex-direction:column;align-items:center;
     padding:10px 14px;border-radius:14px;background:rgba(10,10,10,.6);border:1px solid rgba(255,255,255,.16);
@@ -477,8 +476,7 @@
     background:color-mix(in srgb, var(--cat-color) 18%, transparent);border:1px solid color-mix(in srgb, var(--cat-color) 55%, transparent);
     font-family:'Archivo',sans-serif;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
   }
-  .cat-hero-inner .ch-tag .dot{width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 4px color-mix(in srgb, var(--cat-color) 30%, transparent);animation:chPulse 2s ease-in-out infinite}
-  @keyframes chPulse{50%{box-shadow:0 0 0 7px transparent}}
+  .cat-hero-inner .ch-tag .dot{width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 4px color-mix(in srgb, var(--cat-color) 30%, transparent)}
   .cat-hero-inner h1{
     font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(64px,18vw,140px);line-height:.85;letter-spacing:-.035em;text-transform:uppercase;
     background:linear-gradient(180deg,#fff 30%, color-mix(in srgb, var(--cat-color) 55%, #fff) 100%);
@@ -557,8 +555,7 @@
   .tab-btn.active{background:#101010;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.18)}
   .tab-btn.active svg{color:var(--red)}
   .tab-panel{display:none}
-  .tab-panel.active{display:block;animation:tabIn .35s ease}
-  @keyframes tabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .tab-panel.active{display:block}
   .tab-img{width:100%;max-height:280px;object-fit:cover;border-radius:16px;border:1px solid #E6E6E6;display:block}
   .tab-note{display:flex;align-items:center;gap:8px;font-size:13px;color:#8A8A8A;margin-top:14px}
   .tab-note::before{content:'';width:6px;height:6px;border-radius:50%;background:#D0D0D0;flex-shrink:0}
@@ -719,14 +716,14 @@
     .nav-logo img{height:42px}
     .nav-burger{display:none}
     .nav-links{
-      display:flex;align-items:center;gap:28px;
+      display:flex;align-items:center;gap:clamp(14px,1.9vw,28px);
     }
     .nav-item{position:relative;display:inline-flex;align-items:center}
     .nav-link{
       color:var(--text-soft);transition:color .15s;position:relative;padding:8px 0;
       font-family:'Archivo',sans-serif;font-size:13px;letter-spacing:.04em;
       text-transform:uppercase;font-weight:700;background:none;cursor:pointer;
-      display:inline-flex;align-items:center;gap:6px;
+      display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
     }
     .nav-link:hover{color:#fff}
     .nav-link.active{color:#fff}
@@ -889,6 +886,7 @@
 
       <a href="{{ route('gtr.entry') }}" @class(['nav-link', 'active' => $navActive === 'entry'])>Entry List</a>
       <a href="{{ route('gtr.results') }}" @class(['nav-link', 'active' => $navActive === 'results'])>Results</a>
+      <a href="{{ route('gtr.track.search') }}" @class(['nav-link', 'active' => $navActive === 'track'])>Lacak</a>
       <a href="{{ route('gtr') }}#contact" class="nav-link">Contact</a>
     </div>
     @auth('runner')
@@ -922,6 +920,7 @@
   </details>
   <a href="{{ route('gtr.entry') }}" @class(['active' => $navActive === 'entry'])>Entry List</a>
   <a href="{{ route('gtr.results') }}" @class(['active' => $navActive === 'results'])>Results</a>
+  <a href="{{ route('gtr.track.search') }}" @class(['active' => $navActive === 'track'])>Lacak Pelari</a>
   <a href="{{ route('gtr') }}#contact">Contact</a>
   <a class="nav-cta" href="{{ route('volunteer') }}">Register Now <span class="arr">→</span></a>
 </div>
@@ -947,6 +946,7 @@
       <a href="{{ route('gtr') }}#category">Category</a>
       <a href="{{ route('gtr.entry') }}">Entry List</a>
       <a href="{{ route('gtr.results') }}">Results</a>
+      <a href="{{ route('gtr.track.search') }}">Lacak</a>
       <a href="{{ route('gtr.rules') }}">Rules</a>
       <a href="{{ route('gtr') }}#contact">Contact</a>
     </div>

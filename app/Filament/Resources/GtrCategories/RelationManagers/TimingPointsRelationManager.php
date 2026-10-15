@@ -35,6 +35,11 @@ class TimingPointsRelationManager extends RelationManager
                 ->numeric()
                 ->default(0)
                 ->required(),
+            TextInput::make('km')
+                ->label('Posisi KM di rute')
+                ->numeric()
+                ->step('0.01')
+                ->helperText('Untuk live tracking di peta. Kosongkan: START = 0, FINISH = ujung rute, CP/WS dicocokkan dengan kode di "Titik di Rute".'),
             Toggle::make('is_mandatory')
                 ->label('Wajib dilewati')
                 ->default(true),
@@ -55,6 +60,9 @@ class TimingPointsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('code')
                     ->searchable(),
+                TextColumn::make('pivot.km')
+                    ->label('KM')
+                    ->placeholder('auto'),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('type')
@@ -79,6 +87,7 @@ class TimingPointsRelationManager extends RelationManager
                     ->schema(fn (AttachAction $action): array => [
                         $action->getRecordSelect(),
                         TextInput::make('sequence')->label('Urutan')->numeric()->default(0)->required(),
+                        TextInput::make('km')->label('Posisi KM di rute')->numeric()->step('0.01'),
                         Toggle::make('is_mandatory')->label('Wajib dilewati')->default(true),
                         DateTimePicker::make('cutoff_at')->label('Cut-off')->seconds(false),
                     ]),

@@ -9,6 +9,8 @@ use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -67,6 +69,29 @@ class GtrSettingResource extends Resource
                         ->label('Lokasi')
                         ->placeholder('Bukit Keteri, Gerung — Lombok Barat')
                         ->columnSpanFull(),
+                ]),
+
+            Section::make('Race Pack & Race Day')
+                ->description('Tampil di app peserta & email pengingat H-7 / H-1.')
+                ->columns(2)
+                ->components([
+                    TextInput::make('racepack_location')
+                        ->label('Lokasi Pengambilan Race Pack')
+                        ->placeholder('Kantor Desa Banyu Urip, Gerung'),
+                    TextInput::make('racepack_schedule')
+                        ->label('Jadwal Pengambilan')
+                        ->placeholder('Jumat–Sabtu, 27–28 Nov 2026 · 10.00–20.00 WITA'),
+                    Textarea::make('racepack_note')
+                        ->label('Catatan Race Pack')
+                        ->placeholder('Bawa e-ticket (QR) & KTP. Boleh diwakilkan dengan surat kuasa + foto KTP peserta.')
+                        ->rows(2)
+                        ->columnSpanFull(),
+                    TextInput::make('assembly_time')
+                        ->label('Jam Kumpul Race Day')
+                        ->placeholder('05.15 WITA'),
+                    Toggle::make('results_published')
+                        ->label('Publikasikan hasil resmi')
+                        ->helperText('Aktifkan setelah hasil diverifikasi — halaman Results, hasil personal, e-sertifikat & kartu story jadi bisa diakses.'),
                 ]),
         ]);
     }

@@ -4,6 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#101010">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/pwa/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Runger App">
 <title>@yield('title', 'Akun Peserta — Gerung Trail Run')</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -154,6 +159,17 @@
     document.querySelectorAll('.info-i.open').forEach(function (el) { if (el !== icon) el.classList.remove('open'); });
     if (icon) { e.preventDefault(); icon.classList.toggle('open'); }
   });
+</script>
+<script>
+  // PWA: simpan app untuk mode offline saat race day
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
+    document.addEventListener('submit', function (e) {
+      if (e.target.action && /\/runger-app\/keluar/.test(e.target.action) && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage('clear-pages');
+      }
+    });
+  }
 </script>
 @stack('scripts')
 </body>

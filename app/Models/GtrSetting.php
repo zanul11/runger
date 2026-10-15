@@ -9,6 +9,10 @@ class GtrSetting extends Model
 {
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'results_published' => 'boolean',
+    ];
+
     public function getHeaderUrlAttribute(): string
     {
         return $this->header_image

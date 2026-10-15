@@ -20,7 +20,7 @@ class PaymentReminder extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Segera Selesaikan Pembayaran — ' . $this->registration->nomor_registrasi,
+            subject: 'Satu langkah lagi: lunasi & buka semua fitur peserta GTR 2026 — ' . $this->registration->nomor_registrasi,
         );
     }
 

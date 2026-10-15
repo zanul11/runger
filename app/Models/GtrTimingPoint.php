@@ -71,7 +71,7 @@ class GtrTimingPoint extends Model
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(GtrCategory::class, 'gtr_category_timing_point')
-            ->withPivot(['sequence', 'is_mandatory', 'cutoff_at'])
+            ->withPivot(['sequence', 'km', 'is_mandatory', 'cutoff_at'])
             ->withTimestamps();
     }
 

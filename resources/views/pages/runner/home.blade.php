@@ -28,6 +28,7 @@
   .ev-meta{display:flex;flex-direction:column;gap:5px;margin-top:10px}
   .ev-meta span{display:flex;align-items:flex-start;gap:7px;font-size:12px;line-height:1.4;color:rgba(255,255,255,.85)}
   .ev-meta svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;color:#FF8A80}
+  .ev-wx{margin-top:10px;padding:7px 11px!important;font-size:11px!important;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px)}
   .ev-cd{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:16px}
   .ev-cd div{text-align:center;padding:9px 0 8px;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px)}
   .ev-cd b{display:block;font-weight:900;font-size:21px;line-height:1;font-variant-numeric:tabular-nums}
@@ -99,6 +100,10 @@
     box-shadow:0 8px 18px rgba(0,0,0,.35);transition:transform .15s;white-space:nowrap}
   .rcat-btn .arr{display:inline-flex;width:19px;height:19px;align-items:center;justify-content:center;background:rgba(255,255,255,.22);border-radius:50%;font-size:11px}
   .rcat-btn:active{transform:translateY(1px)}
+  /* seluruh kartu bisa diklik ke detail; tombol Daftar tetap di atasnya */
+  .rcat-link{position:absolute;inset:0;z-index:4;border-radius:inherit}
+  .rcat-btn,.rcat-done{position:relative;z-index:5}
+  .rcat-more{margin-top:9px;font-family:'Poppins',sans-serif;font-weight:700;font-size:10.5px;color:color-mix(in srgb, var(--rcat-accent,#4C7DF2) 70%, #fff)}
   .rcat-done{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;flex-shrink:0;
     background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);
     font-family:'Poppins',sans-serif;font-weight:800;font-size:10.5px;letter-spacing:.03em;text-transform:uppercase;color:#34d27b}
@@ -124,6 +129,7 @@
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>{{ $gtrSetting->date_text ?? 'Minggu, 29 November 2026' }}</span>
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{{ $gtrSetting->location_text ?? 'Bukit Keteri, Gerung — Lombok Barat' }}</span>
       </div>
+      @include('pages.partials.gtr-weather', ['style' => 'chip', 'class' => 'ev-wx'])
 
       <div class="ev-cd" id="ev-cd">
         <div><b data-u="d">--</b><small>Hari</small></div>
@@ -155,6 +161,7 @@
 <div class="rcat-grid">
 @foreach($categories as $c)
   <article class="rcat" style="--rcat-accent:{{ $c->color ?: '#4C7DF2' }}">
+    <a class="rcat-link" href="{{ route('gtr.account.category', $c) }}" aria-label="Detail kategori {{ $c->distance }}"></a>
     <div class="rcat-photo" style="background-image:url('{{ $c->header_url }}')">
       <span class="bar"></span>
       <span class="rcat-tag"><span class="dot"></span>{{ $c->tag }}</span>
@@ -169,6 +176,7 @@
         <div class="m"><div class="l">Elevation</div><div class="v">{{ $c->elevation_gain ?: '-' }}</div></div>
         <div class="m"><div class="l">Cut-Off</div><div class="v">{{ $c->cut_off_time ?: '-' }}</div></div>
       </div>
+      <span class="rcat-more">Detail rute &amp; estimasi →</span>
       <div class="rcat-foot">
         <div class="rcat-price">
           <span class="lab">{{ $c->currentPriceLabel() }}</span>

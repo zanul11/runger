@@ -8,6 +8,8 @@
                     <option value="payment">Konfirmasi Pembayaran (Lunas)</option>
                     <option value="reminder">Pengingat Pembayaran (Belum Bayar)</option>
                     <option value="registration">Konfirmasi Pendaftaran</option>
+                    <option value="racepack">Pengingat Race Pack (H-7)</option>
+                    <option value="briefing">Briefing Race Day (H-1)</option>
                 </select>
             </div>
             <div class="min-w-[18rem] flex-1">

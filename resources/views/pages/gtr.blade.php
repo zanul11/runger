@@ -37,6 +37,7 @@
         {{ $gtrSetting->categories_text ?? 'Kategori 7K & 15K' }}
       </span>
       @endif
+      @include('pages.partials.gtr-weather', ['style' => 'chip', 'class' => 'hm'])
     </div>
     <div class="hero-cta">
       <a class="btn-primary" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>
