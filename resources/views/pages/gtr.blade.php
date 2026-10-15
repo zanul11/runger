@@ -172,6 +172,10 @@
         <div class="support-logo s-dispar"><img loading="lazy" decoding="async" src="{{ asset('assets/gtr/dispar2.webp') }}" alt="Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat"></div>
         <div class="support-name">Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat</div>
       </div>
+      <div class="support-item">
+        <div class="support-logo s-pam"><img loading="lazy" decoding="async" src="{{ asset('assets/gtr/pam.webp') }}" alt="PT. Air Minum Giri Menang (Perseroda)"></div>
+        <div class="support-name">PT. Air Minum Giri Menang (Perseroda)</div>
+      </div>
       
     </div>
   </div>

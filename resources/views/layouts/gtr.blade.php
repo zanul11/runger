@@ -616,6 +616,7 @@
   }
   .support-item:hover .support-logo{transform:translateY(-5px)}
   .support-logo img{max-height:100%;width:auto;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(0,0,0,.45))}
+  .support-logo.s-pam img{max-height:80%}
   .support-name{
     font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;line-height:1.45;
     color:var(--text-soft);text-transform:uppercase;letter-spacing:.04em;
@@ -823,7 +824,8 @@
 
     /* Supported by */
     .support-section{padding:96px 0}
-    .support-grid{gap:56px}
+    .support-grid{gap:40px}
+    .support-item{max-width:270px}
     .support-logo{height:168px}
 
     /* Scenic course */
