@@ -59,11 +59,13 @@
   .course--app .map-bar{left:10px;right:10px;bottom:30px;max-width:none;justify-content:space-between}
   .course--app .grade-legend{top:auto;bottom:118px}
   .course--app .map-hint{bottom:74px}
-  .course--app .elev-profile{margin:0 -14px;padding:14px 14px 4px;border-bottom:1px solid #F0F0F0}
+  .course--app .elev-profile{margin:0 -14px;padding:14px 14px 8px 44px;border-radius:0}
+  .course--app .elev-head{margin-left:-30px}
   .course--app .elev-svg{height:130px}
   .course--app .elev-readout{margin-bottom:10px}
   .course--app .elev-tip{position:static;display:grid!important;grid-template-columns:repeat(3,1fr);gap:2px 10px;transform:none!important;min-width:0;white-space:normal;padding:10px 12px;border-radius:12px;box-shadow:none;margin-bottom:10px;min-height:62px}
-  .course--app .elev-tip:empty{display:flex!important;align-items:center;justify-content:center;background:#F4F4F4;color:#8A8A8A;font-weight:600;font-size:11.5px}
+  .course--app .elev-tip:empty{display:flex!important;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:#9A9A9A;font-weight:600;font-size:11.5px}
+  .course--app .elev-tip{margin-left:-30px}
   .course--app .elev-tip:empty::before{content:'Geser / ketuk grafik untuk lihat detail tiap KM'}
   .course--app .elev-tip .tt-head{grid-column:1 / -1;margin-bottom:5px;padding-bottom:5px}
   .course--app .elev-tip .tt-row{flex-direction:column;gap:0;line-height:1.35;font-size:10px}
@@ -178,15 +180,27 @@
   .leaflet-popup.ws-popup .leaflet-popup-content{margin:8px 13px;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px}
   .leaflet-popup.ws-popup .leaflet-popup-tip{background:#101010}
   /* elevation profile */
-  .elev-profile{margin-top:18px}
-  .elev-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-  .elev-title{font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#101010}
-  .elev-meta{font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;color:#8A8A8A}
+  .elev-profile{margin-top:18px;padding:16px 18px 12px 48px;border-radius:18px;background:#0E0E0E;color:#fff}
+  .elev-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 10px -30px}
+  .elev-title{font-family:'Archivo',sans-serif;font-weight:900;font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:#fff}
+  .elev-meta{font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;color:#9A9A9A}
+  .elev-pins{position:relative;margin-bottom:4px}
+  .elev-pins .ep{position:absolute;transform:translateX(-50%);padding:3px 7px;border-radius:6px;background:var(--c);color:#fff;font-family:'Archivo',sans-serif;font-weight:900;font-size:10.5px;letter-spacing:.03em;line-height:1.2;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.4)}
   .elev-chart{position:relative;cursor:crosshair}
-  .elev-svg{width:100%;height:170px;display:block;border-bottom:1px solid #E6E6E6}
-  .elev-cursor{position:absolute;top:0;bottom:0;width:0;border-left:1.5px solid #101010;display:none;pointer-events:none;transform:translateX(-50%);z-index:2}
-  .elev-cursor .cdot{position:absolute;left:50%;top:0;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:#101010;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45)}
-  .elev-tip{position:absolute;top:-6px;transform:translate(-50%,calc(-100% - 12px));background:#101010;color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;padding:9px 11px;border-radius:10px;white-space:nowrap;display:none;pointer-events:none;z-index:4;box-shadow:0 10px 26px rgba(0,0,0,.35);min-width:150px}
+  .elev-svg{width:100%;height:170px;display:block;border-bottom:1px solid rgba(255,255,255,.14);overflow:visible}
+  .elev-gl{position:absolute;right:calc(100% + 8px);transform:translateY(-50%);font-family:'Archivo',sans-serif;font-size:10px;font-weight:700;color:#7A7A7A;white-space:nowrap;pointer-events:none}
+  .elev-markers .ed{position:absolute;width:11px;height:11px;border-radius:50%;background:var(--c);border:2px solid #fff;transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.5)}
+  .elev-axis2{position:relative;height:18px;margin-top:6px}
+  .elev-axis2 span{position:absolute;transform:translateX(-50%);font-family:'Archivo',sans-serif;font-size:10.5px;font-weight:700;color:#7A7A7A;white-space:nowrap}
+  .elev-axis2 span:first-child{transform:none}
+  .elev-axis2 span:last-child:not(:first-child){transform:translateX(-100%)}
+  @media (max-width:560px){
+    .elev-axis2 span:nth-child(even){display:none}
+    .elev-pins .ep{font-size:9.5px;padding:2px 6px}
+  }
+  .elev-cursor{position:absolute;top:0;bottom:0;width:0;border-left:1.5px solid rgba(255,255,255,.85);display:none;pointer-events:none;transform:translateX(-50%);z-index:2}
+  .elev-cursor .cdot{position:absolute;left:50%;top:0;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:#101010;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.6)}
+  .elev-tip{position:absolute;top:-6px;transform:translate(-50%,calc(-100% - 12px));background:#1C1C1C;border:1px solid rgba(255,255,255,.14);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;padding:9px 11px;border-radius:10px;white-space:nowrap;display:none;pointer-events:none;z-index:4;box-shadow:0 10px 26px rgba(0,0,0,.35);min-width:150px}
   .elev-tip.al{transform:translate(-12px,calc(-100% - 12px))}
   .elev-tip.ar{transform:translate(calc(-100% + 12px),calc(-100% - 12px))}
   .elev-tip .tt-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:7px;margin-bottom:7px;border-bottom:1px solid rgba(255,255,255,.12)}
@@ -340,8 +354,8 @@
   .map-stage:fullscreen .elev-profile{display:none}
   @media (min-width:820px){
     #course-map{height:560px}
-    .elev-profile{margin-top:14px;padding:16px 18px 12px;border:1px solid #EFEFEF;border-radius:18px;background:#fff}
-    .elev-profile .elev-svg{height:190px}
+    .elev-profile{margin-top:14px;padding:18px 22px 14px 58px}
+    .elev-profile .elev-svg{height:200px}
   }
 </style>
 @endif
@@ -361,16 +375,44 @@
       $eles = array_map(fn ($p) => (float) $p[1], $ep);
       $minKm = min($kms); $maxKm = max($kms);
       $minEle = min($eles); $maxEle = max($eles);
+      // sumbu ketinggian dibulatkan ke kelipatan 50/100 m (seperti di poster)
+      $eStep = ($maxEle - $minEle) > 400 ? 100 : 50;
+      $lo = floor($minEle / $eStep) * $eStep; $hi = ceil($maxEle / $eStep) * $eStep;
+      if ($hi <= $lo) { $hi = $lo + $eStep; }
       $spanKm = max(0.001, $maxKm - $minKm);
-      $spanEle = max(1, $maxEle - $minEle);
+      $spanEle = max(1, $hi - $lo);
       $W = 1000; $H = 220; $padT = 16; $padB = 22;
       $fx = fn ($km) => ($km - $minKm) / $spanKm * $W;
-      $fy = fn ($e) => $H - $padB - (($e - $minEle) / $spanEle) * ($H - $padT - $padB);
+      $fy = fn ($e) => $H - $padB - (($e - $lo) / $spanEle) * ($H - $padT - $padB);
+      $grid = [];
+      for ($e = $lo; $e <= $hi + .01; $e += $eStep) { $grid[] = ['e' => (int) $e, 'top' => round($fy($e) / $H * 100, 2), 'y' => round($fy($e), 1)]; }
+      $kStep = $maxKm > 25 ? 5 : ($maxKm > 12 ? 2 : 1);
+      $ticks = [];
+      for ($k = 0; $k <= $maxKm + .01; $k += $kStep) { $ticks[] = ['k' => $k, 'left' => round(($k - $minKm) / $spanKm * 100, 2)]; }
       $pts = [];
       foreach ($ep as $p) { $pts[] = round($fx((float) $p[0]), 1) . ',' . round($fy((float) $p[1]), 1); }
       $line = 'M ' . implode(' L ', $pts);
       $area = $line . ' L ' . $W . ',' . ($H - $padB) . ' L 0,' . ($H - $padB) . ' Z';
-      $elev = compact('kms', 'eles', 'minKm', 'maxKm', 'minEle', 'maxEle', 'line', 'area');
+      // penanda pos: posisi %, ketinggian di kurva, baris label (bertingkat bila berdekatan)
+      $eleAtKm = function ($km) use ($ep) {
+          for ($i = 1; $i < count($ep); $i++) {
+              if ((float) $ep[$i][0] >= $km) {
+                  $k0 = (float) $ep[$i - 1][0]; $k1 = (float) $ep[$i][0];
+                  return $k1 > $k0 ? $ep[$i - 1][1] + ($ep[$i][1] - $ep[$i - 1][1]) * ($km - $k0) / ($k1 - $k0) : $ep[$i][1];
+              }
+          }
+          return (float) $ep[count($ep) - 1][1];
+      };
+      $rowsEnd = [];
+      $marks = $points->map(function ($w) use ($minKm, $spanKm, $fy, $H, $eleAtKm, &$rowsEnd) {
+          $left = max(0, min(100, ($w['km'] - $minKm) / $spanKm * 100));
+          $row = 0;
+          while (isset($rowsEnd[$row]) && $left - $rowsEnd[$row] < 8) { $row++; }
+          $rowsEnd[$row] = $left;
+          return $w + ['left' => round($left, 2), 'x' => round($left * 10, 1), 'top' => round($fy($eleAtKm($w['km'])) / $H * 100, 2), 'row' => $row];
+      })->all();
+      $pinRows = $rowsEnd ? count($rowsEnd) : 0;
+      $elev = compact('kms', 'eles', 'minKm', 'maxKm', 'minEle', 'maxEle', 'lo', 'hi', 'line', 'area', 'grid', 'ticks', 'marks', 'pinRows');
     }
     $drop = '<svg viewBox="0 0 24 24" fill="#2EA6E6" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3c0 0-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z"/></svg>';
     $flag = '<svg viewBox="0 0 24 24" fill="#F97316" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>';
@@ -430,38 +472,52 @@
   <div class="elev-profile">
     <div class="elev-head">
       <span class="elev-title">Profil Elevasi</span>
-      <span class="elev-meta">{{ $cat->elevation_gain ?: '-' }} · {{ rtrim(rtrim(number_format($elev['maxKm'], 1), '0'), '.') }} km</span>
+      <span class="elev-meta">{{ $cat->elevation_gain ?: '-' }} · {{ $fmtKm($elev['maxKm']) }} km</span>
     </div>
+    @if($elev['pinRows'])
+    <div class="elev-pins" style="height:{{ $elev['pinRows'] * 24 + 4 }}px">
+      @foreach($elev['marks'] as $w)
+        <span class="ep" style="left:{{ $w['left'] }}%;bottom:{{ $w['row'] * 24 }}px;--c:{{ $ptColor[$w['type']] }}" title="{{ $w['code'] }} · {{ $w['title'] }} · KM {{ $fmtKm($w['km']) }}">{{ $w['code'] }}</span>
+      @endforeach
+    </div>
+    @endif
     <div class="elev-chart"
          data-ep='@json($cat->elevation_profile)'
          data-minkm="{{ $elev['minKm'] }}" data-maxkm="{{ $elev['maxKm'] }}"
-         data-minele="{{ $elev['minEle'] }}" data-maxele="{{ $elev['maxEle'] }}">
+         data-minele="{{ $elev['lo'] }}" data-maxele="{{ $elev['hi'] }}">
       <svg class="elev-svg" viewBox="0 0 1000 220" preserveAspectRatio="none">
         <defs>
           <linearGradient id="elevGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="{{ $cat->color }}" stop-opacity=".35"/>
-            <stop offset="1" stop-color="{{ $cat->color }}" stop-opacity="0"/>
+            <stop offset="0" stop-color="{{ $cat->color }}" stop-opacity=".7"/>
+            <stop offset="1" stop-color="{{ $cat->color }}" stop-opacity=".06"/>
           </linearGradient>
         </defs>
+        @foreach($elev['grid'] as $g)
+          <line x1="0" y1="{{ $g['y'] }}" x2="1000" y2="{{ $g['y'] }}" stroke="#fff" stroke-opacity=".08" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        @endforeach
         <path d="{{ $elev['area'] }}" fill="url(#elevGrad)"/>
-        <path d="{{ $elev['line'] }}" fill="none" stroke="{{ $cat->color }}" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-        @foreach($points as $w)
-          @php $wx = round(($w['km'] - $elev['minKm']) / max(0.001, $elev['maxKm'] - $elev['minKm']) * 1000, 1); @endphp
-          <line x1="{{ $wx }}" y1="0" x2="{{ $wx }}" y2="220" stroke="{{ $ptColor[$w['type']] }}" stroke-width="1" stroke-dasharray="5 5" vector-effect="non-scaling-stroke" opacity=".6"/>
+        <path d="{{ $elev['line'] }}" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+        <path d="{{ $elev['line'] }}" fill="none" stroke="#fff" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+        @foreach($elev['marks'] as $w)
+          <line x1="{{ $w['x'] }}" y1="0" x2="{{ $w['x'] }}" y2="198" stroke="{{ $ptColor[$w['type']] }}" stroke-width="1.5" stroke-dasharray="5 5" vector-effect="non-scaling-stroke"/>
         @endforeach
       </svg>
-      <span class="elev-ymax">{{ round($elev['maxEle']) }} m</span>
-      <span class="elev-ymin">{{ round($elev['minEle']) }} m</span>
+      @foreach($elev['grid'] as $g)
+        <span class="elev-gl" style="top:{{ $g['top'] }}%">{{ $g['e'] }} m</span>
+      @endforeach
       <div class="elev-markers">
-        @foreach($points as $w)
-          @php $pct = ($w['km'] - $elev['minKm']) / max(0.001, $elev['maxKm'] - $elev['minKm']) * 100; @endphp
-          <div class="ws-mark {{ $w['type'] }}" style="left:{{ round(min(100, max(0, $pct)), 2) }}%" title="{{ $w['code'] }} · {{ $w['title'] }} · KM {{ $fmtKm($w['km']) }}"><span class="ws-pin">{!! $w['type'] === 'cp' ? $flag : $drop !!}</span></div>
+        @foreach($elev['marks'] as $w)
+          <span class="ed" style="left:{{ $w['left'] }}%;top:{{ $w['top'] }}%;--c:{{ $ptColor[$w['type']] }}"></span>
         @endforeach
       </div>
       <div class="elev-cursor"><span class="cdot"></span></div>
       <div class="elev-tip"></div>
     </div>
-    <div class="elev-axis"><span>0 km</span><span>{{ rtrim(rtrim(number_format($elev['maxKm'], 1), '0'), '.') }} km</span></div>
+    <div class="elev-axis2">
+      @foreach($elev['ticks'] as $tk)
+        <span style="left:{{ $tk['left'] }}%">{{ $fmtKm($tk['k']) }} km</span>
+      @endforeach
+    </div>
   </div>
   @endif
   </div>
@@ -1187,7 +1243,8 @@
           // varian app: detail tampil di panel tetap di atas grafik (tidak tertutup jari)
           if(el.closest('.course--app')){
             tip.innerHTML = '';
-            chart.parentNode.insertBefore(tip, chart);
+            const pinsRow = chart.previousElementSibling && chart.previousElementSibling.classList.contains('elev-pins') ? chart.previousElementSibling : chart;
+            chart.parentNode.insertBefore(tip, pinsRow);
           }
         }
       }
