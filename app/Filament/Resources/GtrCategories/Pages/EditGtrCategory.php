@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\GtrCategories\Pages;
 
 use App\Filament\Resources\GtrCategories\GtrCategoryResource;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -13,6 +14,12 @@ class EditGtrCategory extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('previewMap')
+                ->label('Preview & Export Map')
+                ->icon('heroicon-o-map')
+                ->color('gray')
+                ->visible(fn () => filled($this->record->route_points))
+                ->url(fn () => \App\Filament\Pages\GtrCoursePreview::getUrl(['category' => $this->record->id])),
             DeleteAction::make(),
         ];
     }

@@ -117,7 +117,36 @@
   /* markers */
   .mk{background:none;border:none}
   .mk > div{position:absolute;left:0;top:0;transform:translate(-50%,-50%);white-space:nowrap;font-family:'Archivo',sans-serif}
-  .kmm{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#101010;border:2px solid #101010;font-weight:900;font-size:9.5px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+  .kmm{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.95);color:#101010;border:2px solid #101010;font-weight:900;font-size:8.5px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+  /* pin gaya poster */
+  .mk > .pin2{transform:translate(-50%,-100%)}
+  .pin2{position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 6px rgba(0,0,0,.55))}
+  .pin2 .ph{min-width:30px;height:30px;padding:0 4px;border-radius:999px;display:grid;place-items:center;background:var(--c);color:#fff;border:2.5px solid #fff;font-family:'Archivo',sans-serif;font-weight:900;font-size:10.5px;letter-spacing:.02em;line-height:1;white-space:nowrap}
+  .pin2.sm .ph{font-size:8.5px}
+  .pin2 .pt{width:0;height:0;margin-top:-2px;border:7px solid transparent;border-bottom:0;border-top:9px solid #fff}
+  .pin2.stem .pt{display:none}
+  .mk > .pin2.stem{transform:translate(-50%,-50%)}
+  .lblm{pointer-events:auto}
+  .mk > .lbl2{transform:none!important}
+  .lbl2{display:flex;flex-direction:column;align-items:flex-start;gap:1px;white-space:nowrap;color:#fff;font-family:'Archivo',sans-serif;cursor:pointer;
+    text-shadow:0 0 3px rgba(0,0,0,.95),0 0 6px rgba(0,0,0,.7),1px 1px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000}
+  .lbl2.lt-l{align-items:flex-end;text-align:right}
+  .lbl2 .lt{font-weight:900;font-size:12.5px;letter-spacing:.02em;text-transform:uppercase;line-height:1.15}
+  .lbl2 .ll{font-weight:800;font-size:11px;line-height:1.25}
+  .lbl2 .lh{display:inline-block;padding:3px 9px;margin-bottom:2px;font-weight:900;font-size:11.5px;letter-spacing:.06em;text-shadow:none;color:#fff}
+  .lbl2 .lh.go{background:#16A34A}
+  .lbl2 .lh.fin{background:#DC2626}
+  .lbl2 .lf{display:flex;gap:3px;margin-top:3px;text-shadow:none}
+  .lbl2 .lf i{font-style:normal;width:20px;height:20px;border-radius:5px;display:grid;place-items:center;background:#fff;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .lbl2 .lf em{font-style:normal;padding:0 6px;height:20px;border-radius:5px;display:grid;place-items:center;background:#DC2626;color:#fff;font-weight:900;font-size:9.5px}
+  .arw2{width:24px;height:24px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}
+  .arw2 svg{display:block;width:100%;height:100%}
+  @media (max-width:560px){ .arw2{width:20px;height:20px} }
+  @media (max-width:560px){
+    .lbl2 .lt{font-size:11px}
+    .lbl2 .ll{font-size:10px}
+    .pin2 .ph{min-width:26px;height:26px;font-size:9.5px}
+  }
   .sfm{transform:translate(-50%,calc(-100% - 8px))!important;display:flex;align-items:center;gap:7px;padding:6px 11px 6px 7px;border-radius:10px;background:#101010;color:#fff;font-weight:900;font-size:11px;letter-spacing:.08em;box-shadow:0 6px 16px rgba(0,0,0,.4)}
   .sfm::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-bottom:0;border-top-color:#101010}
   .sfm .fl{width:18px;height:18px;border-radius:4px;background:repeating-conic-gradient(#fff 0 25%,#101010 0 50%) 0 0/9px 9px;border:1.5px solid #fff}
@@ -600,12 +629,16 @@
         ];
         const topo = () => L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {maxZoom:17, maxNativeZoom:17});
         const layers = hasGoogle ? [
+          ['Satelit', L.gridLayer.googleMutant({type:'hybrid', maxZoom:20, styles:[
+            {featureType:'poi', stylers:[{visibility:'off'}]},
+            {featureType:'transit', stylers:[{visibility:'off'}]},
+            {featureType:'road', elementType:'labels.icon', stylers:[{visibility:'off'}]}
+          ]})],
           ['Terrain', L.gridLayer.googleMutant({type:'terrain', styles:trailStyle, maxZoom:20})],
-          ['Satelit', L.gridLayer.googleMutant({type:'hybrid', maxZoom:20})],
           ['Topo', topo()]
         ] : [
-          ['Topo', topo()],
           ['Satelit', L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom:19})],
+          ['Topo', topo()],
           ['Light', L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom:19, subdomains:'abcd'})]
         ];
         let activeBase = layers[0][1].addTo(map);
@@ -658,10 +691,11 @@
         }
 
         // ---- Route: casing + line ----
-        const casing = L.polyline(pts, {color:'#101010', weight:9, opacity:.55, lineJoin:'round', lineCap:'round'}).addTo(map);
+        const glow = L.polyline(pts, {color:'#000', weight:15, opacity:.28, lineJoin:'round', lineCap:'round', interactive:false}).addTo(map);
+        const casing = L.polyline(pts, {color:'#101010', weight:11, opacity:.6, lineJoin:'round', lineCap:'round'}).addTo(map);
         const solid = L.layerGroup([
-          L.polyline(pts, {color:'#fff', weight:7, opacity:.95, lineJoin:'round', lineCap:'round'}),
-          L.polyline(pts, {color:routeColor, weight:4.5, opacity:1, lineJoin:'round', lineCap:'round'})
+          L.polyline(pts, {color:'#fff', weight:8.5, opacity:1, lineJoin:'round', lineCap:'round'}),
+          L.polyline(pts, {color:routeColor, weight:5.5, opacity:1, lineJoin:'round', lineCap:'round'})
         ]).addTo(map);
 
         // gradient-coloured route (by grade, ~200 m window)
@@ -675,12 +709,12 @@
             const g = b - a > .001 ? (eleOnRoute(b) - eleOnRoute(a)) / ((b - a) * 1000) * 100 : 0;
             const c = gradeColor(g);
             if(runColor && c !== runColor){
-              graded.addLayer(L.polyline(run, {color:runColor, weight:5.5, opacity:1, lineJoin:'round', lineCap:'round'}));
+              graded.addLayer(L.polyline(run, {color:runColor, weight:6.5, opacity:1, lineJoin:'round', lineCap:'round'}));
               run = [pts[i-1]];
             }
             runColor = c; run.push(pts[i]);
           }
-          graded.addLayer(L.polyline(run, {color:runColor, weight:5.5, opacity:1, lineJoin:'round', lineCap:'round'}));
+          graded.addLayer(L.polyline(run, {color:runColor, weight:6.5, opacity:1, lineJoin:'round', lineCap:'round'}));
         }
         const modeBox = document.getElementById('map-mode');
         const legend = document.getElementById('grade-legend');
@@ -688,8 +722,8 @@
           modeBox.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
             const grade = b.dataset.mode === 'grade';
             modeBox.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-            if(grade){ map.removeLayer(solid); graded.addTo(map); casing.setStyle({color:'#fff', weight:9, opacity:.9}); }
-            else { map.removeLayer(graded); solid.addTo(map); casing.setStyle({color:'#101010', weight:9, opacity:.55}); }
+            if(grade){ map.removeLayer(solid); graded.addTo(map); casing.setStyle({color:'#fff', weight:11, opacity:.95}); }
+            else { map.removeLayer(graded); solid.addTo(map); casing.setStyle({color:'#101010', weight:11, opacity:.6}); }
             legend && legend.classList.toggle('on', grade);
           }));
         }
@@ -719,40 +753,26 @@
         map.on('zoomend', drawKm); drawKm();
 
 
-        // ---- Start / Finish ----
-        const sf = (latlng, cls, label, z) => L.marker(latlng, {
-          icon: L.divIcon({className:'mk', iconSize:null, html:'<div class="sfm ' + cls + '"><span class="fl"></span>' + label + '</div>'}),
-          zIndexOffset:z, keyboard:false
-        }).addTo(map);
-        const dot = latlng => L.marker(latlng, {icon: L.divIcon({className:'mk', iconSize:null, html:'<div class="sfm-dot"></div>'}), interactive:false, zIndexOffset:900}).addTo(map);
-        const first = pts[0], last = pts[pts.length-1];
-        if(map.distance(first, last) < 150){
-          dot(first); sf(first, 'finish', 'START · FINISH', 1000);
-        } else {
-          dot(first); sf(first, 'start', 'START', 1000);
-          dot(last); sf(last, 'finish', 'FINISH', 1000);
-        }
-
-        // ---- Highest point ----
-        if(rEp.length){
-          let top = rEp[0];
-          rEp.forEach(p => { if(p[1] > top[1]) top = p; });
-          L.marker(kmToLatLng(top[0] / epMax * total), {
-            icon: L.divIcon({className:'mk', iconSize:null, html:'<div class="sum"><span class="b">' + Math.round(top[1]) + ' mdpl</span><span class="s"></span></div>'}),
-            zIndexOffset:800, keyboard:false
-          }).addTo(map).bindTooltip('Titik tertinggi · KM ' + (top[0]).toFixed(1), {direction:'top', className:'ws-tip', offset:[0,-28]});
-        }
-
-        // ---- Pos di rute (WS & CP) ----
+        // ================= Marker gaya poster =================
+        // pin kecil di rute + keterangan teks tanpa kotak yang mencari tempat kosong
         let ws = [];
         try { ws = JSON.parse(el.dataset.ws || '[]'); } catch(e){}
+        let pois = [];
+        try { pois = JSON.parse(el.dataset.pois || '[]'); } catch(e){}
         const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         const PT_COLOR = {ws:'#2EA6E6', cp:'#F97316'};
-        const dropSvg = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3c0 0-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z"/></svg>';
-        const flagSvg = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M5 22V3h12l-2.5 4.5L17 12H7v10z"/></svg>';
         const pinIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
         const clockIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
         const fmtKm = v => (Math.round(v * 10) / 10).toString();
+        const kmTxt = v => fmtKm(v).replace('.', ',');
+        const eleKm = km => Math.round(eleOnRoute(km / epMax * total));
+        const FAC = [
+          ['🥤', /air|mineral|isotonik|minum|teh|kopi|cola|elektrolit/i],
+          ['🍌', /buah|pisang|semangka|jeruk|rebus|makan|roti|gula|kurma|snack|kue|nasi/i],
+          ['⛑️', /medis|medic|p3k|first aid|ambulan|salep|spray|obat/i],
+          ['🚻', /toilet|wc|kamar mandi/i],
+        ];
+        const facOf = p => FAC.filter(f => (p.facilities || []).some(x => f[1].test(x))).map(f => f[0]);
         function popupHtml(p){
           let h = '<div class="pp" style="--pc:' + PT_COLOR[p.type] + '">'
             + '<div class="pp-h"><span class="pp-code">' + esc(p.code) + '</span><span class="pp-km">KM ' + fmtKm(p.km) + '</span></div>'
@@ -763,33 +783,189 @@
           if(p.notes) h += '<div class="pp-n">' + esc(p.notes) + '</div>';
           return h + '</div>';
         }
-        const ptMarkers = ws.map(p => L.marker(kmToLatLng(Number(p.km) / epMax * total), {
-            icon: L.divIcon({className:'mk', iconSize:null, html:'<div class="wsm"><span class="b" style="background:' + PT_COLOR[p.type] + '">' + (p.type === 'cp' ? flagSvg : dropSvg) + esc(p.code) + '</span><span class="s"></span></div>'}),
-            zIndexOffset: p.type === 'cp' ? 860 : 850
-          }).addTo(map).bindPopup(popupHtml(p), {className:'pt-popup', closeButton:false, offset:[0,-30], autoPanPadding:[30,30]}));
 
-        // ---- Info & bahaya jalur ----
-        let pois = [];
-        try { pois = JSON.parse(el.dataset.pois || '[]'); } catch(e){}
+        const items = [];
+        const pin = (ll, label, color, z, extra) => L.marker(ll, {
+          icon: L.divIcon({className:'mk', iconSize:null, html:'<div class="pin2' + (extra || '') + '" style="--c:' + color + '"><span class="ph">' + label + '</span><i class="pt"></i></div>'}),
+          zIndexOffset: z, keyboard:false, riseOnHover:true
+        }).addTo(map);
+        const first = pts[0], last = pts[pts.length-1], sameSF = map.distance(first, last) < 150;
+        items.push({km:0, prio:0, marker: pin(first, 'START', '#16A34A', 1000, ' sm'), head: sameSF ? 'START · FINISH' : 'START', headCls:'go',
+          lines:[eleKm(0) + ' M  |  ' + (planStart() || 'KM 0')]});
+        if(!sameSF) items.push({km:epMax, prio:0, marker: pin(last, '🏁', '#101010', 1000), head:'FINISH', headCls:'fin', lines:[eleKm(epMax) + ' M  |  ' + kmTxt(epMax) + ' KM']});
+        function planStart(){ const pl = document.getElementById('race-plan'); if(!pl || pl.dataset.start === '') return null; const m = Number(pl.dataset.start); return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0') + ' WITA'; }
+
+        const ptMarkers = ws.map(p => {
+          const m = pin(kmToLatLng(Number(p.km) / epMax * total), esc(p.code), PT_COLOR[p.type], p.type === 'cp' ? 860 : 850)
+            .bindPopup(popupHtml(p), {className:'pt-popup', closeButton:false, offset:[0,-38], autoPanPadding:[30,30]});
+          items.push({km:Number(p.km), prio:1, marker:m, type:p.type, code:p.code,
+            title: p.name || p.location || (p.type === 'cp' ? 'Check Point' : 'Water Station'),
+            lines:[eleKm(Number(p.km)) + ' M  |  ' + kmTxt(p.km) + ' KM'], fac:facOf(p), cot:p.cutoff});
+          return m;
+        });
+        if(rEp.length){
+          let top = rEp[0];
+          rEp.forEach(p => { if(p[1] > top[1]) top = p; });
+          const sm = pin(kmToLatLng(top[0] / epMax * total), '▲', '#101010', 800).bindTooltip('Titik tertinggi · KM ' + top[0].toFixed(1), {direction:'top', className:'ws-tip', offset:[0,-40]});
+          items.push({km:top[0], prio:2, marker:sm, title:'Titik tertinggi', lines:[Math.round(top[1]) + ' M  |  ' + kmTxt(top[0]) + ' KM']});
+        }
         const hzLine = L.layerGroup().addTo(map);
         const poiMarkers = pois.map(p => {
-          // ruas (km s/d km_end) disorot di rute
           if(p.km_end){
             const seg = [];
             for(let k = p.km; k < p.km_end; k += .02) seg.push(kmToLatLng(k / epMax * total));
             seg.push(kmToLatLng(p.km_end / epMax * total));
-            hzLine.addLayer(L.polyline(seg, {color: p.hazard ? '#F97316' : '#374151', weight:10, opacity:.45, lineCap:'round', interactive:false}));
+            hzLine.addLayer(L.polyline(seg, {color: p.hazard ? '#FACC15' : '#fff', weight:18, opacity:.45, lineCap:'round', interactive:false}));
           }
           const range = 'KM ' + fmtKm(p.km) + (p.km_end ? '–' + fmtKm(p.km_end) : '');
-          return L.marker(kmToLatLng(p.km / epMax * total), {
+          const m = L.marker(kmToLatLng(p.km / epMax * total), {
             icon: L.divIcon({className:'mk', iconSize:null, html:'<div class="poim' + (p.hazard ? ' hz' : '') + '">' + esc(p.icon) + '</div>'}),
             zIndexOffset: 840
           }).addTo(map).bindPopup(
             '<div class="pp" style="--pc:' + (p.hazard ? '#F97316' : '#374151') + '"><div class="pp-h"><span class="pp-code">' + esc(p.icon + ' ' + p.label) + '</span><span class="pp-km">' + range + '</span></div>'
             + '<div class="pp-t">' + esc(p.title) + '</div>' + (p.note ? '<div class="pp-n">' + esc(p.note) + '</div>' : '') + '</div>',
             {className:'pt-popup', closeButton:false, offset:[0,-14], autoPanPadding:[30,30]});
+          items.push({km:Number(p.km), prio:3, marker:m, poi:true, title:p.title, lines:[range.replace('.', ',')]});
+          return m;
         });
-        casing.bringToBack(); hzLine.eachLayer(l => l.bringToBack());
+        glow.bringToBack(); hzLine.eachLayer(l => l.bringToBack());
+
+        // label teks (satu marker per label; posisi dihitung di layout())
+        items.forEach(it => {
+          let h = '';
+          if(it.head) h += '<b class="lh ' + it.headCls + '">' + esc(it.head) + '</b>';
+          if(it.title) h += '<b class="lt">' + esc(it.title) + '</b>';
+          it.lines.forEach(l => { h += '<span class="ll">' + esc(l) + '</span>'; });
+          if((it.fac && it.fac.length) || it.cot) h += '<span class="lf">' + (it.fac || []).map(f => '<i>' + f + '</i>').join('') + (it.cot ? '<em>COT ' + esc(it.cot) + '</em>' : '') + '</span>';
+          it.html = h;
+        });
+        // pos di lokasi & nama sama → satu label
+        const byTitle = {};
+        items.filter(it => it.type && it.title).forEach(it => (byTitle[it.title] = byTitle[it.title] || []).push(it));
+        Object.values(byTitle).filter(a => a.length > 1).forEach(a => {
+          a.sort((x, y) => x.km - y.km);
+          const near = a.filter(it => map.distance(it.marker.getLatLng(), a[0].marker.getLatLng()) < 120);
+          if(near.length < 2) return;
+          const lead = near[0], facs = [];
+          near.forEach(it => (it.fac || []).forEach(f => { if(!facs.includes(f)) facs.push(f); }));
+          const cot = near.map(it => it.cot).filter(Boolean)[0];
+          lead.html = '<b class="lt">' + esc(lead.title) + '</b>' + near.map(it => '<span class="ll">' + esc(it.code + ' · ' + it.lines[0]) + '</span>').join('')
+            + ((facs.length || cot) ? '<span class="lf">' + facs.map(f => '<i>' + f + '</i>').join('') + (cot ? '<em>COT ' + esc(cot) + '</em>' : '') + '</span>' : '');
+          lead.group = near;
+          near.slice(1).forEach(it => { it.noLabel = true; });
+        });
+        items.filter(it => !it.noLabel).forEach(it => {
+          it.label = L.marker(it.marker.getLatLng(), {
+            icon: L.divIcon({className:'mk lblm', iconSize:null, html:'<div class="lbl2">' + it.html + '</div>'}),
+            zIndexOffset: 700, keyboard:false
+          }).addTo(map).on('click', () => it.marker.openPopup ? it.marker.openPopup() : null);
+        });
+
+        // panah arah (statis) di samping rute
+        const arrowLayer = L.layerGroup().addTo(map);
+        const leaderLayer = L.layerGroup().addTo(map);
+
+        function layout(){
+          const size = map.getSize(), cpt = p => map.layerPointToContainerPoint(p);
+          // area overlay UI yang harus dihindari label (koordinat container)
+          const stageR = el.getBoundingClientRect();
+          const avoid = [...el.closest('.map-box').querySelectorAll('.map-ui')].filter(n => !n.hidden && n.offsetParent).map(n => {
+            const r = n.getBoundingClientRect(); return {x:r.left - stageR.left, y:r.top - stageR.top, w:r.width, h:r.height};
+          });
+          // grid rute untuk menghindari teks menutupi jalur
+          const cell = 14, occ = new Set();
+          const lp = pts.map(p => cpt(map.latLngToLayerPoint(p)));
+          for(let i = 1; i < lp.length; i++){
+            const a = lp[i-1], b = lp[i], n = Math.max(1, Math.ceil(a.distanceTo(b) / 6));
+            for(let k = 0; k <= n; k++) occ.add(Math.floor((a.x + (b.x - a.x) * k / n) / cell) + ',' + Math.floor((a.y + (b.y - a.y) * k / n) / cell));
+          }
+          const routeHits = r => { let h = 0; for(let gx = Math.floor(r.x / cell); gx <= Math.floor((r.x + r.w) / cell); gx++) for(let gy = Math.floor(r.y / cell); gy <= Math.floor((r.y + r.h) / cell); gy++) if(occ.has(gx + ',' + gy)) h++; return h; };
+          const hit = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+          // 1) kepala pin: sebar bila bertumpuk
+          leaderLayer.clearLayers();
+          const pinsIt = items.filter(it => !it.poi);
+          pinsIt.forEach(it => { it.p = cpt(map.latLngToLayerPoint(it.marker.getLatLng())); it.hx = it.p.x; it.hy = it.p.y - 22; });
+          items.filter(it => it.poi).forEach(it => { it.p = cpt(map.latLngToLayerPoint(it.marker.getLatLng())); it.hx = it.p.x; it.hy = it.p.y; });
+          const groups = [];
+          pinsIt.forEach(it => { const g = groups.find(g => g.some(o => Math.hypot(o.hx - it.hx, o.hy - it.hy) < 30)); g ? g.push(it) : groups.push([it]); });
+          groups.forEach(g => {
+            const stem = g.length > 1;
+            g.sort((a, b) => a.km - b.km);
+            const mx = g.reduce((s, i) => s + i.p.x, 0) / g.length, top = Math.min(...g.map(i => i.p.y)) - 52;
+            g.forEach((it, i) => {
+              const e = it.marker.getElement(); if(!e) return;
+              const head = e.firstElementChild;
+              head.classList.toggle('stem', stem);
+              if(stem){
+                it.hx = mx + (i - (g.length - 1) / 2) * 34; it.hy = top;
+                e.style.marginLeft = (it.hx - it.p.x) + 'px'; e.style.marginTop = (it.hy - it.p.y) + 'px';
+                const ll1 = map.containerPointToLatLng(it.p), ll2 = map.containerPointToLatLng(L.point(it.hx, it.hy + 13));
+                leaderLayer.addLayer(L.polyline([ll1, ll2], {color:'#000', weight:5, opacity:.45, interactive:false}));
+                leaderLayer.addLayer(L.polyline([ll1, ll2], {color:'#fff', weight:2.5, opacity:1, interactive:false}));
+                leaderLayer.addLayer(L.circleMarker(ll1, {radius:4, color:'#fff', weight:2, fillColor:it.marker.options.icon.options.html.match(/--c:([^"]+)"/)[1], fillOpacity:1, interactive:false}));
+              } else { e.style.marginLeft = ''; e.style.marginTop = ''; }
+            });
+          });
+
+          // 2) label: coba posisi di sekitar kepala pin, pilih yang paling kosong
+          const blocked = avoid.slice();
+          items.forEach(it => blocked.push(it.poi ? {x:it.hx - 15, y:it.hy - 15, w:30, h:30} : {x:it.hx - 15, y:it.hy - 15, w:30, h:30}));
+          const placed = [];
+          items.filter(it => it.label).sort((a, b) => a.prio - b.prio || a.km - b.km).forEach(it => {
+            const e = it.label.getElement(); if(!e) return;
+            const box = e.firstElementChild;
+            box.style.display = ''; e.style.marginLeft = '0px'; e.style.marginTop = '0px';
+            const w = box.offsetWidth, h = box.offsetHeight;
+            const heads = it.group ? it.group.map(g => [g.hx, g.hy]) : [[it.hx, it.hy]];
+            const hx = heads.reduce((s, q) => s + q[0], 0) / heads.length, hy = Math.min(...heads.map(q => q[1]));
+            const gw = heads.length > 1 ? (Math.max(...heads.map(q => q[0])) - Math.min(...heads.map(q => q[0]))) / 2 : 0;
+            let best = null;
+            [26, 52, 84, 120, 160].forEach(d => {
+              for(let a = 0; a < 16; a++){
+                const ang = a / 16 * Math.PI * 2, right = Math.cos(ang) >= -0.01;
+                const px = hx + Math.cos(ang) * (d + gw), py = hy + Math.sin(ang) * d * .8;
+                const r = {x: right ? px : px - w, y: py - h / 2, w, h};
+                if(r.x < 6 || r.y < 6 || r.x + w > size.x - 6 || r.y + h > size.y - 6) continue;
+                const pad = {x:r.x - 4, y:r.y - 3, w:r.w + 8, h:r.h + 6};
+                if(blocked.some(b => hit(b, pad)) || placed.some(b => hit(b, pad))) continue;
+                const score = routeHits(r) * 30 + d + (Math.abs(Math.sin(ang)) > .9 ? 20 : 0);
+                if(!best || score < best.score) best = {r, score, right};
+              }
+            });
+            if(!best){ box.style.display = 'none'; return; }   // tidak ada tempat → sembunyikan teks, pin tetap
+            placed.push(best.r);
+            box.classList.toggle('lt-l', !best.right);
+            // posisi relatif terhadap titik marker label (= lokasi pos)
+            e.style.marginLeft = (best.r.x - it.p.x) + 'px'; e.style.marginTop = (best.r.y - it.p.y) + 'px';
+            const tx = best.right ? best.r.x - 3 : best.r.x + w + 3, ty = Math.max(best.r.y + 8, Math.min(best.r.y + h - 8, hy));
+            if(Math.hypot(tx - hx, ty - hy) > 24)
+              leaderLayer.addLayer(L.polyline([map.containerPointToLatLng(L.point(hx, hy)), map.containerPointToLatLng(L.point(tx, ty))], {color:'#fff', weight:2, opacity:.95, dashArray:'2 5', interactive:false}));
+          });
+
+          // 3) badge KM yang tertutup → sembunyikan
+          kmLayer.eachLayer(k => {
+            const kp = cpt(map.latLngToLayerPoint(k.getLatLng())), ke = k.getElement();
+            const r = {x:kp.x - 10, y:kp.y - 10, w:20, h:20};
+            if(ke) ke.style.opacity = (placed.some(b => hit(b, r)) || items.some(it => Math.hypot(it.hx - kp.x, it.hy - kp.y) < 22 || Math.hypot(it.p.x - kp.x, it.p.y - kp.y) < 16)) ? '0' : '';
+          });
+
+          // 4) panah arah kuning di samping rute
+          arrowLayer.clearLayers();
+          const gap = Math.max(.5, Math.round(epMax / 18 * 10) / 10);
+          const arrowSvg = '<svg viewBox="0 0 24 24"><path d="M5 3.5 L20 12 L5 20.5 L9 12 Z" fill="#FACC15" stroke="#111" stroke-width="2.2" stroke-linejoin="round"/></svg>';
+          for(let k = gap / 2; k < epMax - .2; k += gap){
+            const a = map.latLngToLayerPoint(kmToLatLng(Math.max(0, k - .05) / epMax * total)), b = map.latLngToLayerPoint(kmToLatLng(Math.min(epMax, k + .05) / epMax * total));
+            const ang = Math.atan2(b.y - a.y, b.x - a.x), mid = map.latLngToLayerPoint(kmToLatLng(k / epMax * total));
+            const off = L.point(mid.x + Math.cos(ang + Math.PI / 2) * 19, mid.y + Math.sin(ang + Math.PI / 2) * 19);
+            const oc = cpt(off);
+            if(placed.some(r => hit(r, {x:oc.x - 11, y:oc.y - 11, w:22, h:22}))) continue;
+            arrowLayer.addLayer(L.marker(map.layerPointToLatLng(off), {interactive:false, keyboard:false,
+              icon: L.divIcon({className:'mk', iconSize:null, html:'<div class="arw2" style="transform:translate(-50%,-50%) rotate(' + (ang * 180 / Math.PI).toFixed(1) + 'deg)">' + arrowSvg + '</div>'})}));
+          }
+        }
+        map.on('moveend resize', layout);
+        setTimeout(layout, 80);
         document.querySelectorAll('.poi-item').forEach(item => item.addEventListener('click', () => {
           const m = poiMarkers[Number(item.dataset.poi)];
           if(!m) return;

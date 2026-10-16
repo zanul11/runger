@@ -219,7 +219,33 @@ class PageController extends Controller
         ]);
     }
 
-    /** Unduh GPX kategori — hanya bila diizinkan admin. */
+    /** Preview course map (sama dengan halaman detail kategori) + export gambar — admin only. */
+    public function gtrCoursePreview(\App\Models\GtrCategory $category)
+    {
+        $ep = $category->elevation_profile ?? [];
+
+        return view('admin.gtr-course-preview', [
+            'cat' => $category,
+            'categories' => \App\Models\GtrCategory::orderBy('sort_order')->get(['id', 'name', 'distance']),
+            'export' => [
+                'route' => $category->route_points ?? [],
+                'ep' => $ep,
+                'points' => $category->coursePoints()->values(),
+                'pois' => $category->coursePois()->values(),
+                'color' => $category->color ?: '#E53935',
+                'distance' => $category->distance,
+                'name' => $category->name,
+                'tag' => $category->tag,
+                'gain' => $category->elevation_gain,
+                'start' => $category->start_time,
+                'cot' => $category->cut_off_time,
+                'slug' => $category->slug,
+                'url' => route('gtr.category', $category->slug),
+            ],
+        ]);
+    }
+
+        /** Unduh GPX kategori — hanya bila diizinkan admin. */
     public function gtrCategoryGpx(string $slug)
     {
         $cat = \App\Models\GtrCategory::where('slug', $slug)

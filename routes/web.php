@@ -22,6 +22,11 @@ Route::get('/gtr/email-preview', [PageController::class, 'gtrEmailPreview'])
     ->middleware('auth')
     ->name('gtr.email-preview');
 
+// Preview course map kategori GTR + export gambar resolusi tinggi — admin only.
+Route::get('/gtr/course-preview/{category}', [PageController::class, 'gtrCoursePreview'])
+    ->middleware('auth')
+    ->name('gtr.course-preview');
+
 // Swagger UI dokumentasi API (dilayani via route agar tidak 404 di /docs).
 Route::get('/docs', fn () => response()->file(public_path('docs/index.html')))->name('api.docs');
 Route::get('/docs/openapi.yaml', fn () => response()->file(public_path('docs/openapi.yaml'), [
