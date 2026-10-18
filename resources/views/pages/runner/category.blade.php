@@ -37,10 +37,11 @@
   .cd-btn.done{background:#DCFCE7;color:#15803D;box-shadow:none;border:1px solid #A7F3D0}
 
   /* tabs */
-  .cd-tabs{display:flex;gap:4px;padding:4px;margin:18px 0 12px;border-radius:999px;background:#fff;border:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
-  .cd-tabs::-webkit-scrollbar{display:none}
-  .cd-tab{flex:1 0 auto;padding:10px 14px;border-radius:999px;border:none;background:none;font-family:'Poppins',sans-serif;font-weight:700;font-size:11.5px;color:var(--soft);cursor:pointer;white-space:nowrap}
+  .cd-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;margin:18px 0 12px;border-radius:16px;background:#fff;border:1px solid var(--line)}
+  .cd-tab{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 4px 8px;border-radius:12px;border:none;background:none;font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;color:var(--soft);cursor:pointer;white-space:nowrap}
+  .cd-tab svg{width:19px;height:19px}
   .cd-tab.active{background:#101010;color:#fff}
+  .cd-tab.active svg{color:#FF8A80}
   .cd-panel{display:none;background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;color:#101010}
   .cd-panel.active{display:block}
 
@@ -141,10 +142,10 @@
 @endif
 
 <div class="cd-tabs" id="cd-tabs" role="tablist">
-  <button type="button" class="cd-tab active" data-tab="map">Rute &amp; Estimasi</button>
-  <button type="button" class="cd-tab" data-tab="rundown">Rundown</button>
-  <button type="button" class="cd-tab" data-tab="gear">Gear</button>
-  <button type="button" class="cd-tab" data-tab="gpx">GPX</button>
+  <button type="button" class="cd-tab active" data-tab="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Rute</button>
+  <button type="button" class="cd-tab" data-tab="rundown"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Rundown</button>
+  <button type="button" class="cd-tab" data-tab="gear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Gear</button>
+  <button type="button" class="cd-tab" data-tab="gpx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>GPX</button>
 </div>
 
 <div class="cd-panel active" data-panel="map">

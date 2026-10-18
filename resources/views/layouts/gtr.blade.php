@@ -539,14 +539,13 @@
     background:#fff;color:#101010;border-radius:24px;
     padding:14px 14px 22px;box-shadow:0 24px 60px rgba(0,0,0,.4);
   }
+  /* HP: semua tab terlihat sekaligus (grid 2×2), tidak tersembunyi di scroll samping */
   .tab-btns{
-    display:flex;gap:4px;padding:5px;margin-bottom:20px;border-radius:999px;background:#F2F2F2;
-    overflow-x:auto;scrollbar-width:none;
+    display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:5px;margin-bottom:20px;border-radius:16px;background:#F2F2F2;
   }
-  .tab-btns::-webkit-scrollbar{display:none}
   .tab-btn{
-    flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    padding:11px 16px;border-radius:999px;white-space:nowrap;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px 10px;border-radius:12px;white-space:nowrap;
     font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#7A7A7A;
     background:none;border:none;cursor:pointer;transition:color .2s, background .2s, box-shadow .2s;
   }
@@ -813,8 +812,8 @@
     .price-card .val{font-size:38px}
     .price-card .btn-reg{align-self:flex-start}
     .tabs{padding:16px 22px 28px}
-    .tab-btns{display:inline-flex}
-    .tab-btn{flex:0 0 auto;padding:11px 20px}
+    .tab-btns{display:inline-flex;border-radius:999px}
+    .tab-btn{flex:0 0 auto;padding:11px 20px;border-radius:999px}
     .gear-list{grid-template-columns:1fr 1fr;gap:12px}
     .rundown-row{flex-direction:row;align-items:center;gap:20px;padding:16px 20px}
     .rundown-row .t{flex-direction:column;gap:2px;min-width:120px;flex-shrink:0}
