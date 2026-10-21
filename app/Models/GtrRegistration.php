@@ -238,6 +238,12 @@ class GtrRegistration extends Model
         return $this->sendMailSafe(new \App\Mail\JerseySizeChanged($this->fresh('category'), $oldSize));
     }
 
+    /** Kirim email PEMBERITAHUAN PERUBAHAN NAMA PESERTA. */
+    public function sendNameChanged(?string $oldName = null): bool
+    {
+        return $this->sendMailSafe(new \App\Mail\NameChanged($this->fresh('category'), $oldName));
+    }
+
     /** Email pengingat pengambilan race pack (H-7). */
     public function sendRacepackReminder(): bool
     {
