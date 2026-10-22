@@ -99,11 +99,12 @@
       const badge = (txt, bg) => L.divIcon({ className: '', iconSize: null, html: '<div style=&quot;transform:translate(-50%,-50%);display:inline-block;padding:2px 7px;border-radius:999px;background:' + bg + ';color:#fff;font:800 11px sans-serif;white-space:nowrap;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)&quot;>' + txt + '</div>' });
       const pts = this.items('data.water_stations').filter(p => p && p.km !== '' && p.km != null && ! isNaN(p.km));
       const sorted = [...pts].sort((a, b) => a.km - b.km);
-      let n = { ws: 0, cp: 0 };
+      let n = { ws: 0, cp: 0, cop: 0 };
+      const ptColor = { ws: '#2EA6E6', cp: '#F97316', cop: '#DC2626' };
       sorted.forEach(p => {
-        const type = p.type === 'cp' ? 'cp' : 'ws';
+        const type = ['cp', 'cop'].includes(p.type) ? p.type : 'ws';
         n[type]++;
-        L.marker(this.kmToLatLng(Number(p.km)), { icon: badge(type.toUpperCase() + n[type] + ' · ' + Number(p.km), type === 'cp' ? '#F97316' : '#2EA6E6') }).addTo(this.layer);
+        L.marker(this.kmToLatLng(Number(p.km)), { icon: badge(type.toUpperCase() + n[type] + ' · ' + Number(p.km), ptColor[type]) }).addTo(this.layer);
       });
       this.items('data.course_pois').filter(p => p && p.km !== '' && p.km != null && ! isNaN(p.km) && this.poiTypes[p.type]).forEach(p => {
         L.marker(this.kmToLatLng(Number(p.km)), { icon: badge(this.poiTypes[p.type].icon + ' ' + Number(p.km), '#374151') }).addTo(this.layer);
@@ -113,7 +114,7 @@
     check(sorted) {
       const w = [], max = this.epMax;
       sorted.forEach(p => { if (Number(p.km) > max + 0.05) w.push('KM ' + p.km + ' melebihi panjang rute (' + max.toFixed(1) + ' km).'); });
-      const ws = sorted.filter(p => p.type !== 'cp').map(p => Number(p.km));
+      const ws = sorted.filter(p => ! ['cp', 'cop'].includes(p.type)).map(p => Number(p.km));
       let prev = 0;
       [...ws, max].forEach(k => { if (k - prev > 5) w.push('Jarak tanpa water station ' + prev.toFixed(1) + ' → ' + k.toFixed(1) + ' km (' + (k - prev).toFixed(1) + ' km) — pertimbangkan tambah WS.'); prev = k; });
       let lastCut = null, lastKm = null;

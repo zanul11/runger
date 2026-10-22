@@ -86,6 +86,7 @@
         <button type="button" class="on" data-show="km">Penanda KM</button>
         <button type="button" class="on" data-show="ws">Water Station</button>
         <button type="button" class="on" data-show="cp">Check Point</button>
+        <button type="button" class="on" data-show="cop">Cut Off Point</button>
         <button type="button" class="on" data-show="sf">Start / Finish</button>
         <button type="button" class="on" data-show="summit">Titik tertinggi</button>
         <button type="button" class="on" data-show="pois">Info &amp; bahaya jalur</button>
@@ -127,7 +128,8 @@
     satellite: {max: 18, url: (z, x, y) => 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/' + z + '/' + y + '/' + x, attr: 'Citra © Esri, Maxar, Earthstar Geographics'},
     light: {max: 19, url: (z, x, y) => 'https://' + 'abcd'[Math.abs(x + y) % 4] + '.basemaps.cartocdn.com/light_all/' + z + '/' + x + '/' + y + '@2x.png', attr: 'Peta © CARTO · data © kontributor OpenStreetMap'},
   };
-  const PT = {ws: '#2EA6E6', cp: '#F97316'};
+  const PT = {ws: '#2EA6E6', cp: '#F97316', cop: '#DC2626'};
+  const PT_LABEL = {ws: 'Water Station', cp: 'Check Point', cop: 'Cut Off Point'};
   const gradeColor = g => g < -3 ? '#2563EB' : g < 3 ? '#22C55E' : g < 8 ? '#FACC15' : g < 15 ? '#F97316' : '#DC2626';
   const FONT = "'Archivo', 'Helvetica Neue', Arial, sans-serif";
 
@@ -215,7 +217,7 @@
     status('Menggambar rute & label…');
 
     // ---- ruas info/bahaya ----
-    const show = Object.assign({km: true, ws: true, cp: true, sf: true, summit: true, pois: true, legend: true, scale: true}, o.show || {});
+    const show = Object.assign({km: true, ws: true, cp: true, cop: true, sf: true, summit: true, pois: true, legend: true, scale: true}, o.show || {});
     const hidden = o.hidden || new Set();
     const pois = show.pois ? (D.pois || []).filter((p, i) => !hidden.has('poi:' + i)) : [];
     const pts = (D.points || []).filter((p, i) => show[p.type] && !hidden.has('pt:' + i));
@@ -299,7 +301,7 @@
     labels.forEach(L => {
       const r = L.rect;
       const st = {
-        sf: ['#101010', '#fff', null], start: ['#16A34A', '#fff', null], ws: [PT.ws, '#fff', '#fff'], cp: [PT.cp, '#fff', '#fff'],
+        sf: ['#101010', '#fff', null], start: ['#16A34A', '#fff', null], ws: [PT.ws, '#fff', '#fff'], cp: [PT.cp, '#fff', '#fff'], cop: [PT.cop, '#fff', '#fff'],
         summit: ['#fff', '#101010', '#101010'], hz: ['#FFF7ED', '#9A3412', '#F97316'], info: ['#fff', '#101010', '#374151'],
       }[L.style];
       c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 14 * u; c.shadowOffsetY = 4 * u;
@@ -320,6 +322,7 @@
     const lg = [];
     if (pts.some(p => p.type === 'ws')) lg.push(['ws', 'Water Station']);
     if (pts.some(p => p.type === 'cp')) lg.push(['cp', 'Check Point']);
+    if (pts.some(p => p.type === 'cop')) lg.push(['cop', 'Cut Off Point']);
     if (show.km) lg.push(['km', 'Penanda KM']);
     if (show.sf) lg.push(['sf', 'Start / Finish']);
     if (pois.length) lg.push(['hz', 'Info & bahaya jalur']);
@@ -330,7 +333,7 @@
     lg.forEach(([k, t], i) => {
       const y = ly + 30 * u + i * lh, x = lx + 22 * u;
       if (k === 'km') { c.beginPath(); c.arc(x + 14 * u, y, 12 * u, 0, 7); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 3 * u; c.strokeStyle = '#101010'; c.stroke(); }
-      else { rr(c, x, y - 11 * u, 28 * u, 22 * u, 6 * u); c.fillStyle = k === 'ws' ? PT.ws : k === 'cp' ? PT.cp : k === 'hz' ? '#FFF7ED' : '#101010'; c.fill(); if (k === 'hz') { c.lineWidth = 3 * u; c.strokeStyle = '#F97316'; c.stroke(); } }
+      else { rr(c, x, y - 11 * u, 28 * u, 22 * u, 6 * u); c.fillStyle = k === 'ws' ? PT.ws : k === 'cp' ? PT.cp : k === 'cop' ? PT.cop : k === 'hz' ? '#FFF7ED' : '#101010'; c.fill(); if (k === 'hz') { c.lineWidth = 3 * u; c.strokeStyle = '#F97316'; c.stroke(); } }
       c.fillStyle = '#101010'; c.font = '700 ' + (18 * u) + 'px ' + FONT; c.textAlign = 'left'; c.fillText(t, x + 44 * u, y + u);
     });
     if (o.color === 'grade') {
@@ -462,7 +465,7 @@
     c.textBaseline = 'middle'; c.lineCap = 'round'; c.lineJoin = 'round';
     await document.fonts.ready;
     const dark = o.base !== 'light';                         // teks putih ber-outline di basemap gelap/ramai
-    const show = Object.assign({km: true, ws: true, cp: true, sf: true, summit: true, pois: true, legend: true, scale: true}, o.show || {});
+    const show = Object.assign({km: true, ws: true, cp: true, cop: true, sf: true, summit: true, pois: true, legend: true, scale: true}, o.show || {});
     const hidden = o.hidden || new Set();
     const pois = show.pois ? (D.pois || []).filter((p, i) => !hidden.has('poi:' + i)) : [];
     const pts = (D.points || []).filter((p, i) => show[p.type] && !hidden.has('pt:' + i));
@@ -551,7 +554,7 @@
         lines: [Math.round(eleAt(epMax)) + ' M  |  ' + kmTxt(epMax) + ' KM'], prio: 0});
     }
     pts.forEach(p => items.push({kind: p.type, km: Number(p.km), ll: kmLL(Number(p.km)), pin: p.code, color: PT[p.type],
-      title: p.name || p.location || (p.type === 'cp' ? 'Check Point' : 'Water Station'),
+      title: p.name || p.location || PT_LABEL[p.type] || 'Water Station',
       lines: [Math.round(eleAt(Number(p.km))) + ' M  |  ' + kmTxt(p.km) + ' KM'], fac: facOf(p), cot: p.cutoff, prio: 1}));
     if (show.summit && ep.length) { let top = ep[0]; ep.forEach(q => { if (q[1] > top[1]) top = q; });
       items.push({kind: 'summit', km: top[0], ll: kmLL(top[0]), pin: '▲', color: '#101010', title: 'Titik tertinggi', lines: [Math.round(top[1]) + ' M  |  ' + kmTxt(top[0]) + ' KM'], prio: 2}); }
@@ -578,7 +581,7 @@
     // satu label untuk pos yang lokasinya sama & namanya sama (pin tetap terpisah)
     pinGroups.forEach(g => {
       const byTitle = {};
-      g.filter(it => it.title && (it.kind === 'ws' || it.kind === 'cp')).forEach(it => (byTitle[it.title] = byTitle[it.title] || []).push(it));
+      g.filter(it => it.title && ['ws', 'cp', 'cop'].includes(it.kind)).forEach(it => (byTitle[it.title] = byTitle[it.title] || []).push(it));
       Object.values(byTitle).filter(a => a.length > 1).forEach(a => {
         a.sort((x, y) => x.km - y.km);
         const lead = a[0];
@@ -755,6 +758,7 @@
       const lg = [];
       if (pts.some(p => p.type === 'ws')) lg.push(['pin', PT.ws, 'Water Station']);
       if (pts.some(p => p.type === 'cp')) lg.push(['pin', PT.cp, 'Check Point']);
+      if (pts.some(p => p.type === 'cop')) lg.push(['pin', PT.cop, 'Cut Off Point']);
       facUsed.forEach(f => lg.push(['fac', f[1], f[2]]));
       if (pts.some(p => p.cutoff)) lg.push(['cot', '', 'Cut-off di pos']);
       if (pois.length) lg.push(['poi', '#F97316', 'Info & bahaya jalur']);
@@ -831,7 +835,7 @@
 
   // ---- pilihan marker: per jenis & per item ----
   const typeBox = $('types'), itemBox = $('items');
-  const ICOLOR = {ws: PT.ws, cp: PT.cp};
+  const ICOLOR = {ws: PT.ws, cp: PT.cp, cop: PT.cop};
   (D.points || []).forEach((p, i) => itemBox.insertAdjacentHTML('beforeend',
     '<button type="button" class="on" data-item="pt:' + i + '" data-kind="' + p.type + '" style="--c:' + ICOLOR[p.type] + '"><i></i>' + p.code + ' · KM ' + fmtKm(p.km) + '</button>'));
   (D.pois || []).forEach((p, i) => itemBox.insertAdjacentHTML('beforeend',

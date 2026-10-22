@@ -7,6 +7,7 @@
     ->map(fn ($l) => trim(ltrim(trim($l), '-•*· ')))
     ->filter()->values();
   $cpCount = $cat->coursePoints()->where('type', 'cp')->count();
+  $copCount = $cat->coursePoints()->where('type', 'cop')->count();
 @endphp
 
 @push('styles')
@@ -107,8 +108,8 @@
       <div><b>{{ trim(preg_replace('/\s*WITA\s*/i', '', (string) $cat->start_time)) ?: '-' }}</b><small>Start WITA</small></div>
       <div><b>{{ $cat->elevation_gain ?: '-' }}</b><small>Elevasi</small></div>
       <div><b>{{ $cat->cut_off_time ?: '-' }}</b><small>COT</small></div>
-      @if($cpCount)
-        <div><b>{{ $cat->water_station_count }} / {{ $cpCount }}</b><small>WS / CP</small></div>
+      @if($cpCount || $copCount)
+        <div><b>{{ $cat->water_station_count }} / {{ $cpCount }}{{ $copCount ? ' / ' . $copCount : '' }}</b><small>WS / CP{{ $copCount ? ' / COP' : '' }}</small></div>
       @else
         <div><b>{{ $cat->water_station_count }}</b><small>Water St.</small></div>
       @endif

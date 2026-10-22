@@ -221,6 +221,7 @@
   .ws-pin svg{width:100%;height:100%;display:block}
   .elev-axis{display:flex;justify-content:space-between;font-family:'Archivo',sans-serif;font-size:11px;color:#9A9A9A;margin-top:6px}
   .ws-mark.cp::before{border-left-color:rgba(249,115,22,.6)}
+  .ws-mark.cop::before{border-left-color:rgba(220,38,38,.6)}
   /* section heads */
   .gpx-lock{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:999px;background:#fff;border:1px solid #E2E2E2;font-family:'Archivo',sans-serif;font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#8A8A8A}
   .gpx-lock svg{width:16px;height:16px}
@@ -232,6 +233,7 @@
   .pt-grid{display:grid;grid-template-columns:1fr;gap:10px}
   .pt-card{--pc:#2EA6E6;display:flex;flex-direction:column;gap:8px;text-align:left;padding:14px 16px;border-radius:16px;background:#F7F7F7;border:1px solid #EFEFEF;border-left:4px solid var(--pc);cursor:pointer;font:inherit;color:#101010;transition:background .2s,border-color .2s,box-shadow .2s}
   .pt-card.cp{--pc:#F97316}
+  .pt-card.cop{--pc:#DC2626}
   .pt-card:hover,.pt-card.on{background:#fff;border-color:#E2E2E2;border-left-color:var(--pc);box-shadow:0 8px 22px rgba(0,0,0,.07)}
   .pt-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .pt-code{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 6px;border-radius:999px;background:color-mix(in srgb,var(--pc) 14%,transparent);color:color-mix(in srgb,var(--pc) 80%,#101010);font-family:'Archivo',sans-serif;font-weight:900;font-size:11.5px;letter-spacing:.04em}
@@ -416,7 +418,10 @@
     }
     $drop = '<svg viewBox="0 0 24 24" fill="#2EA6E6" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3c0 0-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z"/></svg>';
     $flag = '<svg viewBox="0 0 24 24" fill="#F97316" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>';
-    $ptColor = ['ws' => '#2EA6E6', 'cp' => '#F97316'];
+    // Cut Off Point: jam merah
+    $stop = '<svg viewBox="0 0 24 24" fill="#DC2626" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><polyline points="12 7 12 12 15 14" fill="none"/></svg>';
+    $ptIcon = ['ws' => $drop, 'cp' => $flag, 'cop' => $stop];
+    $ptColor = ['ws' => '#2EA6E6', 'cp' => '#F97316', 'cop' => '#DC2626'];
   @endphp
 
   <div class="map-wrap">
@@ -543,7 +548,7 @@
       @foreach($points as $i => $w)
         <button type="button" class="pt-card {{ $w['type'] }}" data-pt="{{ $i }}">
           <div class="pt-top">
-            <span class="pt-code">{!! $w['type'] === 'cp' ? $flag : $drop !!}{{ $w['code'] }}</span>
+            <span class="pt-code">{!! $ptIcon[$w['type']] ?? $drop !!}{{ $w['code'] }}</span>
             <span class="pt-km">KM {{ $fmtKm($w['km']) }}</span>
           </div>
           <div class="pt-title">{{ $w['title'] }}</div>
@@ -816,7 +821,8 @@
         let pois = [];
         try { pois = JSON.parse(el.dataset.pois || '[]'); } catch(e){}
         const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-        const PT_COLOR = {ws:'#2EA6E6', cp:'#F97316'};
+        const PT_COLOR = {ws:'#2EA6E6', cp:'#F97316', cop:'#DC2626'};
+        const PT_LABEL = {ws:'Water Station', cp:'Check Point', cop:'Cut Off Point'};
         const pinIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
         const clockIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
         const fmtKm = v => (Math.round(v * 10) / 10).toString();
@@ -852,10 +858,10 @@
         function planStart(){ const pl = document.getElementById('race-plan'); if(!pl || pl.dataset.start === '') return null; const m = Number(pl.dataset.start); return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0') + ' WITA'; }
 
         const ptMarkers = ws.map(p => {
-          const m = pin(kmToLatLng(Number(p.km) / epMax * total), esc(p.code), PT_COLOR[p.type], p.type === 'cp' ? 860 : 850)
+          const m = pin(kmToLatLng(Number(p.km) / epMax * total), esc(p.code), PT_COLOR[p.type], p.type === 'cop' ? 870 : p.type === 'cp' ? 860 : 850)
             .bindPopup(popupHtml(p), {className:'pt-popup', closeButton:false, offset:[0,-38], autoPanPadding:[30,30]});
           items.push({km:Number(p.km), prio:1, marker:m, type:p.type, code:p.code,
-            title: p.name || p.location || (p.type === 'cp' ? 'Check Point' : 'Water Station'),
+            title: p.name || p.location || PT_LABEL[p.type] || 'Water Station',
             lines:[eleKm(Number(p.km)) + ' M  |  ' + kmTxt(p.km) + ' KM'], fac:facOf(p), cot:p.cutoff});
           return m;
         });
@@ -1262,7 +1268,7 @@
       const range = plan.querySelector('[data-plan-range]');
       const listEl = plan.querySelector('[data-plan-list]');
       const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      const COLOR = {start:'#22C55E', finish:'#101010', ws:'#2EA6E6', cp:'#F97316'};
+      const COLOR = {start:'#22C55E', finish:'#101010', ws:'#2EA6E6', cp:'#F97316', cop:'#DC2626'};
       const hm = m => Math.floor(m / 60) + ':' + String(Math.round(m % 60)).padStart(2, '0');
       const clock = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
       const toMin = s => { const r = /^(\d{1,2}):(\d{2})$/.exec(s || ''); return r ? Number(r[1]) * 60 + Number(r[2]) : null; };
@@ -1329,7 +1335,7 @@
       const splitBox = plan.querySelector('[data-plan-splits]');
       const splitRows = plan.querySelector('[data-plan-split-rows]');
       const splitEffort = splits.reduce((s, x) => s + x.effort, 0) || 1;
-      const PT = {ws:'#2EA6E6', cp:'#F97316'};
+      const PT = {ws:'#2EA6E6', cp:'#F97316', cop:'#DC2626'};
       const gradeColor = g => g < -3 ? '#2563EB' : g < 3 ? '#22C55E' : g < 8 ? '#FACC15' : g < 15 ? '#F97316' : '#DC2626';
       const mmss = m => { const s = Math.round(m * 60); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
       function renderSplits(T){

@@ -23,6 +23,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
@@ -161,14 +162,15 @@ class GtrCategoryResource extends Resource
                             ->viewData(fn (?GtrCategory $record) => ['record' => $record])
                             ->columnSpanFull(),
                         Repeater::make('water_stations')
-                            ->label('Titik di Rute (Water Station & Check Point)')
-                            ->helperText('Tiap WS / CP beserta posisi KM-nya akan muncul di Course Map, profil elevasi, dan tabel segmen. Kode WS1/CP1 dibuat otomatis sesuai urutan KM.')
+                            ->label('Titik di Rute (Water Station, Check Point & Cut Off Point)')
+                            ->helperText('Tiap WS / CP / COP beserta posisi KM-nya akan muncul di Course Map, profil elevasi, dan tabel segmen. Kode WS1/CP1/COP1 dibuat otomatis sesuai urutan KM.')
                             ->schema([
                                 Select::make('type')
                                     ->label('Tipe')
                                     ->options(GtrCategory::POINT_TYPES)
                                     ->default('ws')
                                     ->selectablePlaceholder(false)
+                                    ->live()
                                     ->required(),
                                 TextInput::make('km')
                                     ->label('KM')
@@ -183,7 +185,9 @@ class GtrCategoryResource extends Resource
                                     ->placeholder('08:30')
                                     ->regex('/^\d{1,2}[:.]\d{2}$/')
                                     ->validationMessages(['regex' => 'Format jam HH:MM, contoh 08:30.'])
-                                    ->helperText('Kosongkan bila tidak ada.'),
+                                    // Cut Off Point tanpa jam batas tidak bermakna
+                                    ->required(fn (Get $get): bool => ($get('type') ?? 'ws') === 'cop')
+                                    ->helperText('Wajib untuk Cut Off Point; selain itu kosongkan bila tidak ada.'),
                                 TextInput::make('location')
                                     ->label('Lokasi')
                                     ->placeholder('Pertigaan Dusun Bantir, depan masjid')
@@ -205,7 +209,7 @@ class GtrCategoryResource extends Resource
                             ->itemLabel(fn (array $state): ?string => isset($state['km']) && $state['km'] !== ''
                                 ? (GtrCategory::POINT_TYPES[$state['type'] ?? 'ws'] ?? 'Titik') . ' · KM ' . $state['km'] . (filled($state['name'] ?? null) ? ' — ' . $state['name'] : '')
                                 : null)
-                            ->addActionLabel('Tambah Titik (WS / CP)')
+                            ->addActionLabel('Tambah Titik (WS / CP / COP)')
                             ->columnSpanFull(),
                         Repeater::make('course_pois')
                             ->label('Info & Bahaya Jalur')

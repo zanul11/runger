@@ -135,33 +135,34 @@ class GtrCategory extends Model
         return $this->coursePoints()->where('type', 'ws')->count();
     }
 
-    // ===== Titik di rute (WS & Check Point) — disimpan di kolom water_stations =====
+    // ===== Titik di rute (WS, Check Point & Cut Off Point) — disimpan di kolom water_stations =====
 
     public const POINT_TYPES = [
         'ws' => 'Water Station',
         'cp' => 'Check Point',
+        'cop' => 'Cut Off Point',
     ];
 
     /**
-     * WS & CP dinormalisasi, urut KM, dengan kode otomatis WS1.. / CP1...
+     * WS, CP & COP dinormalisasi, urut KM, dengan kode otomatis WS1.. / CP1.. / COP1...
      * Data lama tanpa `type` dianggap WS, kecuali namanya diawali "CP".
      */
     public function coursePoints(): Collection
     {
-        $counter = ['ws' => 0, 'cp' => 0];
+        $counter = ['ws' => 0, 'cp' => 0, 'cop' => 0];
 
         return collect($this->water_stations ?? [])
             ->filter(fn ($p) => is_array($p) && isset($p['km']) && is_numeric($p['km']))
             ->map(function (array $p) {
                 $name = trim((string) ($p['name'] ?? ''));
                 $type = $p['type'] ?? (preg_match('/^\s*cp\b|^\s*cp\d/i', $name) ? 'cp' : 'ws');
-                $type = $type === 'cp' ? 'cp' : 'ws';
+                $type = in_array($type, ['cp', 'cop'], true) ? $type : 'ws';
 
                 return [
                     'type' => $type,
                     'km' => round((float) $p['km'], 2),
                     // buang prefix "WS 1 -" / "CP1:" dari nama, kodenya sudah ditampilkan terpisah
-                    'name' => trim(preg_replace('/^\s*(ws|cp)\s*\d*\s*[-–:·]?\s*/i', '', $name)) ?: null,
+                    'name' => trim(preg_replace('/^\s*(ws|cop|cp)\s*\d*\s*[-–:·]?\s*/i', '', $name)) ?: null,
                     'location' => trim((string) ($p['location'] ?? '')) ?: null,
                     'facilities' => array_values(array_filter(array_map('trim', (array) ($p['facilities'] ?? [])))),
                     'cutoff' => preg_match('/^\s*(\d{1,2})[:.](\d{2})\s*$/', (string) ($p['cutoff'] ?? ''), $m)

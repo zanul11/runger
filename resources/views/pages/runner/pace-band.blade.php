@@ -5,7 +5,7 @@
 @php
   $hm = fn ($m) => intdiv((int) $m, 60) . ':' . str_pad((string) ((int) $m % 60), 2, '0', STR_PAD_LEFT);
   $clock = fn ($m) => $m === null ? '-' : str_pad((string) (intdiv((int) $m, 60) % 24), 2, '0', STR_PAD_LEFT) . ':' . str_pad((string) ((int) $m % 60), 2, '0', STR_PAD_LEFT);
-  $color = ['start' => '#22C55E', 'finish' => '#101010', 'ws' => '#2EA6E6', 'cp' => '#F97316'];
+  $color = ['start' => '#22C55E', 'finish' => '#101010', 'ws' => '#2EA6E6', 'cp' => '#F97316', 'cop' => '#DC2626'];
 
   // ukuran pace band (SVG, unit px) — 360 lebar, tinggi mengikuti jumlah pos
   $W = 360; $head = 112; $rowH = 46; $segH = 22; $foot = 40; $kmH = 34; $kmHead = 24;
