@@ -56,7 +56,10 @@ class SponsorResource extends Resource
                 ->searchable()
                 ->label('Event'),
             TextInput::make('name')->required()->maxLength(120),
-            FileUpload::make('logo')->disk('public')->image()->directory('sponsors')->imageEditor(),
+            FileUpload::make('logo')->disk('public')->image()->directory('sponsors')
+                ->imageEditor()
+                ->imageEditorAspectRatioOptions([null, '1:1', '4:3', '16:9', '3:1'])
+                ->helperText('Setelah upload, klik ikon pensil di pratinjau untuk crop / pilih bagian logo yang disimpan.'),
             TextInput::make('link')->url()->placeholder('https://...'),
             Select::make('tier')
                 ->options([

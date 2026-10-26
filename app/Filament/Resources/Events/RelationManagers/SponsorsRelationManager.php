@@ -33,8 +33,10 @@ class SponsorsRelationManager extends RelationManager
                 ->image()
                 ->directory('sponsors')
                 ->imageEditor()
+                ->imageEditorAspectRatioOptions([null, '1:1', '4:3', '16:9', '3:1'])
                 ->disk('public')
-                ->visibility('public'),
+                ->visibility('public')
+                ->helperText('Setelah upload, klik ikon pensil di pratinjau untuk crop / pilih bagian logo yang disimpan.'),
             TextInput::make('link')->url()->placeholder('https://...'),
             Select::make('tier')
                 ->options([

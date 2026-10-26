@@ -389,28 +389,60 @@
     font-size:34px;line-height:.95;letter-spacing:-.02em;color:#fff;margin-bottom:28px;
   }
   .sponsor-row{
-    display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;
-    margin:24px 0 36px;opacity:.65;
+    display:flex;align-items:stretch;justify-content:center;gap:10px;flex-wrap:wrap;
+    margin:24px 0 40px;
   }
+  /* Placeholder saat belum ada sponsor: ukurannya sama dengan kartu. */
   .sponsor-slot{
-    padding:14px 26px;border:1px dashed rgba(255,255,255,.2);border-radius:14px;
+    flex:0 1 calc((100% - 20px) / 3);aspect-ratio:3/2;display:grid;place-items:center;
+    border:1px dashed rgba(255,255,255,.2);border-radius:14px;opacity:.65;
     font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.18em;
     text-transform:uppercase;color:var(--text-mute);font-weight:600;
   }
-  /* Item sponsor: keterangan (mis. Official Jersey) di atas logo. */
-  .sponsor-item{display:inline-flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;transition:transform .15s ease}
-  a.sponsor-item:hover{transform:translateY(-2px)}
-  .sponsor-role{
-    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
-    font-weight:700;color:var(--red);
+  /* Kartu sponsor: plat logo besar + nama sponsor di bawahnya. */
+  .sponsor-card{
+    position:relative;flex:0 1 calc((100% - 20px) / 3);max-width:200px;
+    display:flex;flex-direction:column;gap:8px;padding:6px 6px 10px;
+    background:linear-gradient(180deg,var(--card-2),var(--card));
+    border:1px solid var(--line-strong);border-radius:14px;
+    color:#fff;text-decoration:none;overflow:hidden;
+    transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
   }
-  /* Slot dengan logo asli: kartu putih agar logo warna terlihat di tema gelap. */
-  .sponsor-slot img{height:46px;width:auto;max-width:160px;object-fit:contain;display:block}
-  .sponsor-slot:has(img){background:#fff;border:1px solid rgba(255,255,255,.14);padding:12px 20px}
-  .sponsor-row:has(.sponsor-item){opacity:1}
-  /* Official Partners: di bawah sponsor utama, logo sedikit lebih kecil. */
+  .sponsor-card::after{
+    content:"";position:absolute;left:50%;bottom:0;width:0;height:3px;
+    background:var(--red);transform:translateX(-50%);transition:width .3s ease;
+  }
+  .sponsor-card:hover{
+    transform:translateY(-3px);border-color:rgba(229,57,53,.55);
+    box-shadow:0 16px 32px -18px rgba(229,57,53,.6);
+  }
+  .sponsor-card:hover::after{width:100%}
+  /* Plat putih agar logo berwarna tetap jelas di tema gelap. */
+  .sponsor-logo{
+    display:flex;align-items:center;justify-content:center;aspect-ratio:3/2;
+    background:#fff;border-radius:9px;padding:8px 10px;overflow:hidden;
+  }
+  .sponsor-logo img{width:100%;height:100%;object-fit:contain;display:block;transition:transform .35s ease}
+  .sponsor-card:hover .sponsor-logo img{transform:scale(1.05)}
+  .sponsor-card.no-logo .sponsor-logo{
+    background:radial-gradient(circle at 30% 20%,rgba(229,57,53,.4),transparent 65%),var(--bg-soft);
+    border:1px solid var(--line);
+  }
+  .sponsor-mono{font-family:'Archivo',sans-serif;font-weight:900;font-size:26px;letter-spacing:-.03em;color:#fff}
+  .sponsor-name{
+    font-family:'Archivo',sans-serif;font-weight:800;font-size:12px;line-height:1.2;
+    letter-spacing:-.01em;text-align:center;padding:0 4px;overflow-wrap:anywhere;
+  }
+  .sponsor-go{
+    position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;
+    display:grid;place-items:center;background:var(--red);color:#fff;font-size:12px;font-weight:700;
+    opacity:0;transform:scale(.7);transition:opacity .25s ease,transform .25s ease;
+  }
+  .sponsor-card:hover .sponsor-go{opacity:1;transform:scale(1)}
+  /* Official Partners: di bawah sponsor utama, kartu sedikit lebih kecil. */
   .sponsor-inner h2.partner-title{font-size:24px;margin:8px 0 0}
-  .partner-row .sponsor-slot img{height:36px;max-width:130px}
+  .partner-row .sponsor-card{max-width:160px}
+  .partner-row .sponsor-name{font-size:11px}
   .sponsor-cta{
     margin-top:24px;padding:26px 22px;background:var(--card);border:1px solid var(--line);
     border-radius:18px;
@@ -837,6 +869,14 @@
     .sponsor-section{padding:140px 0}
     .sponsor-inner h2{font-size:clamp(40px,5vw,58px)}
     .sponsor-inner h2.partner-title{font-size:clamp(28px,3vw,38px)}
+    .sponsor-row{gap:16px;margin:32px 0 48px}
+    .sponsor-slot{flex-basis:200px}
+    .sponsor-card{flex-basis:200px;padding:8px 8px 14px;border-radius:16px;gap:12px}
+    .sponsor-logo{border-radius:10px;padding:14px 16px}
+    .sponsor-mono{font-size:34px}
+    .sponsor-name{font-size:14px}
+    .partner-row .sponsor-card{flex-basis:160px}
+    .partner-row .sponsor-name{font-size:12.5px}
     .sponsor-cta{padding:32px 28px;max-width:540px;margin:24px auto 0}
 
     /* Footer */

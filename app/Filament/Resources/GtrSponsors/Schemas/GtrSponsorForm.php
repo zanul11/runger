@@ -43,7 +43,8 @@ class GtrSponsorForm
                     ->disk('public')
                     ->directory('gtr/sponsors')
                     ->imageEditor()
-                    ->helperText('Logo otomatis dikompres (WebP) saat disimpan. Idealnya PNG transparan.')
+                    ->imageEditorAspectRatioOptions([null, '1:1', '4:3', '16:9', '3:1'])
+                    ->helperText('Klik ikon pensil di pratinjau untuk crop / pilih bagian logo yang disimpan. Logo otomatis dikompres (WebP) saat disimpan. Idealnya PNG transparan.')
                     ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file) => ImageCompressor::store($file, 'gtr/sponsors', 800)),
                 TextInput::make('link')
                     ->label('Website / Link')
