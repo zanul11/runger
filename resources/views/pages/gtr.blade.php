@@ -188,7 +188,7 @@
 @endphp
 <section class="sponsor-section">
   <div class="wrap sponsor-inner">
-    <h2>Official Sponsors</h2>
+    <h2>Official Sponsors and Partners</h2>
     <div class="sponsor-row">
       @forelse($gtrMainSponsors as $sp)
         @include('pages.partials.gtr-sponsor-item', ['sp' => $sp])
