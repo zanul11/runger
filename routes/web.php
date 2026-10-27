@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GtrRaceGuideController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RunnerAuthController;
@@ -27,6 +28,14 @@ Route::get('/gtr/course-preview/{category}', [PageController::class, 'gtrCourseP
     ->middleware('auth')
     ->name('gtr.course-preview');
 
+// Generator Race Guide (slide carousel 1080×1350) dari konten admin + export & publikasi — admin only.
+Route::middleware('auth')->prefix('gtr/race-guide')->name('gtr.race-guide')->group(function () {
+    Route::get('/', [GtrRaceGuideController::class, 'generator']);
+    Route::post('/upload', [GtrRaceGuideController::class, 'upload'])->name('.upload');
+    Route::post('/publish', [GtrRaceGuideController::class, 'publish'])->name('.publish');
+    Route::post('/unpublish', [GtrRaceGuideController::class, 'unpublish'])->name('.unpublish');
+});
+
 // Swagger UI dokumentasi API (dilayani via route agar tidak 404 di /docs).
 Route::get('/docs', fn () => response()->file(public_path('docs/index.html')))->name('api.docs');
 Route::get('/docs/openapi.yaml', fn () => response()->file(public_path('docs/openapi.yaml'), [
@@ -42,6 +51,8 @@ Route::get('/gerung-trail-run/entry-list', [PageController::class, 'gtrEntryList
 Route::get('/gerung-trail-run/results', [PageController::class, 'gtrResults'])->name('gtr.results');
 Route::get('/gerung-trail-run/results/{bib}', [PageController::class, 'gtrResult'])->name('gtr.result');
 Route::get('/gerung-trail-run/rules', [PageController::class, 'gtrRules'])->name('gtr.rules');
+Route::get('/gerung-trail-run/race-guide', [GtrRaceGuideController::class, 'index'])->name('gtr.guide');
+Route::get('/gerung-trail-run/race-guide/download', [GtrRaceGuideController::class, 'download'])->name('gtr.guide.zip');
 Route::get('/gerung-trail-run/category/{slug}', [PageController::class, 'gtrCategory'])->name('gtr.category');
 Route::get('/gerung-trail-run/category/{slug}/gpx', [PageController::class, 'gtrCategoryGpx'])->name('gtr.category.gpx');
 Route::get('/gerung-trail-run/lacak', [PageController::class, 'gtrTrackSearch'])->name('gtr.track.search');

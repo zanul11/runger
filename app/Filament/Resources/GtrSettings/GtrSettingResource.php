@@ -93,6 +93,64 @@ class GtrSettingResource extends Resource
                         ->label('Publikasikan hasil resmi')
                         ->helperText('Aktifkan setelah hasil diverifikasi — halaman Results, hasil personal, e-sertifikat & kartu story jadi bisa diakses.'),
                 ]),
+
+            Section::make('Race Guide: Syarat Pengambilan Race Pack (RPC)')
+                ->description('Tampil di slide "RPC Requirements" pada Race Guide. Satu baris = satu poin.')
+                ->collapsible()
+                ->columns(2)
+                ->components([
+                    Textarea::make('rpc_requirements')
+                        ->label('Syarat Pengambilan')
+                        ->placeholder("Email konfirmasi pendaftaran / e-ticket (QR).\nKTP / identitas asli sesuai data pendaftaran.\nMandatory gear sesuai kategori.")
+                        ->rows(4)
+                        ->columnSpanFull(),
+                    Textarea::make('rpc_proxy_note')
+                        ->label('Jika Peserta Tidak Bisa Hadir')
+                        ->placeholder("Diwakilkan: bawa surat kuasa + fotokopi KTP peserta.\nDikirim: race pack dapat dikirim, ongkir ditanggung peserta.")
+                        ->rows(3)
+                        ->columnSpanFull(),
+                    TextInput::make('rpc_contact')
+                        ->label('Kontak Info Lebih Lanjut')
+                        ->placeholder('+62 812-3456-7890 (Panitia GTR)')
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('Race Guide: Race Village & Parkir')
+                ->description('Tampil di slide "Race Village" dan "Parking" pada Race Guide. Satu baris = satu poin.')
+                ->collapsible()
+                ->columns(2)
+                ->components([
+                    TextInput::make('venue_name')
+                        ->label('Nama Race Village / Venue')
+                        ->placeholder('Kantor Desa Banyu Urip'),
+                    TextInput::make('venue_maps_url')
+                        ->label('Link Google Maps Venue')
+                        ->url()
+                        ->placeholder('https://maps.app.goo.gl/...')
+                        ->helperText('Dijadikan QR code di slide Race Village.'),
+                    TextInput::make('venue_address')
+                        ->label('Alamat Venue')
+                        ->placeholder('Jl. ..., Banyu Urip, Gerung, Lombok Barat')
+                        ->columnSpanFull(),
+                    Textarea::make('venue_directions')
+                        ->label('Petunjuk Menuju Venue')
+                        ->placeholder("Buka Google Maps, tuju \"Kantor Desa Banyu Urip\".\nIkuti penunjuk arah GTR dari pertigaan ...")
+                        ->rows(3)
+                        ->columnSpanFull(),
+                    Textarea::make('venue_facilities')
+                        ->label('Fasilitas Race Village')
+                        ->placeholder("Toilet\nTenda medis\nPenitipan barang\nRefill air")
+                        ->rows(3)
+                        ->columnSpanFull(),
+                    TextInput::make('parking_name')
+                        ->label('Lokasi Parkir')
+                        ->placeholder('Lapangan Desa Banyu Urip'),
+                    Textarea::make('parking_notes')
+                        ->label('Catatan Parkir')
+                        ->placeholder("Parkir tidak berada di venue, ikuti arahan petugas.\nDari parkir ke venue ±200 m jalan kaki.")
+                        ->rows(3)
+                        ->columnSpanFull(),
+                ]),
         ]);
     }
 

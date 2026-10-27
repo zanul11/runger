@@ -885,6 +885,19 @@
 
     body.gtr-sub{padding-top:78px}
   }
+
+  /* Laptop kecil / tablet landscape: 8 menu tidak muat sebaris → pakai menu burger. */
+  @media (min-width:820px) and (max-width:1099px){
+    .nav-links{display:none}
+    .nav-burger{display:flex}
+    .nav-cta{margin-left:auto}
+  }
+  /* Desktop sedang: rapatkan menu agar 8 item + tombol Register tetap sebaris. */
+  @media (min-width:1100px) and (max-width:1279px){
+    .nav-links{gap:16px}
+    .nav-link{font-size:12px;letter-spacing:.02em}
+    .nav-cta{padding:11px 16px}
+  }
 </style>
 @endverbatim
 @stack('styles')
@@ -893,6 +906,8 @@
 @php
   $navActive = $active ?? 'home';
   $gtrNavCats = \App\Models\GtrCategory::where('is_active', true)->orderBy('sort_order')->get(['slug', 'name']);
+  // Menu Race Guide hanya tampil setelah panitia mempublikasikan versi final.
+  $gtrGuideOn = (bool) optional(\App\Models\GtrSetting::first())->raceGuidePublished();
 @endphp
 
 <!-- NAV -->
@@ -925,6 +940,9 @@
         </div>
       </div>
 
+      @if($gtrGuideOn)
+        <a href="{{ route('gtr.guide') }}" @class(['nav-link', 'active' => $navActive === 'guide'])>Race Guide</a>
+      @endif
       <a href="{{ route('gtr.entry') }}" @class(['nav-link', 'active' => $navActive === 'entry'])>Entry List</a>
       <a href="{{ route('gtr.results') }}" @class(['nav-link', 'active' => $navActive === 'results'])>Results</a>
       <a href="{{ route('gtr.track.search') }}" @class(['nav-link', 'active' => $navActive === 'track'])>Lacak</a>
@@ -959,6 +977,9 @@
       @endforeach
     </div>
   </details>
+  @if($gtrGuideOn)
+    <a href="{{ route('gtr.guide') }}" @class(['active' => $navActive === 'guide'])>Race Guide</a>
+  @endif
   <a href="{{ route('gtr.entry') }}" @class(['active' => $navActive === 'entry'])>Entry List</a>
   <a href="{{ route('gtr.results') }}" @class(['active' => $navActive === 'results'])>Results</a>
   <a href="{{ route('gtr.track.search') }}" @class(['active' => $navActive === 'track'])>Lacak Pelari</a>
@@ -985,6 +1006,7 @@
     <div class="foot-nav">
       <a href="{{ route('home') }}">Runger Home</a>
       <a href="{{ route('gtr') }}#category">Category</a>
+      @if($gtrGuideOn)<a href="{{ route('gtr.guide') }}">Race Guide</a>@endif
       <a href="{{ route('gtr.entry') }}">Entry List</a>
       <a href="{{ route('gtr.results') }}">Results</a>
       <a href="{{ route('gtr.track.search') }}">Lacak</a>

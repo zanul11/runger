@@ -11,7 +11,25 @@ class GtrSetting extends Model
 
     protected $casts = [
         'results_published' => 'boolean',
+        'race_guide_slides' => 'array',
+        'race_guide_published_at' => 'datetime',
     ];
+
+    /** Race guide final sudah dipublikasikan ke website? */
+    public function raceGuidePublished(): bool
+    {
+        return $this->race_guide_published_at !== null && ! empty($this->race_guide_slides);
+    }
+
+    /** Teks multi-baris → daftar poin (baris kosong & bullet "-" / "•" dibuang). */
+    public static function lines(?string $text): array
+    {
+        return collect(preg_split('/\r\n|\r|\n/', (string) $text))
+            ->map(fn ($l) => trim(preg_replace('/^\s*(?:[-•*]\s*|\d+[.)]\s+)/u', '', $l)))
+            ->filter()
+            ->values()
+            ->all();
+    }
 
     public function getHeaderUrlAttribute(): string
     {
