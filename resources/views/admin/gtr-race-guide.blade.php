@@ -233,14 +233,18 @@
   .s-qr .gpx{display:inline-block;margin-top:14px;padding:8px 16px;border-radius:999px;background:rgba(229,57,53,.15);color:#fff;font-family:'Archivo',sans-serif;font-weight:800;font-size:17px;letter-spacing:.12em;text-transform:uppercase}
 
   /* Sponsor */
-  .s-spons{display:flex;flex-wrap:wrap;justify-content:center;gap:20px}
-  .s-spon{width:330px;text-align:center}
-  .s-spon .plate{height:200px;border-radius:18px;background:#fff;display:flex;align-items:center;justify-content:center;padding:22px}
+  .s-spons{--cols:2;--ph:200px;--nfs:22px;display:flex;flex-wrap:wrap;justify-content:center;gap:18px 16px}
+  .s-spon{width:calc((100% - (var(--cols) - 1) * 16px) / var(--cols));max-width:330px;text-align:center}
+  .s-spon .plate{height:var(--ph);border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;padding:calc(var(--ph) * .1) calc(var(--ph) * .12)}
   .s-spon .plate img{max-width:100%;max-height:100%;object-fit:contain}
-  .s-spon .plate.txt{background:#151515;border:1px solid var(--line);font-family:'Archivo',sans-serif;font-weight:900;font-size:34px}
-  .s-spon b{display:block;margin-top:12px;font-family:'Archivo',sans-serif;font-weight:800;font-size:22px}
+  .s-spon .plate.txt{background:#151515;border:1px solid var(--line);font-family:'Archivo',sans-serif;font-weight:900;font-size:calc(var(--nfs) * 1.15);line-height:1.15;color:#fff}
+  .s-spon b{display:block;margin-top:10px;font-family:'Archivo',sans-serif;font-weight:800;font-size:var(--nfs);line-height:1.2}
   .s-sups{display:flex;flex-wrap:wrap;justify-content:center;gap:22px 20px;margin-top:6px}
   .s-sup{width:200px;text-align:center}
+  .s-sups.big{gap:34px 18px}
+  .s-sups.big .s-sup{width:220px}
+  .s-sups.big .s-sup img{height:170px}
+  .s-sups.big .s-sup b{font-size:20px}
   .s-sup img{height:140px;width:auto;max-width:100%;object-fit:contain;display:block;margin:0 auto}
   .s-sup b{display:block;margin-top:10px;font-size:17px;line-height:1.3;color:var(--soft);font-weight:600}
   /* RPC requirements */
@@ -294,7 +298,9 @@
   .s-legend i{width:14px;height:14px;border-radius:4px;background:var(--pc)}
 
   .s-center{text-align:center}
-  .s-center .s-fit{display:flex;flex-direction:column;justify-content:center}
+  /* Tengah secara vertikal tapi "aman": bila isi lebih tinggi dari area, mulai dari atas (judul tidak terpotong). */
+  .s-center .s-fit{display:flex;flex-direction:column}
+  .s-center .s-fit-in{margin:auto 0}
   .s-center .s-eye{justify-content:center}
 </style>
 @endpush
@@ -843,6 +849,24 @@
     @endif
 
     {{-- 11. SPONSOR & SUPPORTED BY --}}
+    @php
+      // Ukuran logo menyesuaikan jumlah sponsor agar tidak perlu diperkecil paksa.
+      // Lebih dari 12 sponsor: "Didukung oleh" dipindah ke slide sendiri.
+      $spN = count($g['sponsors']);
+      $spSplit = $spN > 12;
+      [$spCols, $spPh, $spFs] = $spSplit
+          ? ($spN <= 15 ? [5, 120, 16] : ($spN <= 20 ? [5, 96, 15] : [6, 84, 14]))
+          : match (true) {
+              $spN <= 2 => [2, 200, 22],
+              $spN === 3 => [3, 170, 20],
+              $spN === 4 => [4, 130, 18],
+              $spN <= 6 => [3, 130, 18],
+              $spN <= 8 => [4, 112, 17],
+              default => [4, 92, 16],
+          };
+      $spStyle = "--cols:$spCols;--ph:{$spPh}px;--nfs:{$spFs}px";
+    @endphp
+    @if($g['sponsors'])
     <div class="rg-item" data-name="sponsors">
       <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Sponsor</span><button type="button" class="rg-one">Unduh PNG</button></div>
       <div class="rg-frame"><div class="slide s-center">
@@ -850,22 +874,48 @@
         @include('admin.race-guide.head')
         <div class="s-main">
           <div class="s-eye" data-edit>Terima kasih</div>
-          <h1 class="s-title" data-edit>Supported <em>By</em></h1>
+          @if($spSplit)
+            <h1 class="s-title" data-edit>Official <em>Sponsors</em></h1>
+          @else
+            <h1 class="s-title" data-edit>Supported <em>By</em></h1>
+          @endif
           <div class="s-fit"><div class="s-fit-in">
-            @if($g['sponsors'])
-              <div class="s-h3" style="margin-top:0" data-edit>Official Sponsors</div>
-              <div class="s-spons">
-                @foreach($g['sponsors'] as $sp)
-                  <div class="s-spon">
-                    @if($sp['logo'])<div class="plate"><img src="{{ $sp['logo'] }}" alt="{{ $sp['name'] }}"></div>
-                    @else<div class="plate txt" data-edit>{{ $sp['name'] }}</div>@endif
-                    <b data-edit>{{ $sp['name'] }}</b>
-                  </div>
+            @unless($spSplit)<div class="s-h3" style="margin-top:0" data-edit>Official Sponsors</div>@endunless
+            <div class="s-spons" style="{{ $spStyle }}">
+              @foreach($g['sponsors'] as $sp)
+                <div class="s-spon">
+                  @if($sp['logo'])<div class="plate"><img src="{{ $sp['logo'] }}" alt="{{ $sp['name'] }}"></div>
+                  @else<div class="plate txt" data-edit>{{ $sp['name'] }}</div>@endif
+                  <b data-edit>{{ $sp['name'] }}</b>
+                </div>
+              @endforeach
+            </div>
+            @unless($spSplit)
+              <div class="s-h3" data-edit>Didukung oleh</div>
+              <div class="s-sups">
+                @foreach($g['supporters'] as $sp)
+                  <div class="s-sup"><img src="{{ $sp['logo'] }}" alt="{{ $sp['name'] }}"><b data-edit>{{ $sp['name'] }}</b></div>
                 @endforeach
               </div>
-            @endif
-            <div class="s-h3" @if(! $g['sponsors']) style="margin-top:0" @endif data-edit>Didukung oleh</div>
-            <div class="s-sups">
+            @endunless
+          </div></div>
+        </div>
+        @include('admin.race-guide.foot')
+      </div></div>
+    </div>
+    @endif
+
+    @if(! $g['sponsors'] || $spSplit)
+    <div class="rg-item" data-name="supported-by">
+      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Didukung Oleh</span><button type="button" class="rg-one">Unduh PNG</button></div>
+      <div class="rg-frame"><div class="slide s-center">
+        <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
+        @include('admin.race-guide.head')
+        <div class="s-main">
+          <div class="s-eye" data-edit>Didukung oleh</div>
+          <h1 class="s-title" data-edit>Supported <em>By</em></h1>
+          <div class="s-fit"><div class="s-fit-in">
+            <div class="s-sups big">
               @foreach($g['supporters'] as $sp)
                 <div class="s-sup"><img src="{{ $sp['logo'] }}" alt="{{ $sp['name'] }}"><b data-edit>{{ $sp['name'] }}</b></div>
               @endforeach
@@ -875,6 +925,7 @@
         @include('admin.race-guide.foot')
       </div></div>
     </div>
+    @endif
 
   </div>
 </div>
