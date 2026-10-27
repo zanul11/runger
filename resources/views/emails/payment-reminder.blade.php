@@ -52,6 +52,28 @@
             </td>
           </tr>
 
+          @if($deadline)
+          <!-- Tenggat pendaftaran -->
+          @php $sisaHari = (int) now()->startOfDay()->diffInDays($deadline->copy()->startOfDay(), false); @endphp
+          <tr>
+            <td style="padding:22px 32px 0">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;border:2px solid #F97316;border-radius:12px">
+                <tr>
+                  <td style="padding:14px 18px">
+                    <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:#9a3412">⏳ Pendaftaran segera ditutup</div>
+                    <div style="font-size:17px;font-weight:800;color:#101010;margin-top:4px">
+                      {{ $deadline->copy()->locale('id')->translatedFormat('l, d F Y') }}@if($sisaHari > 0) <span style="color:#c2410c">· {{ $sisaHari }} hari lagi</span>@elseif($sisaHari === 0) <span style="color:#c2410c">· hari ini</span>@endif
+                    </div>
+                    <div style="font-size:13.5px;line-height:1.6;color:#7c2d12;margin-top:6px">
+                      Lunasi sebelum tanggal itu agar slot &amp; BIB-mu tetap aman. Setelah pendaftaran ditutup, pendaftaran yang belum lunas tidak lagi dapat dilunasi.
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          @endif
+
           <!-- Fitur (isi utama) -->
           <tr>
             <td style="padding:26px 32px 6px">

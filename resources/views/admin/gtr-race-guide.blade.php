@@ -311,6 +311,7 @@
       </select>
     </label>
     <button type="button" class="rg-btn" id="rg-all">Unduh semua (ZIP)</button>
+    <button type="button" class="rg-btn" id="rg-pdf">Unduh semua (PDF)</button>
     <div class="rg-status" id="rg-status"></div>
     <div class="rg-pub">
       @if($pub->raceGuidePublished())
@@ -882,6 +883,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (function () {
   const W = 1080, H = 1350;
@@ -934,14 +936,29 @@
     if (s) fit(s);
   });
 
+  const toDataUrl = (blob) => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob); });
+
+  // Gambar slide (cover, logo header, sponsor) diubah ke data URL & di-decode lebih dulu,
+  // supaya html-to-image tidak perlu mengambil ulang dan gambar tidak hilang saat dirender.
+  async function inlineImage(img) {
+    try {
+      if (!img.src.startsWith('data:')) {
+        const res = await fetch(img.src, {credentials: 'same-origin'});
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const url = await toDataUrl(await res.blob());
+        await new Promise(r => { img.onload = img.onerror = r; img.src = url; });
+      }
+      await img.decode();
+    } catch (err) { console.warn('Gambar gagal disiapkan:', img.src, err); }
+  }
+
   const ready = Promise.all([
     document.fonts.ready,
-    ...[...document.images].map(img => img.complete ? null : new Promise(r => { img.onload = img.onerror = r; })),
+    ...[...document.querySelectorAll('.slide img')].map(inlineImage),
   ]).then(fitAll);
 
   // Font Google (Archivo & Plus Jakarta Sans) ditanam sebagai data URL agar ikut ke PNG.
   // Hanya subset latin & latin-ext supaya ringan.
-  const toDataUrl = (blob) => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob); });
   async function buildFontCss(slide) {
     try {
       const link = document.querySelector('link[href*="fonts.googleapis.com/css"]');
@@ -960,17 +977,25 @@
   }
 
   let fontCss = null;
+  // Render pertama sebuah slide sering belum menggambar <img> di dalam SVG (gambar belum
+  // ter-decode oleh browser), jadi tiap slide dirender sekali untuk pemanasan lalu dibuang.
+  const warmed = new WeakSet();
   // PNG untuk unduhan admin; JPG (1080 px) untuk dipublikasikan ke website agar ringan.
-  async function render(it, {jpeg = false} = {}) {
+  // PDF memakai JPG dengan resolusi pilihan admin (scale) agar ukuran file tetap wajar.
+  async function render(it, {jpeg = false, scale = null} = {}) {
     await ready;
     const slide = it.querySelector('.slide');
     if (document.activeElement && slide.contains(document.activeElement)) document.activeElement.blur();
     fontCss ??= await buildFontCss(slide);
     const opts = {
       width: W, height: H, fontEmbedCSS: fontCss, cacheBust: true, backgroundColor: '#0A0A0A',
-      pixelRatio: jpeg ? 1 : (+document.getElementById('rg-scale').value || 1),
+      pixelRatio: scale ?? (jpeg ? 1 : (+document.getElementById('rg-scale').value || 1)),
       style: {transform: 'none', left: '0', top: '0'},
     };
+    if (!warmed.has(slide)) {
+      await htmlToImage.toCanvas(slide, Object.assign({}, opts, {pixelRatio: 1}));
+      warmed.add(slide);
+    }
     if (!jpeg) return htmlToImage.toBlob(slide, opts);
     const canvas = await htmlToImage.toCanvas(slide, opts);
     return new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
@@ -1006,6 +1031,28 @@
       save(await zip.generateAsync({type: 'blob'}), 'gtr-race-guide.zip');
       say('Selesai — ' + on.length + ' slide diunduh.');
     } catch (err) { console.error(err); say('Gagal membuat ZIP: ' + (err.message || err)); }
+    btn.disabled = false;
+  });
+
+  // Satu PDF, satu slide per halaman (rasio 4:5, ukuran halaman 1080×1350 px dalam pt).
+  document.getElementById('rg-pdf').addEventListener('click', async e => {
+    const btn = e.currentTarget; btn.disabled = true;
+    try {
+      const on = items.filter(it => it.querySelector('.rg-inc').checked);
+      if (!on.length) { say('Pilih minimal satu slide.'); btn.disabled = false; return; }
+      const pw = W * 0.75, ph = H * 0.75;
+      const pdf = new jspdf.jsPDF({unit: 'pt', format: [pw, ph], orientation: 'portrait', compress: true});
+      const scale = +document.getElementById('rg-scale').value || 1;
+      for (let i = 0; i < on.length; i++) {
+        say('Merender slide ' + (i + 1) + ' dari ' + on.length + '…');
+        const img = await toDataUrl(await render(on[i], {jpeg: true, scale}));
+        if (i > 0) pdf.addPage([pw, ph], 'portrait');
+        pdf.addImage(img, 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+      }
+      say('Menyusun PDF…');
+      save(pdf.output('blob'), 'gtr-race-guide.pdf');
+      say('Selesai — ' + on.length + ' slide dalam 1 PDF.');
+    } catch (err) { console.error(err); say('Gagal membuat PDF: ' + (err.message || err)); }
     btn.disabled = false;
   });
 

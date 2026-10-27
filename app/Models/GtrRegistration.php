@@ -226,10 +226,10 @@ class GtrRegistration extends Model
         return $this->sendMailSafe(new \App\Mail\PaymentConfirmation($this->fresh('category')));
     }
 
-    /** Kirim email PENGINGAT PEMBAYARAN (untuk yang belum lunas). */
-    public function sendPaymentReminder(): bool
+    /** Kirim email PENGINGAT PEMBAYARAN (untuk yang belum lunas); $deadline = tanggal tutup pendaftaran bila ingin ditonjolkan. */
+    public function sendPaymentReminder(?\Carbon\CarbonInterface $deadline = null): bool
     {
-        return $this->sendMailSafe(new \App\Mail\PaymentReminder($this->fresh('category')));
+        return $this->sendMailSafe(new \App\Mail\PaymentReminder($this->fresh('category'), $deadline));
     }
 
     /** Kirim email PEMBERITAHUAN PERUBAHAN UKURAN JERSEY. */
