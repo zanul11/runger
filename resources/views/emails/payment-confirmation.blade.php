@@ -68,7 +68,7 @@
                 <tr><td style="padding:11px 16px;background:#f8fafc;color:#667;width:42%">No. Registrasi</td><td style="padding:11px 16px;font-weight:700">{{ $reg->nomor_registrasi }}</td></tr>
                 <tr><td style="padding:11px 16px;background:#f8fafc;color:#667;border-top:1px solid #eef">Kategori</td><td style="padding:11px 16px;border-top:1px solid #eef">{{ $cat->distance ?? '' }} · {{ $cat->name ?? '-' }}</td></tr>
                 <tr><td style="padding:11px 16px;background:#f8fafc;color:#667;border-top:1px solid #eef">Metode</td><td style="padding:11px 16px;border-top:1px solid #eef">{{ $reg->pay }}</td></tr>
-                <tr><td style="padding:11px 16px;background:#f8fafc;color:#667;border-top:1px solid #eef">Tanggal Bayar</td><td style="padding:11px 16px;border-top:1px solid #eef">{{ optional($reg->paid_at)->timezone('Asia/Makassar')->translatedFormat('d F Y · H:i') ?? '-' }} WITA</td></tr>
+                <tr><td style="padding:11px 16px;background:#f8fafc;color:#667;border-top:1px solid #eef">Tanggal Bayar</td><td style="padding:11px 16px;border-top:1px solid #eef">{{ $reg->paid_at ? $reg->paid_at->timezone('Asia/Makassar')->translatedFormat('d F Y · H:i') . ' WITA' : '-' }}</td></tr>
               </table>
 
               <!-- Rincian biaya -->
