@@ -176,7 +176,10 @@
   .s-cat-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
   .s-cat-dist{font-family:'Archivo',sans-serif;font-weight:900;font-size:110px;line-height:.85;letter-spacing:-.03em;color:var(--c)}
   .s-cat-tag{font-family:'Archivo',sans-serif;font-weight:800;font-size:20px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);padding-bottom:8px}
-  .s-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+  .s-stats{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:26px}
+  .s-stat.w3{grid-column:span 3}
+  .s-stat.w3 b{font-size:28px;white-space:nowrap}
+  .s-stat.w4{grid-column:span 4}
   .s-stat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
   .s-stat small{display:block;font-family:'Archivo',sans-serif;font-weight:800;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
   .s-stat b{display:block;font-family:'Archivo',sans-serif;font-weight:900;font-size:32px;margin-top:6px;line-height:1.05}
@@ -187,7 +190,9 @@
   .s-cstats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
   .s-cstats .s-chip{font-size:20px;padding:11px 18px;background:#141414}
   .s-map{position:relative;border-radius:22px;background:#121212;border:1px solid var(--line);overflow:hidden}
-  .s-map svg{display:block}
+  .s-map svg,.s-ele svg{display:block;width:100%;height:auto}
+  /* Lebar kotak = lebar grafik, agar bingkai tetap pas walau slide diperkecil otomatis. */
+  .s-map,.s-ele{max-width:938px;margin-left:auto;margin-right:auto}
   .s-ele{margin-top:16px;border-radius:18px;background:#121212;border:1px solid var(--line);padding:16px 0 10px;position:relative}
   .s-ele-lbl{display:flex;justify-content:space-between;padding:0 20px;font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
   .s-pts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
@@ -547,12 +552,13 @@
                     @if($c['tag'])<div class="s-cat-tag" data-edit>{{ $c['tag'] }}</div>@endif
                   </div>
                   <div class="s-stats">
-                    <div class="s-stat"><small>Jarak</small><b data-edit>{{ $c['km'] ? rtrim(rtrim(number_format($c['km'], 2, ',', '.'), '0'), ',') . ' KM' : '-' }}</b></div>
-                    <div class="s-stat"><small>Elevasi</small><b data-edit>{{ $c['gain'] ?: '-' }}</b></div>
-                    <div class="s-stat"><small>Start</small><b data-edit>{{ $c['start'] ?: '-' }}</b></div>
-                    <div class="s-stat"><small>Cut Off</small><b data-edit>{{ $c['cot'] ?: '-' }}</b></div>
-                    <div class="s-stat"><small>Water Station</small><b data-edit>{{ $c['ws'] }} Pos</b></div>
-                    <div class="s-stat"><small>Check Point</small><b data-edit>{{ $c['cp'] }} Pos</b></div>
+                    <div class="s-stat w3"><small>Jarak</small><b data-edit>{{ $c['km'] ? rtrim(rtrim(number_format($c['km'], 2, ',', '.'), '0'), ',') . ' KM' : '-' }}</b></div>
+                    <div class="s-stat w3"><small>Elevasi</small><b data-edit>{{ $c['gain'] ?: '-' }}</b></div>
+                    <div class="s-stat w3"><small>Start</small><b data-edit>{{ $c['start'] ?: '-' }}</b></div>
+                    <div class="s-stat w3"><small>Cut Off</small><b data-edit>{{ $c['cot'] ?: '-' }}</b></div>
+                    <div class="s-stat w4"><small>Water Station</small><b data-edit>{{ $c['ws'] ? $c['ws'] . ' Pos' : '-' }}</b></div>
+                    <div class="s-stat w4"><small>Check Point</small><b data-edit>{{ $c['cp'] ? $c['cp'] . ' Pos' : '-' }}</b></div>
+                    <div class="s-stat w4"><small>Cut Off Point</small><b data-edit>{{ $c['cop'] ? $c['cop'] . ' Pos' : '-' }}</b></div>
                   </div>
                 </div>
               @endforeach
@@ -581,6 +587,7 @@
               @if($c['gain'])<span class="s-chip" data-edit>Elevasi {{ $c['gain'] }}</span>@endif
               @if($c['start'])<span class="s-chip" data-edit>Start {{ $c['start'] }}</span>@endif
               @if($c['cot'])<span class="s-chip" data-edit>COT {{ $c['cot'] }}</span>@endif
+              @if($c['cop'])<span class="s-chip" data-edit>COP {{ $c['cop'] }} Pos</span>@endif
             </div>
             @if($m = $c['map'])
               <div class="s-map">
@@ -617,12 +624,16 @@
             @if($e = $c['elevation'])
               <div class="s-ele">
                 <div class="s-ele-lbl"><span>Profil Elevasi</span><span>{{ $e['min'] }}–{{ $e['max'] }} m · {{ str_replace('.', ',', $e['km']) }} km</span></div>
-                <svg width="{{ $e['w'] }}" height="{{ $e['h'] }}" viewBox="0 0 {{ $e['w'] }} {{ $e['h'] }}" style="display:block">
+                <svg width="{{ $e['w'] }}" height="{{ $e['h'] }}" viewBox="0 0 {{ $e['w'] }} {{ $e['h'] }}">
                   <defs><linearGradient id="eg-{{ $c['id'] }}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{{ $c['color'] }}" stop-opacity=".55"/><stop offset="1" stop-color="{{ $c['color'] }}" stop-opacity=".04"/></linearGradient></defs>
                   <path d="{{ $e['area'] }}" fill="url(#eg-{{ $c['id'] }})"/>
                   <path d="{{ $e['line'] }}" fill="none" stroke="{{ $c['color'] }}" stroke-width="3.5" stroke-linejoin="round"/>
                   @foreach($e['points'] as $p)
-                    <line x1="{{ $p['x'] }}" x2="{{ $p['x'] }}" y1="0" y2="{{ $e['h'] }}" stroke="{{ $pointColor[$p['type']] ?? '#fff' }}" stroke-width="2" stroke-dasharray="5 5"/>
+                    @php $pc = $pointColor[$p['type']] ?? '#fff'; @endphp
+                    <line x1="{{ $p['x'] }}" x2="{{ $p['x'] }}" y1="{{ $p['ly'] + $p['lh'] }}" y2="{{ $e['h'] }}" stroke="{{ $pc }}" stroke-width="2" stroke-dasharray="5 5"/>
+                    <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="7" fill="{{ $pc }}" stroke="#fff" stroke-width="3"/>
+                    <rect x="{{ $p['lx'] }}" y="{{ $p['ly'] }}" width="{{ $p['lw'] }}" height="{{ $p['lh'] }}" rx="7" fill="{{ $pc }}"/>
+                    <text x="{{ $p['lx'] + $p['lw'] / 2 }}" y="{{ $p['ly'] + 19 }}" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="900" font-size="16" fill="#fff">{{ $p['code'] }}</text>
                   @endforeach
                 </svg>
               </div>

@@ -22,7 +22,7 @@ class GtrRaceGuide
     private const MAP_W = 936;
     private const MAP_H = 470;
     private const ELE_W = 936;
-    private const ELE_H = 150;
+    private const ELE_H = 214;
 
     public static function build(): array
     {
@@ -124,6 +124,7 @@ class GtrRaceGuide
             'km' => $total ?: null,
             'ws' => $points->where('type', 'ws')->count(),
             'cp' => $points->where('type', 'cp')->count(),
+            'cop' => $points->where('type', 'cop')->count(),
             'points' => $points->map(fn ($p) => [
                 'code' => $p['code'], 'type' => $p['type'], 'km' => $p['km'],
                 'title' => $p['title'], 'cutoff' => $p['cutoff'], 'location' => $p['location'],
@@ -311,26 +312,58 @@ class GtrRaceGuide
         $min = min($eles);
         $max = max($eles);
         $span = max($max - $min, 1);
-        $top = 14;
-        $h = self::ELE_H - $top;
+        // Pita atas untuk label kode pos (2 baris pill), profil di bawahnya.
+        $pillH = 28;
+        $rowsY = [4, 4 + $pillH + 6];
+        $top = 4 + 2 * ($pillH + 6) + 10;
+        $h = self::ELE_H - $top - 4;
 
         $x = fn (float $km) => round($km / $maxKm * self::ELE_W, 1);
         $y = fn (float $e) => round($top + $h - ($e - $min) / $span * $h, 1);
+        $eleAt = function (float $km) use ($kms, $eles): float {
+            for ($i = 1; $i < count($kms); $i++) {
+                if ($kms[$i] >= $km) {
+                    $d = $kms[$i] - $kms[$i - 1];
+
+                    return $d > 0 ? $eles[$i - 1] + ($eles[$i] - $eles[$i - 1]) * ($km - $kms[$i - 1]) / $d : $eles[$i];
+                }
+            }
+
+            return end($eles);
+        };
 
         $line = [];
         foreach ($kms as $i => $km) {
             $line[] = $x($km) . ' ' . $y($eles[$i]);
         }
 
+        // Label pill di atas garis putus-putus; bila berdekatan, pindah ke baris kedua.
+        $rowEnd = [-INF, -INF];
+        $marks = [];
+        foreach ($points as $p) {
+            $km = min((float) $p['km'], $maxKm);
+            $px = $x($km);
+            $w = 18 + strlen($p['code']) * 11;
+            $lx = max(0, min(self::ELE_W - $w, $px - $w / 2));
+            $row = $lx >= $rowEnd[0] + 6 ? 0 : ($lx >= $rowEnd[1] + 6 ? 1 : ($rowEnd[0] <= $rowEnd[1] ? 0 : 1));
+            $rowEnd[$row] = $lx + $w;
+            $marks[] = [
+                'code' => $p['code'], 'type' => $p['type'],
+                'x' => $px, 'y' => $y($eleAt($km)),
+                'lx' => round($lx, 1), 'ly' => $rowsY[$row], 'lw' => $w, 'lh' => $pillH,
+            ];
+        }
+
         return [
             'w' => self::ELE_W,
             'h' => self::ELE_H,
+            'top' => $top,
             'line' => 'M' . implode(' L', $line),
             'area' => 'M0 ' . self::ELE_H . ' L' . implode(' L', $line) . ' L' . self::ELE_W . ' ' . self::ELE_H . ' Z',
             'min' => (int) round($min),
             'max' => (int) round($max),
             'km' => round($maxKm, 1),
-            'points' => array_map(fn ($p) => ['code' => $p['code'], 'type' => $p['type'], 'x' => $x(min((float) $p['km'], $maxKm))], $points),
+            'points' => $marks,
         ];
     }
 
