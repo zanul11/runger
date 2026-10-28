@@ -144,6 +144,9 @@
     letter-spacing:.04em;text-transform:uppercase;color:var(--text-soft);
   }
   .nav-drawer .dd-links a:hover{color:#fff}
+  .nav-drawer .dd-doc{display:flex;align-items:center;border-bottom:1px solid var(--line)}
+  .nav-drawer .dd-doc a:first-child{flex:1;border-bottom:0}
+  .nav-drawer .dd-doc .dd-en{flex:none;padding:5px 10px;border:1px solid rgba(255,255,255,.25);border-radius:999px;font-size:11px;font-weight:700;color:#fff}
 
   /* SECTION SCAFFOLD */
   section.block{padding:64px 0;background:var(--bg)}
@@ -778,6 +781,12 @@
       text-transform:uppercase;font-weight:600;color:var(--text-soft);white-space:nowrap;
     }
     .nav-dd a:hover{background:rgba(255,255,255,.07);color:#fff}
+    .nav-dd .dd-sep{padding:10px 12px 4px;border-top:1px solid var(--line);margin-top:4px;
+      font-family:'Archivo',sans-serif;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--red)}
+    .nav-dd .dd-doc{display:flex;align-items:center;gap:6px}
+    .nav-dd .dd-doc a:first-child{flex:1}
+    .nav-dd .dd-doc .dd-en{flex:none;padding:5px 9px;border:1px solid rgba(255,255,255,.22);border-radius:999px;font-size:10px;font-weight:700;color:#fff}
+    .nav-dd .dd-doc .dd-en:hover{background:var(--red);border-color:var(--red)}
     .nav-cta{padding:12px 22px;font-size:12px}
     .nav-cta .arr{width:22px;height:22px;font-size:12px}
 
@@ -908,6 +917,8 @@
   $gtrNavCats = \App\Models\GtrCategory::where('is_active', true)->orderBy('sort_order')->get(['slug', 'name']);
   // Menu Race Guide hanya tampil setelah panitia mempublikasikan versi final.
   $gtrGuideOn = (bool) optional(\App\Models\GtrSetting::first())->raceGuidePublished();
+  // Dokumen peserta (Waiver, PAR-Q, Surat Kuasa) yang sudah dipublikasikan dari admin.
+  $gtrDocs = rescue(fn () => \App\Models\GtrDocument::published()->get(['slug', 'nav_label', 'has_en', 'pdf_en']), collect(), false);
 @endphp
 
 <!-- NAV -->
@@ -928,6 +939,15 @@
           <!-- <a href="{{ route('gtr') }}#overview">Race Venue</a>
           <a href="{{ route('gtr') }}#overview">Event Schedule</a> -->
           <a href="{{ route('gtr.rules') }}">Rules and Regulations</a>
+          @if($gtrDocs->isNotEmpty())
+            <span class="dd-sep">Dokumen Peserta</span>
+            @foreach($gtrDocs as $d)
+              <div class="dd-doc">
+                <a href="{{ route('gtr.doc', [$d->slug, 'id']) }}">Download {{ $d->nav_label }}</a>
+                @if($d->has_en && $d->pdf_en)<a class="dd-en" href="{{ route('gtr.doc', [$d->slug, 'en']) }}" title="{{ $d->nav_label }} (English)">EN</a>@endif
+              </div>
+            @endforeach
+          @endif
           <a href="{{ asset('assets/gtr/logo.jpeg') }}" download>Download Logo</a>
         </div>
       </div>
@@ -965,6 +985,12 @@
     <div class="dd-links">
       @if($gtrGuideOn)<a href="{{ route('gtr.guide') }}">Race Guide</a>@endif
       <a href="{{ route('gtr.rules') }}">Rules and Regulations</a>
+      @foreach($gtrDocs as $d)
+        <div class="dd-doc">
+          <a href="{{ route('gtr.doc', [$d->slug, 'id']) }}">Download {{ $d->nav_label }}</a>
+          @if($d->has_en && $d->pdf_en)<a class="dd-en" href="{{ route('gtr.doc', [$d->slug, 'en']) }}">EN</a>@endif
+        </div>
+      @endforeach
       <a href="{{ asset('assets/gtr/logo.jpeg') }}" download>Download Logo</a>
     </div>
   </details>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GtrDocumentController;
 use App\Http\Controllers\GtrRaceGuideController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
@@ -36,6 +37,10 @@ Route::middleware('auth')->prefix('gtr/race-guide')->name('gtr.race-guide')->gro
     Route::post('/unpublish', [GtrRaceGuideController::class, 'unpublish'])->name('.unpublish');
 });
 
+// Pratinjau PDF dokumen peserta GTR (Waiver, PAR-Q, Surat Kuasa) — admin only.
+Route::middleware('auth')->get('/gtr/documents/{document}/preview/{lang}', [GtrDocumentController::class, 'preview'])
+    ->whereIn('lang', ['id', 'en'])->name('gtr.docs.preview');
+
 // Swagger UI dokumentasi API (dilayani via route agar tidak 404 di /docs).
 Route::get('/docs', fn () => response()->file(public_path('docs/index.html')))->name('api.docs');
 Route::get('/docs/openapi.yaml', fn () => response()->file(public_path('docs/openapi.yaml'), [
@@ -54,6 +59,8 @@ Route::get('/gerung-trail-run/rules', [PageController::class, 'gtrRules'])->name
 Route::get('/gerung-trail-run/race-guide', [GtrRaceGuideController::class, 'index'])->name('gtr.guide');
 Route::get('/gerung-trail-run/race-guide/download', [GtrRaceGuideController::class, 'download'])->name('gtr.guide.zip');
 Route::get('/gerung-trail-run/race-guide/pdf', [GtrRaceGuideController::class, 'downloadPdf'])->name('gtr.guide.pdf');
+Route::get('/gerung-trail-run/dokumen/{slug}/{lang}', [GtrDocumentController::class, 'download'])
+    ->whereIn('lang', ['id', 'en'])->name('gtr.doc');
 Route::get('/gerung-trail-run/category/{slug}', [PageController::class, 'gtrCategory'])->name('gtr.category');
 Route::get('/gerung-trail-run/category/{slug}/gpx', [PageController::class, 'gtrCategoryGpx'])->name('gtr.category.gpx');
 Route::get('/gerung-trail-run/lacak', [PageController::class, 'gtrTrackSearch'])->name('gtr.track.search');
