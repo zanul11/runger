@@ -37,6 +37,13 @@ class GtrRegistration extends Model
 
     protected static function booted(): void
     {
+        // Lunas tanpa tanggal bayar (mis. status diubah manual di admin) → isi sekarang.
+        static::saving(function (GtrRegistration $reg) {
+            if ($reg->payment_status === 'paid' && $reg->isDirty('payment_status') && ! $reg->paid_at) {
+                $reg->paid_at = now();
+            }
+        });
+
         static::created(function (GtrRegistration $reg) {
             // Nomor registrasi (identitas QR) untuk semua jalur pembuatan.
             if (empty($reg->nomor_registrasi)) {

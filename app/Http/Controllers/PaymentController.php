@@ -75,6 +75,12 @@ class PaymentController extends Controller
     {
         $statuses = $registration->payments()->pluck('status');
 
+        // Sudah lunas (mis. ditandai manual oleh admin via transfer/cash) → transaksi QRIS
+        // yang kedaluwarsa/gagal tidak boleh menurunkan statusnya.
+        if ($registration->payment_status === 'paid' && ! $statuses->contains('paid')) {
+            return;
+        }
+
         if ($statuses->contains('paid')) {
             $new = 'paid';
         } elseif ($statuses->contains('pending')) {
