@@ -13,7 +13,16 @@ class GtrSetting extends Model
         'results_published' => 'boolean',
         'race_guide_slides' => 'array',
         'race_guide_published_at' => 'datetime',
+        'registration_closes_at' => 'datetime',
     ];
+
+    /** Pendaftaran online sudah ditutup (lewat registration_closes_at)? */
+    public static function registrationClosed(): bool
+    {
+        $closesAt = static::first()?->registration_closes_at;
+
+        return $closesAt !== null && now()->greaterThan($closesAt);
+    }
 
     /** Race guide final sudah dipublikasikan ke website? */
     public function raceGuidePublished(): bool

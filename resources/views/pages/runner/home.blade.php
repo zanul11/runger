@@ -188,6 +188,8 @@
         </div>
         @if(in_array($c->id, $registeredIds))
           <span class="rcat-done">✓ Terdaftar</span>
+        @elseif(\App\Models\GtrSetting::registrationClosed())
+          <span class="rcat-done">Pendaftaran ditutup</span>
         @else
           <a href="{{ route('gtr.register.form', $c) }}" class="rcat-btn">Daftar <span class="arr">→</span></a>
         @endif

@@ -130,6 +130,8 @@
   </div>
   @if($registration)
     <a class="cd-btn done" href="{{ route('gtr.account.race.detail', $registration) }}">✓ Terdaftar</a>
+  @elseif(\App\Models\GtrSetting::registrationClosed())
+    <span class="cd-btn done">Pendaftaran ditutup</span>
   @else
     <a class="cd-btn" href="{{ route('gtr.register.form', $cat) }}">Daftar →</a>
   @endif

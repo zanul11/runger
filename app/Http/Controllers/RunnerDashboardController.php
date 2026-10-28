@@ -177,6 +177,10 @@ class RunnerDashboardController extends Controller
             return redirect()->route('gtr.account.race')->with('success', 'Kamu sudah terdaftar di kategori ' . $category->distance . '.');
         }
 
+        if (\App\Models\GtrSetting::registrationClosed()) {
+            return redirect()->route('gtr.dashboard')->with('success', 'Maaf, pendaftaran GTR 2026 sudah ditutup.');
+        }
+
         return view('pages.runner.register-race', [
             'tab' => 'home',
             'runner' => $runner,
@@ -190,6 +194,10 @@ class RunnerDashboardController extends Controller
 
         if ($runner->registrations()->where('gtr_category_id', $category->id)->exists()) {
             return redirect()->route('gtr.account.race')->with('success', 'Kamu sudah terdaftar di kategori ' . $category->distance . '.');
+        }
+
+        if (\App\Models\GtrSetting::registrationClosed()) {
+            return redirect()->route('gtr.dashboard')->with('success', 'Maaf, pendaftaran GTR 2026 sudah ditutup.');
         }
 
         $validated = $request->validate([

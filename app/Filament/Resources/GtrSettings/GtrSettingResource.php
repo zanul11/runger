@@ -7,6 +7,7 @@ use App\Filament\Resources\GtrSettings\Pages\ListGtrSettings;
 use App\Models\GtrSetting;
 use BackedEnum;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -69,6 +70,11 @@ class GtrSettingResource extends Resource
                         ->label('Lokasi')
                         ->placeholder('Bukit Keteri, Gerung — Lombok Barat')
                         ->columnSpanFull(),
+                    DateTimePicker::make('registration_closes_at')
+                        ->label('Pendaftaran Ditutup')
+                        ->seconds(false)
+                        ->timezone('Asia/Makassar')
+                        ->helperText('Setelah waktu ini peserta tidak bisa mendaftar lagi lewat runger-app (WITA). Kosongkan = selalu buka. Admin tetap bisa menambah peserta.'),
                 ]),
 
             Section::make('Race Pack & Race Day')
