@@ -86,6 +86,7 @@ class GtrRaceGuide
                 'notes' => GtrSetting::lines($s->parking_notes),
             ],
             'assembly' => $s->assembly_time,
+            'timeline' => self::timeline($categories->all(), $s),
             'categories' => $categories->all(),
             'gear' => array_values($gear),
             'rules' => $rules->all(),
@@ -111,6 +112,8 @@ class GtrRaceGuide
     {
         $points = $c->coursePoints()->values();
         $total = (float) ($c->total_km ?: 0);
+        // Jarak resmi dari GPX; bila GPX belum diunggah, ambil angka dari teks jarak ("15 K" → 15).
+        $kmLabel = $total ?: (preg_match('/(\d+(?:[.,]\d+)?)/', (string) ($c->distance ?: $c->name), $m) ? (float) str_replace(',', '.', $m[1]) : null);
 
         return [
             'id' => $c->id,
@@ -122,6 +125,7 @@ class GtrRaceGuide
             'cot' => $c->cut_off_time && trim($c->cut_off_time) !== '-' ? $c->cut_off_time : null,
             'gain' => $c->gpxElevationGain() ?? $c->elevation_gain,
             'km' => $total ?: null,
+            'km_label' => $kmLabel ?: null,
             'ws' => $points->where('type', 'ws')->count(),
             'cp' => $points->where('type', 'cp')->count(),
             'cop' => $points->where('type', 'cop')->count(),
@@ -144,6 +148,136 @@ class GtrRaceGuide
             'qr' => self::qr(route('gtr.category', $c->slug)),
             'gpx' => $c->canDownloadGpx(),
         ];
+    }
+
+    /**
+     * Timeline event gabungan: rundown semua kategori digabung jadi satu (item yang sama
+     * di beberapa kategori hanya muncul sekali), dikelompokkan per tanggal & diurutkan jam.
+     * Jika rundown belum memuat hari lomba, hari lomba ditambahkan otomatis dari
+     * jam kumpul, jam start & cut off tiap kategori.
+     *
+     * @return array<int, array{date: string, race: bool, items: array<int, array{time: ?string, activity: ?string, location: ?string, cats: array}>}>
+     */
+    private static function timeline(array $categories, GtrSetting $s): array
+    {
+        $allIds = array_column($categories, 'id');
+        $days = [];
+        $add = function (?string $date, ?string $time, ?string $activity, ?string $location, array $catIds) use (&$days) {
+            [$dayKey, $sortDate] = self::dayKey($date);
+            $timeNorm = self::timeNorm($time);
+            $key = $timeNorm . '|' . mb_strtolower(preg_replace('/\s+/', ' ', trim((string) $activity))) . '|' . mb_strtolower(preg_replace('/\s+/', ' ', trim((string) $location)));
+            $days[$dayKey] ??= ['date' => trim((string) $date), 'sort' => $sortDate, 'items' => []];
+            $it = &$days[$dayKey]['items'][$key];
+            $it ??= ['time' => $timeNorm ?: null, 'activity' => $activity ?: null, 'location' => $location ?: null, 'cats' => []];
+            $it['cats'] = array_values(array_unique([...$it['cats'], ...$catIds]));
+            // Pakai penulisan tanggal terlengkap (mis. yang memuat nama hari).
+            if (mb_strlen(trim((string) $date)) > mb_strlen($days[$dayKey]['date'])) {
+                $days[$dayKey]['date'] = trim((string) $date);
+            }
+        };
+
+        foreach ($categories as $c) {
+            foreach ($c['rundown'] as $r) {
+                $add($r['date'], $r['time'], $r['activity'], $r['location'], [$c['id']]);
+            }
+        }
+
+        // Hari lomba otomatis bila belum ada di rundown.
+        [$raceKey] = self::dayKey($s->date_text);
+        if ($s->date_text && ! isset($days[$raceKey])) {
+            if ($s->assembly_time) {
+                $add($s->date_text, $s->assembly_time, 'Runner Assembly', $s->location_text, $allIds);
+            }
+            foreach ($categories as $c) {
+                if ($c['start']) {
+                    $add($s->date_text, $c['start'], 'Flag Off', $s->location_text, [$c['id']]);
+                }
+            }
+            foreach ($categories as $c) {
+                if ($cot = self::cutOffClock($c['start'], $c['cot'])) {
+                    $add($s->date_text, $cot, 'Cut Off Time', 'Finish', [$c['id']]);
+                }
+            }
+        }
+
+        uasort($days, fn ($a, $b) => [$a['sort'] === null, $a['sort']] <=> [$b['sort'] === null, $b['sort']]);
+
+        return collect($days)->map(function ($d, $k) use ($allIds, $raceKey) {
+            $items = array_values($d['items']);
+            // Urut jam mulai; item tanpa jam di akhir, urutan asli dipertahankan.
+            $items = collect($items)->map(fn ($it, $i) => $it + ['_o' => $i])
+                ->sortBy(fn ($it) => [self::timeStart($it['time']) ?? 9999, $it['_o']])
+                ->map(function ($it) use ($allIds) {
+                    unset($it['_o']);
+                    // Item yang berlaku untuk semua kategori tidak perlu label kategori.
+                    $it['cats'] = count(array_diff($allIds, $it['cats'])) === 0 ? [] : $it['cats'];
+
+                    return $it;
+                })->values()->all();
+
+            // Tanggal ditulis seragam lengkap dengan nama hari bila bisa dibaca.
+            $date = $d['sort'] ? \Carbon\Carbon::parse($d['sort'])->locale('id')->translatedFormat('l, j F Y') : $d['date'];
+
+            return ['date' => $date, 'race' => $k === $raceKey, 'items' => $items];
+        })->values()->all();
+    }
+
+    private const MONTHS_ID = [
+        'januari' => 'january', 'februari' => 'february', 'maret' => 'march', 'mei' => 'may',
+        'juni' => 'june', 'juli' => 'july', 'agustus' => 'august', 'oktober' => 'october', 'desember' => 'december',
+    ];
+
+    /** Kunci pengelompokan tanggal (Y-m-d bila bisa dibaca) + nilai urut. */
+    private static function dayKey(?string $date): array
+    {
+        $raw = mb_strtolower(trim((string) $date));
+        if ($raw === '') {
+            return ['', null];
+        }
+        $txt = preg_replace('/^[^\d,]+,\s*/u', '', $raw); // buang nama hari: "minggu, 29 ..." → "29 ..."
+        $txt = strtr($txt, self::MONTHS_ID);
+        try {
+            $d = \Carbon\Carbon::parse($txt);
+
+            return [$d->format('Y-m-d'), $d->format('Y-m-d')];
+        } catch (\Throwable) {
+            return [preg_replace('/\s+/', ' ', $raw), null];
+        }
+    }
+
+    /** "15:30 - 18:00 WITA" → "15:30 – 18:00" (zona waktu ditulis sekali di slide). */
+    private static function timeNorm(?string $time): string
+    {
+        $t = preg_replace('/\b(WITA|WIB|WIT)\b\.?/i', '', (string) $time);
+        $t = preg_replace('/\s*[-–—]\s*/u', ' – ', $t);
+        $t = preg_replace('/(\d{1,2})\.(\d{2})/', '$1:$2', $t);
+
+        return trim(preg_replace('/\s+/', ' ', $t));
+    }
+
+    private static function timeStart(?string $time): ?int
+    {
+        return preg_match('/(\d{1,2}):(\d{2})/', (string) $time, $m) ? (int) $m[1] * 60 + (int) $m[2] : null;
+    }
+
+    /** Jam cut off: COT berupa jam ("10:00") dipakai langsung, berupa durasi ("4 Jam") dihitung dari jam start. */
+    private static function cutOffClock(?string $start, ?string $cot): ?string
+    {
+        $cot = trim((string) $cot);
+        if ($cot === '') {
+            return null;
+        }
+        if (preg_match('/^(\d{1,2})[:.](\d{2})/', $cot, $m)) {
+            return sprintf('%02d:%s', $m[1], $m[2]);
+        }
+        $begin = self::timeStart(self::timeNorm($start));
+        if ($begin !== null && preg_match('/^(\d+(?:[.,]\d+)?)\s*(jam|hours?|hrs?|h)\b/i', $cot, $m)) {
+            $end = $begin + (int) round((float) str_replace(',', '.', $m[1]) * 60);
+
+            return sprintf('%02d:%02d', intdiv($end, 60) % 24, $end % 60);
+        }
+
+        return null;
     }
 
     /** Daftar konten admin yang masih kosong sehingga slide-nya tidak dibuat. */
@@ -170,6 +304,9 @@ class GtrRaceGuide
         }
         if (! collect($d['categories'])->contains(fn ($c) => $c['pois'])) {
             $m[] = 'Course Info: belum ada info / bahaya jalur di kategori (opsional).';
+        }
+        if (! $d['timeline']) {
+            $m[] = 'Event Timeline: isi rundown di kategori atau tanggal event di Header GTR (opsional).';
         }
         if (! $d['assembly']) {
             $m[] = 'Race Day: jam kumpul belum diisi di Header GTR (opsional).';

@@ -7,7 +7,6 @@
   $hasRacepack = $g['racepack']['location'] || $g['racepack']['schedule'] || $g['racepack']['notes'];
   $infoCats = $cats->filter(fn ($c) => $c['pois'])->values();
   $awardCats = $cats->filter(fn ($c) => $c['awards'])->values();
-  $rundownCats = $cats->filter(fn ($c) => collect($c['rundown'])->contains(fn ($r) => $r['activity']))->values();
 
   // Aturan dipecah per slide berdasarkan panjang teks agar tetap terbaca.
   $ruleChunks = [];
@@ -152,6 +151,24 @@
   .s-swipe{display:inline-flex;align-items:center;gap:16px;margin-top:40px;padding:20px 30px;border-radius:999px;background:var(--red);font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;letter-spacing:.14em;text-transform:uppercase}
   .s-swipe i{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#fff;color:var(--red);font-style:normal;font-size:22px;letter-spacing:0}
 
+  /* Event timeline */
+  .s-tl{display:flex;flex-direction:column;gap:30px}
+  .s-tl-date{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+  .s-tl-date .n{font-family:'Archivo',sans-serif;font-weight:900;font-size:18px;letter-spacing:.16em;text-transform:uppercase;padding:9px 16px;border-radius:10px;background:#1E1E1E;border:1px solid var(--line);color:var(--soft)}
+  .s-tl-date b{font-family:'Archivo',sans-serif;font-weight:900;font-size:34px;text-transform:uppercase;letter-spacing:-.005em}
+  .s-tl-date .rd{margin-left:auto;font-family:'Archivo',sans-serif;font-weight:900;font-size:17px;letter-spacing:.16em;text-transform:uppercase;padding:9px 16px;border-radius:999px;background:var(--red)}
+  .s-tl-day.race .s-tl-date .n{background:var(--red);border-color:var(--red);color:#fff}
+  .s-tl-items{position:relative;margin-left:14px;padding-left:40px;border-left:3px solid rgba(255,255,255,.14);display:flex;flex-direction:column;gap:16px}
+  .s-tl-day.race .s-tl-items{border-left-color:rgba(229,57,53,.55)}
+  .s-tl-it{position:relative;display:grid;grid-template-columns:250px 1fr;gap:24px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 24px}
+  .s-tl-it::before{content:'';position:absolute;left:-52px;top:28px;width:18px;height:18px;border-radius:50%;background:#0A0A0A;border:4px solid var(--red)}
+  .s-tl-it .t{font-family:'Archivo',sans-serif;font-weight:900;font-size:30px;line-height:1.15;color:var(--red);white-space:nowrap}
+  .s-tl-it .d b{display:block;font-family:'Archivo',sans-serif;font-weight:800;font-size:30px;line-height:1.15}
+  .s-tl-it .d span{display:block;font-size:22px;line-height:1.35;color:var(--soft);margin-top:6px}
+  .s-tl-cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .s-tl-cats i{font-style:normal;font-family:'Archivo',sans-serif;font-weight:900;font-size:17px;padding:5px 11px;border-radius:8px;background:var(--c);color:#fff}
+  .s-tl-note{margin-top:26px;font-family:'Archivo',sans-serif;font-weight:800;font-size:17px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
   /* Race pack */
   .s-pair{display:grid;grid-template-columns:1fr 1fr;gap:20px}
   .s-pair.one{grid-template-columns:1fr}
@@ -260,8 +277,6 @@
   .s-contact svg{width:34px;height:34px;color:var(--red);flex-shrink:0}
 
   /* Race village & parkir */
-  .s-addr{display:flex;align-items:flex-start;gap:14px;font-size:27px;line-height:1.4;color:var(--soft);margin-bottom:28px}
-  .s-addr svg{width:32px;height:32px;color:var(--red);flex-shrink:0;margin-top:2px}
   .s-venue{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
   .s-venue.noqr{grid-template-columns:1fr}
   .s-steps{list-style:none;counter-reset:st;display:flex;flex-direction:column;gap:16px}
@@ -274,7 +289,11 @@
   .s-facs{display:flex;flex-wrap:wrap;gap:12px}
   .s-fac{display:inline-flex;align-items:center;gap:10px;padding:14px 20px;border-radius:14px;background:var(--card);border:1px solid var(--line);font-family:'Archivo',sans-serif;font-weight:700;font-size:23px}
   .s-fac::before{content:'';width:10px;height:10px;border-radius:50%;background:var(--red)}
-  .s-bigname{font-size:92px}
+  .s-place{display:flex;align-items:center;gap:22px;margin-bottom:28px}
+  .s-place .ic{display:grid;place-items:center;width:68px;height:68px;border-radius:18px;background:var(--red);flex-shrink:0}
+  .s-place .ic svg{width:36px;height:36px;color:#fff}
+  .s-place .s-val{margin-top:0}
+  .s-place p{font-size:24px;line-height:1.4;color:var(--soft);margin-top:8px}
 
   /* Detail titik pos (timeline) */
   .s-stops{position:relative;display:flex;flex-direction:column;gap:16px}
@@ -372,6 +391,51 @@
       </div></div>
     </div>
 
+    {{-- 1b. EVENT TIMELINE: rundown semua kategori digabung jadi satu --}}
+    @if($g['timeline'])
+    @php $catById = $cats->keyBy('id'); @endphp
+    <div class="rg-item" data-name="event-timeline">
+      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Event Timeline</span><button type="button" class="rg-one">Unduh PNG</button></div>
+      <div class="rg-frame"><div class="slide">
+        <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
+        @include('admin.race-guide.head')
+        <div class="s-main">
+          <div class="s-eye" data-edit>Event Rundown</div>
+          <h1 class="s-title" data-edit>Event <em>Timeline</em></h1>
+          <div class="s-fit"><div class="s-fit-in">
+            <div class="s-tl">
+              @foreach($g['timeline'] as $di => $d)
+                <div class="s-tl-day {{ $d['race'] ? 'race' : '' }}">
+                  <div class="s-tl-date">
+                    <span class="n">Day {{ $di + 1 }}</span>
+                    <b data-edit>{{ $d['date'] ?: '-' }}</b>
+                    @if($d['race'])<span class="rd">Race Day</span>@endif
+                  </div>
+                  <div class="s-tl-items">
+                    @foreach($d['items'] as $it)
+                      <div class="s-tl-it">
+                        <div class="t" data-edit>{{ $it['time'] ?: '-' }}</div>
+                        <div class="d">
+                          <b data-edit>{{ $it['activity'] ?: '-' }}</b>
+                          @if($it['location'])<span data-edit>{{ $it['location'] }}</span>@endif
+                          @if($it['cats'])
+                            <div class="s-tl-cats">@foreach($it['cats'] as $cid)@if($catById->has($cid))<i style="--c:{{ $catById[$cid]['color'] }}">{{ $catById[$cid]['distance'] }}</i>@endif @endforeach</div>
+                          @endif
+                        </div>
+                      </div>
+                    @endforeach
+                  </div>
+                </div>
+              @endforeach
+            </div>
+            <div class="s-tl-note" data-edit>All times in WITA (UTC+8)</div>
+          </div></div>
+        </div>
+        @include('admin.race-guide.foot')
+      </div></div>
+    </div>
+    @endif
+
     {{-- 2. RACE PACK COLLECTION --}}
     @if($hasRacepack)
     <div class="rg-item" data-name="race-pack">
@@ -380,8 +444,8 @@
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
         <div class="s-main">
-          <div class="s-eye" data-edit>Race Pack Collection</div>
-          <h1 class="s-title" data-edit>Ambil<br><em>Race Pack</em></h1>
+          <div class="s-eye" data-edit>Before Race Day</div>
+          <h1 class="s-title" data-edit>Race Pack<br><em>Collection</em></h1>
           <div class="s-fit"><div class="s-fit-in">
             @if($g['racepack']['location'] || $g['racepack']['schedule'])
             <div class="s-pair {{ $g['racepack']['location'] && $g['racepack']['schedule'] ? '' : 'one' }}">
@@ -442,14 +506,18 @@
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
         <div class="s-main">
-          <div class="s-eye" data-edit>Race Village</div>
-          @if($g['venue']['name'])
-            <h1 class="s-title s-bigname" data-edit>{{ $g['venue']['name'] }}</h1>
-          @else
-            <h1 class="s-title" data-edit>Race <em>Village</em></h1>
-          @endif
+          <div class="s-eye" data-edit>Venue &amp; Facilities</div>
+          <h1 class="s-title" data-edit>Race <em>Village</em></h1>
           <div class="s-fit"><div class="s-fit-in">
-            @if($g['venue']['address'])<div class="s-addr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span data-edit>{{ $g['venue']['address'] }}</span></div>@endif
+            @if($g['venue']['name'] || $g['venue']['address'])
+              <div class="s-card s-place">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+                <div>
+                  @if($g['venue']['name'])<div class="s-val" data-edit>{{ $g['venue']['name'] }}</div>@endif
+                  @if($g['venue']['address'])<p data-edit>{{ $g['venue']['address'] }}</p>@endif
+                </div>
+              </div>
+            @endif
             <div class="s-venue {{ $g['venue']['qr'] ? '' : 'noqr' }}">
               <div>
                 @if($g['venue']['directions'])
@@ -481,12 +549,14 @@
         @include('admin.race-guide.head')
         <div class="s-main">
           <div class="s-eye" data-edit>Parking Location</div>
-          @if($g['parking']['name'])
-            <h1 class="s-title s-bigname" data-edit>{{ $g['parking']['name'] }}</h1>
-          @else
-            <h1 class="s-title" data-edit>Area <em>Parkir</em></h1>
-          @endif
+          <h1 class="s-title" data-edit>Parking <em>Area</em></h1>
           <div class="s-fit"><div class="s-fit-in">
+            @if($g['parking']['name'])
+              <div class="s-card s-place" style="margin-bottom:30px">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+                <div><div class="s-val" data-edit>{{ $g['parking']['name'] }}</div></div>
+              </div>
+            @endif
             <p class="s-lead" style="margin-bottom:30px" data-edit>Demi keamanan dan kelancaran acara, mohon ikuti petunjuk parkir berikut:</p>
             @if($g['parking']['notes'])
               <ol class="s-steps">@foreach($g['parking']['notes'] as $n)<li data-edit>{{ $n }}</li>@endforeach</ol>
@@ -527,14 +597,6 @@
                 </tr>
               @endforeach
             </table>
-            @foreach($rundownCats as $c)
-              <div class="s-h3" data-edit>Rundown {{ $c['distance'] }}</div>
-              <ul class="s-list">
-                @foreach($c['rundown'] as $r)
-                  <li data-edit><b>{{ $r['time'] }}</b> {{ collect([$r['activity'], $r['location']])->filter()->implode(' · ') }}</li>
-                @endforeach
-              </ul>
-            @endforeach
           </div></div>
         </div>
         @include('admin.race-guide.foot')
@@ -543,13 +605,13 @@
 
     {{-- 4. KATEGORI --}}
     <div class="rg-item" data-name="categories">
-      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Kategori</span><button type="button" class="rg-one">Unduh PNG</button></div>
+      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Race Categories</span><button type="button" class="rg-one">Unduh PNG</button></div>
       <div class="rg-frame"><div class="slide">
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
         <div class="s-main">
-          <div class="s-eye" data-edit>Race Categories</div>
-          <h1 class="s-title" data-edit>Pilih <em>Trail-mu</em></h1>
+          <div class="s-eye" data-edit>Choose Your Trail</div>
+          <h1 class="s-title" data-edit>Race <em>Categories</em></h1>
           <div class="s-fit"><div class="s-fit-in">
             <div class="s-cats">
               @foreach($cats as $c)
@@ -559,7 +621,7 @@
                     @if($c['tag'])<div class="s-cat-tag" data-edit>{{ $c['tag'] }}</div>@endif
                   </div>
                   <div class="s-stats">
-                    <div class="s-stat w3"><small>Jarak</small><b data-edit>{{ $c['km'] ? rtrim(rtrim(number_format($c['km'], 2, ',', '.'), '0'), ',') . ' KM' : '-' }}</b></div>
+                    <div class="s-stat w3"><small>Jarak</small><b data-edit>{{ $c['km_label'] ? rtrim(rtrim(number_format($c['km_label'], 2, ',', '.'), '0'), ',') . ' KM' : '-' }}</b></div>
                     <div class="s-stat w3"><small>Elevasi</small><b data-edit>{{ $c['gain'] ?: '-' }}</b></div>
                     <div class="s-stat w3"><small>Start</small><b data-edit>{{ $c['start'] ?: '-' }}</b></div>
                     <div class="s-stat w3"><small>Cut Off</small><b data-edit>{{ $c['cot'] ?: '-' }}</b></div>
@@ -662,13 +724,13 @@
     {{-- 5b. DETAIL TITIK POS (setelah peta kategori yang sama) --}}
     @foreach(collect($stopSlides)->where('cat.id', $c['id']) as $st)
     <div class="rg-item" data-name="course-points-{{ \Illuminate\Support\Str::slug($c['name']) }}{{ $st['parts'] > 1 ? '-' . $st['part'] : '' }}">
-      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Titik Pos {{ $c['distance'] }}{{ $st['parts'] > 1 ? ' (' . $st['part'] . '/' . $st['parts'] . ')' : '' }}</span><button type="button" class="rg-one">Unduh PNG</button></div>
+      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Course Points {{ $c['distance'] }}{{ $st['parts'] > 1 ? ' (' . $st['part'] . '/' . $st['parts'] . ')' : '' }}</span><button type="button" class="rg-one">Unduh PNG</button></div>
       <div class="rg-frame"><div class="slide s-course">
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
         <div class="s-main">
-          <div class="s-eye" data-edit>Course Points · {{ $c['distance'] }}{{ $st['parts'] > 1 ? ' · ' . $st['part'] . '/' . $st['parts'] : '' }}</div>
-          <h1 class="s-title" data-edit>Titik <em style="color:{{ $c['color'] }}">Pos {{ $c['distance'] }}</em></h1>
+          <div class="s-eye" data-edit>Water Stations &amp; Checkpoints{{ $st['parts'] > 1 ? ' · ' . $st['part'] . '/' . $st['parts'] : '' }}</div>
+          <h1 class="s-title" data-edit>Course Points<br><em style="color:{{ $c['color'] }}">{{ $c['distance'] }}</em></h1>
           <div class="s-fit"><div class="s-fit-in">
             <div class="s-stops">
               @foreach($st['rows'] as $r)
@@ -709,7 +771,7 @@
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
         <div class="s-main">
-          <div class="s-eye" data-edit>Wajib dibawa</div>
+          <div class="s-eye" data-edit>Required Equipment</div>
           <h1 class="s-title" data-edit>Mandatory <em>Gear</em></h1>
           <div class="s-fit"><div class="s-fit-in">
             <table class="s-table">
@@ -729,6 +791,17 @@
                 </tr>
               @endforeach
             </table>
+            {{-- Catatan pengganti soft flask (tampil bila soft flask ada di daftar gear). --}}
+            @if(collect($g['gear'])->contains(fn ($r) => preg_match('/soft\s*-?\s*f?lask/i', $r['item'])))
+              <div class="s-alert">
+                <div class="s-lbl" style="color:#fff" data-edit>Catatan Soft Flask</div>
+                <ul class="s-list">
+                  <li data-edit>Soft flask boleh diganti dengan <b>botol air minum</b>.</li>
+                  <li data-edit>Jaga kebersihan trail: jangan membuang botol atau sampah apa pun di sepanjang jalur.</li>
+                  <li data-edit>Botol wajib dibawa sampai garis finish, lalu dibuang di tempat sampah yang tersedia di Race Village.</li>
+                </ul>
+              </div>
+            @endif
           </div></div>
         </div>
         @include('admin.race-guide.foot')
@@ -739,13 +812,13 @@
     {{-- 7. COURSE INFO (bahaya & info jalur) --}}
     @foreach($infoCats as $c)
     <div class="rg-item" data-name="course-info-{{ \Illuminate\Support\Str::slug($c['name']) }}">
-      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Info Jalur {{ $c['distance'] }}</span><button type="button" class="rg-one">Unduh PNG</button></div>
+      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Course Highlights {{ $c['distance'] }}</span><button type="button" class="rg-one">Unduh PNG</button></div>
       <div class="rg-frame"><div class="slide">
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
         <div class="s-main">
           <div class="s-eye" data-edit>Course Info · {{ $c['distance'] }}</div>
-          <h1 class="s-title" data-edit>Kenali <em>Jalurnya</em></h1>
+          <h1 class="s-title" data-edit>Course <em>Highlights</em></h1>
           <div class="s-fit"><div class="s-fit-in">
             @foreach($c['pois'] as $p)
               <div class="s-poi {{ $p['hazard'] ? 'hz' : '' }}">
@@ -772,7 +845,7 @@
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
         <div class="s-main">
-          <div class="s-eye" data-edit>Peraturan Lomba{{ count($ruleChunks) > 1 ? ' · ' . ($ci + 1) . '/' . count($ruleChunks) : '' }}</div>
+          <div class="s-eye" data-edit>Rules &amp; Regulations{{ count($ruleChunks) > 1 ? ' · ' . ($ci + 1) . '/' . count($ruleChunks) : '' }}</div>
           <h1 class="s-title" data-edit>Race <em>Rules</em></h1>
           <div class="s-fit"><div class="s-fit-in">
             <div class="s-rules">
@@ -822,7 +895,7 @@
     {{-- 10. QR COURSE / GPX --}}
     @if($cats->isNotEmpty())
     <div class="rg-item" data-name="course-qr">
-      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">QR Rute</span><button type="button" class="rg-one">Unduh PNG</button></div>
+      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Scan Here</span><button type="button" class="rg-one">Unduh PNG</button></div>
       <div class="rg-frame"><div class="slide s-center">
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
@@ -868,12 +941,12 @@
     @endphp
     @if($g['sponsors'])
     <div class="rg-item" data-name="sponsors">
-      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Sponsor</span><button type="button" class="rg-one">Unduh PNG</button></div>
+      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Sponsors</span><button type="button" class="rg-one">Unduh PNG</button></div>
       <div class="rg-frame"><div class="slide s-center">
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
         <div class="s-main">
-          <div class="s-eye" data-edit>Terima kasih</div>
+          <div class="s-eye" data-edit>Thank You</div>
           @if($spSplit)
             <h1 class="s-title" data-edit>Official <em>Sponsors</em></h1>
           @else
@@ -891,7 +964,7 @@
               @endforeach
             </div>
             @unless($spSplit)
-              <div class="s-h3" data-edit>Didukung oleh</div>
+              <div class="s-h3" data-edit>Supporting Partners</div>
               <div class="s-sups">
                 @foreach($g['supporters'] as $sp)
                   <div class="s-sup"><img src="{{ $sp['logo'] }}" alt="{{ $sp['name'] }}"><b data-edit>{{ $sp['name'] }}</b></div>
@@ -907,12 +980,12 @@
 
     @if(! $g['sponsors'] || $spSplit)
     <div class="rg-item" data-name="supported-by">
-      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Didukung Oleh</span><button type="button" class="rg-one">Unduh PNG</button></div>
+      <div class="rg-item-bar"><input type="checkbox" class="rg-inc" checked><span class="nm">Supported By</span><button type="button" class="rg-one">Unduh PNG</button></div>
       <div class="rg-frame"><div class="slide s-center">
         <div class="s-topo" style="background-image:url('{{ $topoUri }}')"></div>
         @include('admin.race-guide.head')
         <div class="s-main">
-          <div class="s-eye" data-edit>Didukung oleh</div>
+          <div class="s-eye" data-edit>Supporting Partners</div>
           <h1 class="s-title" data-edit>Supported <em>By</em></h1>
           <div class="s-fit"><div class="s-fit-in">
             <div class="s-sups big">
