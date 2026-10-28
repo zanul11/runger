@@ -94,11 +94,24 @@ class GtrSettingResource extends Resource
                         ->helperText('Aktifkan setelah hasil diverifikasi — halaman Results, hasil personal, e-sertifikat & kartu story jadi bisa diakses.'),
                 ]),
 
-            Section::make('Race Guide: Syarat Pengambilan Race Pack (RPC)')
-                ->description('Tampil di slide "RPC Requirements" pada Race Guide. Satu baris = satu poin.')
+            Section::make('Race Guide: Race Pack Collection (RPC)')
+                ->description('Lokasi tampil di slide "Race Pack Collection", syarat di slide "RPC Requirements". Nama lokasi & jadwal diambil dari bagian Race Pack & Race Day. Satu baris = satu poin.')
                 ->collapsible()
                 ->columns(2)
                 ->components([
+                    TextInput::make('racepack_address')
+                        ->label('Alamat Lokasi RPC')
+                        ->placeholder('Jl. Soekarno-Hatta, Dasan Geres, Gerung, Lombok Barat'),
+                    TextInput::make('racepack_maps_url')
+                        ->label('Link Google Maps Lokasi RPC')
+                        ->url()
+                        ->placeholder('https://maps.app.goo.gl/...')
+                        ->helperText('Dijadikan QR code di slide Race Pack Collection.'),
+                    Textarea::make('racepack_directions')
+                        ->label('Petunjuk Menuju Lokasi RPC')
+                        ->placeholder("Buka Google Maps, cari \"Gelora Mini Soccer Gerung\".\nLokasi dekat Kantor Bupati Lombok Barat.")
+                        ->rows(3)
+                        ->columnSpanFull(),
                     Textarea::make('rpc_requirements')
                         ->label('Syarat Pengambilan')
                         ->placeholder("Email konfirmasi pendaftaran / e-ticket (QR).\nKTP / identitas asli sesuai data pendaftaran.\nMandatory gear sesuai kategori.")

@@ -67,6 +67,10 @@ class GtrRaceGuide
                 'location' => $s->racepack_location,
                 'schedule' => $s->racepack_schedule,
                 'notes' => $racepackNotes,
+                'address' => $s->racepack_address,
+                'maps' => $s->racepack_maps_url,
+                'qr' => $s->racepack_maps_url ? self::qr($s->racepack_maps_url) : null,
+                'directions' => GtrSetting::lines($s->racepack_directions),
             ],
             'rpc' => [
                 'requirements' => GtrSetting::lines($s->rpc_requirements),
@@ -286,6 +290,9 @@ class GtrRaceGuide
         $m = [];
         if (! $d['racepack']['location'] && ! $d['racepack']['schedule'] && ! $d['racepack']['notes']) {
             $m[] = 'Race Pack Collection: isi lokasi, jadwal & catatan race pack di Header GTR → Race Pack & Race Day.';
+        }
+        if ($d['racepack']['location'] && ! $d['racepack']['maps']) {
+            $m[] = 'Race Pack Collection: isi alamat, link Google Maps (untuk QR) & petunjuk arah lokasi RPC di Header GTR → bagian Race Guide (opsional).';
         }
         if (! $d['rpc']['requirements'] && ! $d['rpc']['proxy']) {
             $m[] = 'RPC Requirements: isi syarat pengambilan race pack di Header GTR → bagian Race Guide.';

@@ -53,6 +53,7 @@ Route::get('/gerung-trail-run/results/{bib}', [PageController::class, 'gtrResult
 Route::get('/gerung-trail-run/rules', [PageController::class, 'gtrRules'])->name('gtr.rules');
 Route::get('/gerung-trail-run/race-guide', [GtrRaceGuideController::class, 'index'])->name('gtr.guide');
 Route::get('/gerung-trail-run/race-guide/download', [GtrRaceGuideController::class, 'download'])->name('gtr.guide.zip');
+Route::get('/gerung-trail-run/race-guide/pdf', [GtrRaceGuideController::class, 'downloadPdf'])->name('gtr.guide.pdf');
 Route::get('/gerung-trail-run/category/{slug}', [PageController::class, 'gtrCategory'])->name('gtr.category');
 Route::get('/gerung-trail-run/category/{slug}/gpx', [PageController::class, 'gtrCategoryGpx'])->name('gtr.category.gpx');
 Route::get('/gerung-trail-run/lacak', [PageController::class, 'gtrTrackSearch'])->name('gtr.track.search');

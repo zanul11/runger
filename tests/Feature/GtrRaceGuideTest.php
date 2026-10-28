@@ -73,6 +73,7 @@ class GtrRaceGuideTest extends TestCase
         $this->get(route('gtr.guide'))->assertOk()->assertSee('Segera Hadir');
         $this->get(route('gtr.rules'))->assertDontSee(route('gtr.guide'));
         $this->get(route('gtr.guide.zip'))->assertNotFound();
+        $this->get(route('gtr.guide.pdf'))->assertNotFound();
 
         $paths = [];
         foreach (['cover', 'rpc-requirements'] as $i => $name) {
@@ -89,7 +90,21 @@ class GtrRaceGuideTest extends TestCase
         $this->assertTrue(GtrSetting::current()->raceGuidePublished());
         Storage::disk('public')->assertExists('gtr/race-guide/batchabc123/gtr-race-guide.zip');
 
-        $this->get(route('gtr.guide'))->assertOk()->assertSee('01-cover.jpg')->assertSee('Unduh Semua (ZIP)');
+        Storage::disk('public')->assertExists('gtr/race-guide/batchabc123/gtr-race-guide.pdf');
+        $pdf = Storage::disk('public')->get('gtr/race-guide/batchabc123/gtr-race-guide.pdf');
+        $this->assertStringStartsWith('%PDF-1.4', $pdf);
+        $this->assertSame(2, substr_count($pdf, '/Type /Page '));
+
+        $this->get(route('gtr.guide'))->assertOk()
+            ->assertSee('01-cover.jpg')
+            ->assertSee('Unduh PDF')
+            ->assertSee('data-src="/storage/gtr/race-guide/batchabc123/gtr-race-guide.pdf', false);
+        $this->get(route('gtr.guide.pdf'))->assertOk()->assertDownload('Race Guide - Gerung Trail Run.pdf');
+
+        // Race guide lama tanpa PDF: PDF dibuat otomatis dari slide yang tersimpan.
+        Storage::disk('public')->delete('gtr/race-guide/batchabc123/gtr-race-guide.pdf');
+        $this->get(route('gtr.guide.pdf'))->assertOk();
+        Storage::disk('public')->assertExists('gtr/race-guide/batchabc123/gtr-race-guide.pdf');
         $this->get(route('gtr.rules'))->assertSee(route('gtr.guide'));
         $this->get(route('gtr.guide.zip'))->assertOk()->assertDownload('Race Guide - Gerung Trail Run.zip');
 

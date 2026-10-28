@@ -922,8 +922,9 @@
       <a href="{{ route('gtr') }}" @class(['nav-link', 'active' => $navActive === 'home'])>Home</a>
 
       <div class="nav-item">
-        <span class="nav-link">Race Info <span class="caret">▾</span></span>
+        <span @class(['nav-link', 'active' => $navActive === 'guide'])>Race Info <span class="caret">▾</span></span>
         <div class="nav-dd">
+          @if($gtrGuideOn)<a href="{{ route('gtr.guide') }}">Race Guide</a>@endif
           <!-- <a href="{{ route('gtr') }}#overview">Race Venue</a>
           <a href="{{ route('gtr') }}#overview">Event Schedule</a> -->
           <a href="{{ route('gtr.rules') }}">Rules and Regulations</a>
@@ -940,12 +941,10 @@
         </div>
       </div>
 
-      @if($gtrGuideOn)
-        <a href="{{ route('gtr.guide') }}" @class(['nav-link', 'active' => $navActive === 'guide'])>Race Guide</a>
-      @endif
       <a href="{{ route('gtr.entry') }}" @class(['nav-link', 'active' => $navActive === 'entry'])>Entry List</a>
       <a href="{{ route('gtr.results') }}" @class(['nav-link', 'active' => $navActive === 'results'])>Results</a>
-      <a href="{{ route('gtr.track.search') }}" @class(['nav-link', 'active' => $navActive === 'track'])>Lacak</a>
+      {{-- Menu Lacak disembunyikan sementara. --}}
+      {{-- <a href="{{ route('gtr.track.search') }}" @class(['nav-link', 'active' => $navActive === 'track'])>Lacak</a> --}}
       <a href="{{ route('gtr') }}#contact" class="nav-link">Contact</a>
     </div>
     @auth('runner')
@@ -964,7 +963,7 @@
   <details>
     <summary>Race Info</summary>
     <div class="dd-links">
-      
+      @if($gtrGuideOn)<a href="{{ route('gtr.guide') }}">Race Guide</a>@endif
       <a href="{{ route('gtr.rules') }}">Rules and Regulations</a>
       <a href="{{ asset('assets/gtr/logo.jpeg') }}" download>Download Logo</a>
     </div>
@@ -977,12 +976,9 @@
       @endforeach
     </div>
   </details>
-  @if($gtrGuideOn)
-    <a href="{{ route('gtr.guide') }}" @class(['active' => $navActive === 'guide'])>Race Guide</a>
-  @endif
   <a href="{{ route('gtr.entry') }}" @class(['active' => $navActive === 'entry'])>Entry List</a>
   <a href="{{ route('gtr.results') }}" @class(['active' => $navActive === 'results'])>Results</a>
-  <a href="{{ route('gtr.track.search') }}" @class(['active' => $navActive === 'track'])>Lacak Pelari</a>
+  {{-- <a href="{{ route('gtr.track.search') }}" @class(['active' => $navActive === 'track'])>Lacak Pelari</a> --}}
   <a href="{{ route('gtr') }}#contact">Contact</a>
   <a class="nav-cta" href="{{ route('volunteer') }}">Register Now <span class="arr">→</span></a>
 </div>
@@ -1009,7 +1005,7 @@
       @if($gtrGuideOn)<a href="{{ route('gtr.guide') }}">Race Guide</a>@endif
       <a href="{{ route('gtr.entry') }}">Entry List</a>
       <a href="{{ route('gtr.results') }}">Results</a>
-      <a href="{{ route('gtr.track.search') }}">Lacak</a>
+      {{-- <a href="{{ route('gtr.track.search') }}">Lacak</a> --}}
       <a href="{{ route('gtr.rules') }}">Rules</a>
       <a href="{{ route('gtr') }}#contact">Contact</a>
     </div>

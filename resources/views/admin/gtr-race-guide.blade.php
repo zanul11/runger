@@ -4,7 +4,7 @@
 
 @php
   $cats = collect($g['categories']);
-  $hasRacepack = $g['racepack']['location'] || $g['racepack']['schedule'] || $g['racepack']['notes'];
+  $hasRacepack = $g['racepack']['location'] || $g['racepack']['schedule'] || $g['racepack']['notes'] || $g['racepack']['address'] || $g['racepack']['qr'] || $g['racepack']['directions'];
   $infoCats = $cats->filter(fn ($c) => $c['pois'])->values();
   $awardCats = $cats->filter(fn ($c) => $c['awards'])->values();
 
@@ -447,12 +447,30 @@
           <div class="s-eye" data-edit>Before Race Day</div>
           <h1 class="s-title" data-edit>Race Pack<br><em>Collection</em></h1>
           <div class="s-fit"><div class="s-fit-in">
-            @if($g['racepack']['location'] || $g['racepack']['schedule'])
-            <div class="s-pair {{ $g['racepack']['location'] && $g['racepack']['schedule'] ? '' : 'one' }}">
-              @if($g['racepack']['schedule'])<div class="s-card"><div class="s-lbl">Jadwal</div><div class="s-val" data-edit>{{ $g['racepack']['schedule'] }}</div></div>@endif
-              @if($g['racepack']['location'])<div class="s-card"><div class="s-lbl">Lokasi</div><div class="s-val" data-edit>{{ $g['racepack']['location'] }}</div></div>@endif
+            {{-- Jadwal + lokasi RPC (nama, alamat, petunjuk arah) di kiri, QR Google Maps di kanan — seperti Race Village. --}}
+            <div class="s-venue {{ $g['racepack']['qr'] ? '' : 'noqr' }}">
+              <div>
+                @if($g['racepack']['schedule'])
+                  <div class="s-card" style="margin-bottom:20px"><div class="s-lbl">Jadwal</div><div class="s-val" data-edit>{{ $g['racepack']['schedule'] }}</div></div>
+                @endif
+                @if($g['racepack']['location'] || $g['racepack']['address'])
+                  <div class="s-card s-place">
+                    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+                    <div>
+                      @if($g['racepack']['location'])<div class="s-val" data-edit>{{ $g['racepack']['location'] }}</div>@endif
+                      @if($g['racepack']['address'])<p data-edit>{{ $g['racepack']['address'] }}</p>@endif
+                    </div>
+                  </div>
+                @endif
+                @if($g['racepack']['directions'])
+                  <div class="s-h3" style="margin-top:0" data-edit>Petunjuk menuju lokasi RPC</div>
+                  <ol class="s-steps">@foreach($g['racepack']['directions'] as $d)<li data-edit>{{ $d }}</li>@endforeach</ol>
+                @endif
+              </div>
+              @if($g['racepack']['qr'])
+                <div class="s-mapqr"><div class="plate"><img src="{{ $g['racepack']['qr'] }}" alt="QR Maps RPC"></div><p data-edit>Scan · Google Maps</p></div>
+              @endif
             </div>
-            @endif
             @if($g['racepack']['notes'])
               <div class="s-h3" data-edit>Yang perlu diperhatikan</div>
               <ul class="s-list">@foreach($g['racepack']['notes'] as $n)<li data-edit>{{ $n }}</li>@endforeach</ul>
@@ -1104,6 +1122,9 @@
   // Render pertama sebuah slide sering belum menggambar <img> di dalam SVG (gambar belum
   // ter-decode oleh browser), jadi tiap slide dirender sekali untuk pemanasan lalu dibuang.
   const warmed = new WeakSet();
+  // Safari sering memakai font cadangan (lebih lebar) pada render awal SVG foreignObject,
+  // sehingga teks meluber keluar kotak. Di Safari pemanasan diulang beberapa kali.
+  const isSafari = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
   // PNG untuk unduhan admin; JPG (1080 px) untuk dipublikasikan ke website agar ringan.
   // PDF memakai JPG dengan resolusi pilihan admin (scale) agar ukuran file tetap wajar.
   async function render(it, {jpeg = false, scale = null} = {}) {
@@ -1117,7 +1138,9 @@
       style: {transform: 'none', left: '0', top: '0'},
     };
     if (!warmed.has(slide)) {
-      await htmlToImage.toCanvas(slide, Object.assign({}, opts, {pixelRatio: 1}));
+      for (let n = isSafari ? 3 : 1; n > 0; n--) {
+        await htmlToImage.toCanvas(slide, Object.assign({}, opts, {pixelRatio: 1}));
+      }
       warmed.add(slide);
     }
     if (!jpeg) return htmlToImage.toBlob(slide, opts);
