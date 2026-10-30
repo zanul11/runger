@@ -40,7 +40,11 @@
       @include('pages.partials.gtr-weather', ['style' => 'chip', 'class' => 'hm'])
     </div>
     <div class="hero-cta">
-      <a class="btn-primary" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>
+      @if(\App\Models\GtrSetting::registrationClosed())
+        <span class="btn-primary" style="opacity:.7;cursor:default">Pendaftaran Ditutup</span>
+      @else
+        <a class="btn-primary" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>
+      @endif
       <a class="btn-ghost" href="#category">Lihat Kategori</a>
     </div>
   </div>

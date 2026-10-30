@@ -69,7 +69,11 @@
             <span class="sub">Harga Normal @if($cat->earlyBirdEnded())· early bird selesai @endif</span>
           @endif
         </div>
-        <a class="btn-reg" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>
+        @if(\App\Models\GtrSetting::registrationClosed())
+          <span class="btn-reg" style="opacity:.7;cursor:default">Pendaftaran Ditutup</span>
+        @else
+          <a class="btn-reg" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>
+        @endif
       </div>
       <div class="award-card">
         <div class="head">
@@ -166,7 +170,11 @@
         <div class="k">Gerung Trail Run 2026</div>
         <h3>Siap taklukkan {{ $cat->distance }}?</h3>
       </div>
-      <a class="btn-primary" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>
+      @if(\App\Models\GtrSetting::registrationClosed())
+        <span class="btn-primary" style="opacity:.7;cursor:default">Pendaftaran Ditutup</span>
+      @else
+        <a class="btn-primary" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">Register Now <span class="arr">→</span></a>
+      @endif
     </div>
 
     <div style="margin-top:20px">

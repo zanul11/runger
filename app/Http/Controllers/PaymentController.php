@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GtrPayment;
 use App\Models\GtrRegistration;
+use App\Models\GtrSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -119,6 +120,11 @@ class PaymentController extends Controller
 
         if ($registration->payment_status === 'paid') {
             return redirect()->route('gtr.account.transaction')->with('success', 'Pendaftaran ini sudah dibayar.');
+        }
+
+        // Setelah pendaftaran ditutup, pembayaran online juga dikunci.
+        if (GtrSetting::registrationClosed()) {
+            return redirect()->route('gtr.account.transaction')->with('success', 'Maaf, pendaftaran & pembayaran GTR 2026 sudah ditutup.');
         }
 
         $registration->loadMissing('category');

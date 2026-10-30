@@ -78,7 +78,7 @@
 @endif
 
 <div class="pf-actions">
-  @if($reg && $reg->payment_status === 'pending')
+  @if($reg && $reg->payment_status === 'pending' && ! \App\Models\GtrSetting::registrationClosed())
     <form method="POST" action="{{ route('gtr.payment.pay', $reg) }}">
       @csrf
       <button type="submit" class="pf-btn primary" style="width:100%;border:none;cursor:pointer">Bayar Lagi</button>

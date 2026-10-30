@@ -61,11 +61,15 @@
 
     @if($reg->payment_status === 'pending')
       <div class="trx-foot">
+        @if(\App\Models\GtrSetting::registrationClosed())
+          <span style="font-size:12.5px;color:var(--mute)">Pendaftaran &amp; pembayaran sudah ditutup</span>
+        @else
         <span style="font-size:12.5px;color:var(--mute)">Menunggu pembayaran</span>
         <form method="POST" action="{{ route('gtr.payment.pay', $reg) }}">
           @csrf
           <button type="submit" class="btn-blue">Bayar Sekarang</button>
         </form>
+        @endif
       </div>
     @elseif($reg->payment_status === 'paid')
       <div class="trx-foot">

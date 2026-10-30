@@ -970,7 +970,7 @@
     @auth('runner')
       <a class="nav-cta" href="{{ route('gtr.dashboard') }}">{{ auth('runner')->user()->first_name }} · Akun Saya</a>
     @else
-      <a class="nav-cta" href="{{ route('gtr.login') }}">Register Now <span class="arr">→</span></a>
+      <a class="nav-cta" href="{{ route('gtr.login') }}">{{ \App\Models\GtrSetting::registrationClosed() ? 'Masuk' : 'Register Now' }} <span class="arr">→</span></a>
     @endauth
     <button class="nav-burger" id="nav-burger" aria-label="Open menu"><span></span></button>
   </div>
@@ -1006,7 +1006,11 @@
   <a href="{{ route('gtr.results') }}" @class(['active' => $navActive === 'results'])>Results</a>
   {{-- <a href="{{ route('gtr.track.search') }}" @class(['active' => $navActive === 'track'])>Lacak Pelari</a> --}}
   <a href="{{ route('gtr') }}#contact">Contact</a>
+  @if(\App\Models\GtrSetting::registrationClosed())
+  <a class="nav-cta" href="{{ auth('runner')->check() ? route('gtr.dashboard') : route('gtr.login') }}">{{ auth('runner')->check() ? 'Akun Saya' : 'Masuk' }} <span class="arr">→</span></a>
+  @else
   <a class="nav-cta" href="{{ route('volunteer') }}">Register Now <span class="arr">→</span></a>
+  @endif
 </div>
 
 @yield('content')
