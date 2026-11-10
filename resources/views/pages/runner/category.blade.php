@@ -78,6 +78,11 @@
   .gr-box{width:26px;height:26px;border-radius:9px;border:2px solid #D4D4D4;background:#fff;display:grid;place-items:center;flex-shrink:0;color:transparent}
   .gr-box svg{width:15px;height:15px}
   .gr input:checked + .gr-box{background:#22C55E;border-color:#22C55E;color:#fff}
+  .gr-sub{margin:20px 0 8px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#64748B}
+  .gr-sub small{font-weight:600;text-transform:none;letter-spacing:0;color:#8A8A8A;margin-left:4px}
+  .gr-opt{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+  .gr-opt li{padding:10px 13px 10px 30px;border-radius:14px;border:1px dashed #E2E2E2;font-size:13.5px;font-weight:600;color:#475569;position:relative}
+  .gr-opt li::before{content:'+';position:absolute;left:13px;color:#94A3B8;font-weight:800}
   .gr label:has(input:checked){background:#F0FDF4;border-color:#BBF7D0}
 
   /* gpx */
@@ -179,6 +184,14 @@
         <label><input type="checkbox" value="{{ $i }}"><span class="gr-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>{{ $item }}</label>
       @endforeach
     </div>
+    @if(!empty($cat->recommended_gear))
+      <div class="gr-sub">Opsional / Recommended <small>disarankan, tidak wajib</small></div>
+      <ul class="gr-opt">
+        @foreach($cat->recommended_gear as $item)
+          <li>{{ $item }}</li>
+        @endforeach
+      </ul>
+    @endif
   @else
     <p class="empty">Daftar mandatory gear akan diumumkan menjelang race day.</p>
   @endif

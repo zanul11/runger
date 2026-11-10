@@ -81,6 +81,15 @@
                 </table>
               @endif
 
+              @if(!empty($cat->recommended_gear))
+                <div style="font-size:15px;font-weight:800;margin:0 0 8px">Opsional / recommended <span style="font-weight:400;color:#64748B;font-size:13px">(disarankan, tidak wajib)</span></div>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;margin:0 0 20px">
+                  @foreach($cat->recommended_gear as $item)
+                    <tr><td style="padding:5px 0;color:#64748B">+ {{ $item }}</td></tr>
+                  @endforeach
+                </table>
+              @endif
+
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">

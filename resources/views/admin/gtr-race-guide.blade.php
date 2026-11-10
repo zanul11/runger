@@ -184,6 +184,8 @@
   .s-table .cat small{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:19px;color:var(--mute);letter-spacing:0}
   .s-table .big{font-family:'Archivo',sans-serif;font-weight:800;font-size:32px}
   .s-check{width:44px;height:44px;display:inline-block;vertical-align:middle}
+  .s-table-opt{margin-top:28px}
+  .s-table-opt th{background:#2A2F36;color:#CBD5E1}
   .s-no{color:rgba(255,255,255,.25);font-size:30px;font-weight:700}
 
   /* Kategori */
@@ -279,9 +281,10 @@
   /* Race village & parkir */
   .s-venue{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
   .s-venue.noqr{grid-template-columns:1fr}
-  .s-steps{list-style:none;counter-reset:st;display:flex;flex-direction:column;gap:16px}
-  .s-steps li{counter-increment:st;position:relative;padding-left:66px;font-size:27px;line-height:1.42;color:#E6E6E6;min-height:46px}
-  .s-steps li::before{content:counter(st);position:absolute;left:0;top:-2px;width:46px;height:46px;border-radius:12px;background:var(--red);display:grid;place-items:center;font-family:'Archivo',sans-serif;font-weight:900;font-size:24px;color:#fff}
+  /* Nomor dari data-n, bukan CSS counter: html-to-image merender counter() sebagai 0 */
+  .s-steps{list-style:none;display:flex;flex-direction:column;gap:16px}
+  .s-steps li{position:relative;padding-left:66px;font-size:27px;line-height:1.42;color:#E6E6E6;min-height:46px}
+  .s-steps li::before{content:attr(data-n);position:absolute;left:0;top:-2px;width:46px;height:46px;border-radius:12px;background:var(--red);display:grid;place-items:center;font-family:'Archivo',sans-serif;font-weight:900;font-size:24px;color:#fff}
   .s-mapqr{border-radius:22px;background:var(--card);border:1px solid var(--line);padding:20px;text-align:center}
   .s-mapqr .plate{background:#fff;border-radius:14px;padding:14px}
   .s-mapqr .plate img{display:block;width:100%;height:auto}
@@ -308,7 +311,8 @@
   .s-stop-top h4{font-family:'Archivo',sans-serif;font-weight:800;font-size:29px;line-height:1.15;margin-right:auto}
   .s-cot{padding:6px 12px;border-radius:9px;background:rgba(229,57,53,.18);border:1px solid rgba(229,57,53,.5);font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;letter-spacing:.06em}
   .s-time{padding:6px 12px;border-radius:9px;background:rgba(255,255,255,.08);font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;letter-spacing:.06em}
-  .s-stop-loc{font-size:22px;color:var(--soft);margin-top:8px;line-height:1.35}
+  .s-stop-loc{font-size:22px;color:var(--soft);margin-top:8px;line-height:1.35;display:flex;gap:8px;align-items:flex-start}
+  .s-stop-loc svg{width:22px;height:22px;color:var(--red);flex-shrink:0;margin-top:3px}
   .s-stop-fac{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .s-stop-fac span{padding:5px 12px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:18px;font-weight:600;color:#E6E6E6}
   .s-stop-note{font-size:21px;line-height:1.4;color:var(--soft);margin-top:10px;font-style:italic}
@@ -464,7 +468,7 @@
                 @endif
                 @if($g['racepack']['directions'])
                   <div class="s-h3" style="margin-top:0" data-edit>Petunjuk menuju lokasi RPC</div>
-                  <ol class="s-steps">@foreach($g['racepack']['directions'] as $d)<li data-edit>{{ $d }}</li>@endforeach</ol>
+                  <ol class="s-steps">@foreach($g['racepack']['directions'] as $d)<li data-edit data-n="{{ $loop->iteration }}">{{ $d }}</li>@endforeach</ol>
                 @endif
               </div>
               @if($g['racepack']['qr'])
@@ -540,7 +544,7 @@
               <div>
                 @if($g['venue']['directions'])
                   <div class="s-h3" style="margin-top:0" data-edit>Petunjuk menuju venue</div>
-                  <ol class="s-steps">@foreach($g['venue']['directions'] as $d)<li data-edit>{{ $d }}</li>@endforeach</ol>
+                  <ol class="s-steps">@foreach($g['venue']['directions'] as $d)<li data-edit data-n="{{ $loop->iteration }}">{{ $d }}</li>@endforeach</ol>
                 @endif
               </div>
               @if($g['venue']['qr'])
@@ -577,7 +581,7 @@
             @endif
             <p class="s-lead" style="margin-bottom:30px" data-edit>Demi keamanan dan kelancaran acara, mohon ikuti petunjuk parkir berikut:</p>
             @if($g['parking']['notes'])
-              <ol class="s-steps">@foreach($g['parking']['notes'] as $n)<li data-edit>{{ $n }}</li>@endforeach</ol>
+              <ol class="s-steps">@foreach($g['parking']['notes'] as $n)<li data-edit data-n="{{ $loop->iteration }}">{{ $n }}</li>@endforeach</ol>
             @endif
             <p class="s-lead" style="margin-top:30px" data-edit>Terima kasih atas kerja samanya menjaga race day tetap aman, tertib, dan nyaman untuk semua.</p>
           </div></div>
@@ -761,7 +765,7 @@
                       @if($r['time'])<span class="s-time" data-edit>{{ $r['time'] }}</span>@endif
                       @if($r['cutoff'])<span class="s-cot" data-edit>COT {{ $r['cutoff'] }} WITA</span>@endif
                     </div>
-                    @if($r['location'])<div class="s-stop-loc" data-edit>📍 {{ $r['location'] }}</div>@endif
+                    @if($r['location'])<div class="s-stop-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span data-edit>{{ $r['location'] }}</span></div>@endif
                     @if($r['facilities'])<div class="s-stop-fac">@foreach($r['facilities'] as $f)<span data-edit>{{ $f }}</span>@endforeach</div>@endif
                     @if($r['notes'])<div class="s-stop-note" data-edit>{{ $r['notes'] }}</div>@endif
                   </div>
@@ -809,6 +813,25 @@
                 </tr>
               @endforeach
             </table>
+            @if($g['optGear'])
+              <table class="s-table s-table-opt">
+                <tr><th data-edit>Opsional / Recommended</th>@foreach($cats as $c)<th style="width:170px" data-edit>{{ $c['distance'] }}</th>@endforeach</tr>
+                @foreach($g['optGear'] as $row)
+                  <tr>
+                    <td data-edit>{{ $row['item'] }}</td>
+                    @foreach($cats as $c)
+                      <td>
+                        @if(in_array($c['id'], $row['cats']))
+                          <svg class="s-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="none" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="3 2.4"/><path d="M12 7.5v9M7.5 12h9" fill="none" stroke="#CBD5E1" stroke-width="2.4" stroke-linecap="round"/></svg>
+                        @else
+                          <span class="s-no">—</span>
+                        @endif
+                      </td>
+                    @endforeach
+                  </tr>
+                @endforeach
+              </table>
+            @endif
             {{-- Catatan pengganti soft flask (tampil bila soft flask ada di daftar gear). --}}
             @if(collect($g['gear'])->contains(fn ($r) => preg_match('/soft\s*-?\s*f?lask/i', $r['item'])))
               <div class="s-alert">
