@@ -3,10 +3,8 @@
 namespace App\Filament\Resources\GtrResults\Pages;
 
 use App\Filament\Resources\GtrResults\GtrResultResource;
-use App\Models\Event;
-use App\Services\ResultEngine;
+use App\Services\ResultCalculator;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Icons\Heroicon;
@@ -18,25 +16,18 @@ class ListGtrResults extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Jalankan ulang result engine (sama dengan `php artisan gtr:compute-results`).
+            // Hitung ulang semua kategori (sama dengan `php artisan timing:recompute`).
             Action::make('compute')
                 ->label('Hitung Ulang Hasil')
                 ->icon(Heroicon::OutlinedCalculator)
                 ->color('primary')
-                ->schema([
-                    Select::make('event_id')
-                        ->label('Event')
-                        ->options(fn () => Event::orderBy('id')->pluck('title', 'id'))
-                        ->default(fn () => Event::gtrId())
-                        ->required(),
-                ])
-                ->action(function (array $data) {
-                    $event = Event::findOrFail($data['event_id']);
-                    $summary = app(ResultEngine::class)->compute($event);
+                ->requiresConfirmation()
+                ->action(function () {
+                    $summary = app(ResultCalculator::class)->recomputeAll();
 
                     Notification::make()
                         ->title('Hasil dihitung ulang')
-                        ->body("Finisher {$summary['finisher']} · DNF {$summary['dnf']} · DQ {$summary['dq']} · DNS {$summary['dns']}")
+                        ->body("Finisher {$summary['finisher']} · DNF {$summary['dnf']} · DQ {$summary['dq']} · DNS {$summary['dns']} · Perlu review {$summary['review']}")
                         ->success()
                         ->send();
                 }),

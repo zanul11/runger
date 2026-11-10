@@ -1,0 +1,14 @@
+{
+    "_comment": "Pengelompokan scan per lewat (gap 10 menit = 600000 ms) — App\\Support\\Passes::cluster (PHP) & clusterPasses (JS). Waktu dalam menit sejak 06:00 dikali 60000.",
+    "gap_ms": 600000,
+    "cases": [
+        { "name": "kosong", "times": [], "expected": [] },
+        { "name": "satu scan", "times": [4200000], "expected": [4200000] },
+        { "name": "dobel dalam 30 dtk = 1 lewat", "times": [4200000, 4230000], "expected": [4200000] },
+        { "name": "9 mnt 59 dtk = masih lewat yang sama", "times": [4200000, 4799000], "expected": [4200000] },
+        { "name": "tepat 10 mnt = lewat ke-2", "times": [4200000, 4800000], "expected": [4200000, 4800000] },
+        { "name": "15K Pertigaan WS1 lalu WS2 (70 mnt)", "times": [4200000, 8400000], "expected": [4200000, 8400000] },
+        { "name": "urutan acak", "times": [8400000, 4230000, 4200000, 8460000], "expected": [4200000, 8400000] },
+        { "name": "jarak dihitung dari awal lewat, bukan scan terakhir", "times": [0, 300000, 590000, 610000], "expected": [0, 610000] }
+    ]
+}

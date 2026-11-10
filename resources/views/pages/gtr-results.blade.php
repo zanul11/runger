@@ -20,6 +20,7 @@
   .rs-row .nm{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rs-row .nm small{display:block;font-weight:500;font-size:12px;color:var(--text-mute)}
   .rs-row .tm{font-family:'Archivo',sans-serif;font-weight:800;font-variant-numeric:tabular-nums}
+  .rs-note{margin-top:12px;font-size:12px;color:var(--text-mute)}
   @media (max-width:640px){ .rs-row{grid-template-columns:40px 54px 1fr 84px;font-size:13px} .hide-m{display:none} }
 </style>
 @endpush
@@ -32,29 +33,38 @@
       <h2>Results</h2>
       <p>{{ $published ? 'Hasil resmi Gerung Trail Run 2026. Klik nama untuk melihat split, e-sertifikat & kartu story.' : 'Hasil resmi dan klasemen akhir akan diumumkan di sini setelah race day.' }}</p>
     </div>
-    @if($published && $categories->count())
+    @if($published && count($categories))
       <div class="rs-bar">
         <div class="rs-tabs">
           @foreach($categories as $i => $c)
-            <button type="button" @class(['on' => $i === $categories->keys()->first()]) data-rs-tab="{{ $c['cat']->id }}">{{ $c['cat']->distance }}</button>
+            <button type="button" @class(['on' => $i === 0]) data-rs-tab="{{ $c['id'] }}">{{ $c['distance'] }}</button>
           @endforeach
+        </div>
+        <div class="rs-tabs">
+          <button type="button" class="on" data-rs-gender="">Semua</button>
+          <button type="button" data-rs-gender="M">Putra</button>
+          <button type="button" data-rs-gender="F">Putri</button>
         </div>
         <input type="search" class="rs-search" placeholder="Cari nama / BIB" data-rs-search>
       </div>
-      @foreach($categories as $i => $c)
-        <div class="rs-table" data-rs-panel="{{ $c['cat']->id }}" @if($i !== $categories->keys()->first()) hidden @endif>
-          <div class="rs-row rs-head"><span>#</span><span>BIB</span><span>Nama</span><span class="hide-m">Gender</span><span class="r">Waktu</span></div>
-          @foreach($c['rows'] as $r)
-            <a class="rs-row" href="{{ route('gtr.result', $r->registration->bib_number) }}" data-rs-q="{{ strtolower($r->registration->full_name . ' ' . $r->registration->bib_number) }}">
-              <span class="rk">{{ $r->status === 'finisher' ? $r->rank_category : strtoupper($r->status) }}</span>
-              <span>{{ $r->registration->bib_number }}</span>
-              <span class="nm">{{ $r->registration->full_name }}@if($r->registration->club)<small>{{ $r->registration->club }}</small>@endif</span>
-              <span class="hide-m">{{ $r->registration->genderCode() === 'F' ? 'P' : 'L' }}</span>
-              <span class="r tm">{{ $r->status === 'finisher' ? $r->net_time_formatted : '—' }}</span>
-            </a>
-          @endforeach
-        </div>
-      @endforeach
+      <div data-rs-live>
+        @php $hasNet = collect($categories)->contains(fn ($c) => collect($c['rows'])->whereNotNull('net')->isNotEmpty()); @endphp
+        @foreach($categories as $i => $c)
+          <div class="rs-table" data-rs-panel="{{ $c['id'] }}" @if($i !== 0) hidden @endif>
+            <div class="rs-row rs-head"><span>#</span><span>BIB</span><span>Nama</span>@if($hasNet)<span class="hide-m">Net</span>@else<span class="hide-m"></span>@endif<span class="r">Waktu</span></div>
+            @foreach($c['rows'] as $r)
+              <a class="rs-row" href="{{ route('gtr.result', $r['bib']) }}" data-rs-q="{{ strtolower($r['name'] . ' ' . $r['bib']) }}" data-rs-g="{{ $r['gender'] }}">
+                <span class="rk" data-rk="{{ $r['status'] === 'finisher' ? $r['rank'] : strtoupper($r['status']) }}" data-rk-g="{{ $r['status'] === 'finisher' ? $r['rank_gender'] : strtoupper($r['status']) }}">{{ $r['status'] === 'finisher' ? $r['rank'] : strtoupper($r['status']) }}</span>
+                <span>{{ $r['bib'] }}</span>
+                <span class="nm">{{ $r['name'] }}@if($r['club'])<small>{{ $r['club'] }}</small>@endif</span>
+                <span class="hide-m tm" style="opacity:.6">{{ $hasNet && $r['status'] === 'finisher' ? ($r['net'] ?? '—') : '' }}</span>
+                <span class="r tm">{{ $r['status'] === 'finisher' ? $r['gun'] : '—' }}</span>
+              </a>
+            @endforeach
+          </div>
+        @endforeach
+      </div>
+      <p class="rs-note">Waktu = gun time (semua kategori start bersama, dasar peringkat). Diperbarui otomatis tiap {{ \App\Http\Controllers\PageController::RESULTS_CACHE_SECONDS }} detik.</p>
     @else
     <div class="placeholder">
       <div class="ph-icon">
@@ -74,17 +84,44 @@
 @push('scripts')
 <script>
   (function () {
-    var tabs = document.querySelectorAll('[data-rs-tab]'), search = document.querySelector('[data-rs-search]');
-    tabs.forEach(function (b) {
-      b.addEventListener('click', function () {
-        tabs.forEach(function (x) { x.classList.toggle('on', x === b); });
-        document.querySelectorAll('[data-rs-panel]').forEach(function (p) { p.hidden = p.dataset.rsPanel !== b.dataset.rsTab; });
+    var state = { tab: null, gender: '', q: '' };
+    var search = document.querySelector('[data-rs-search]');
+    var first = document.querySelector('[data-rs-tab]');
+    if (!first) return;
+    state.tab = first.dataset.rsTab;
+
+    function apply() {
+      document.querySelectorAll('[data-rs-tab]').forEach(function (b) { b.classList.toggle('on', b.dataset.rsTab === state.tab); });
+      document.querySelectorAll('[data-rs-gender]').forEach(function (b) { b.classList.toggle('on', b.dataset.rsGender === state.gender); });
+      document.querySelectorAll('[data-rs-panel]').forEach(function (p) { p.hidden = p.dataset.rsPanel !== state.tab; });
+      document.querySelectorAll('[data-rs-q]').forEach(function (r) {
+        var ok = (!state.q || r.dataset.rsQ.indexOf(state.q) !== -1) && (!state.gender || r.dataset.rsG === state.gender);
+        r.style.display = ok ? '' : 'none';
+        var rk = r.querySelector('[data-rk]');
+        rk.textContent = state.gender ? rk.dataset.rkG : rk.dataset.rk; // peringkat gender saat difilter
       });
+    }
+
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-rs-tab]'), g = e.target.closest('[data-rs-gender]');
+      if (t) { state.tab = t.dataset.rsTab; apply(); }
+      if (g) { state.gender = g.dataset.rsGender; apply(); }
     });
-    if (search) search.addEventListener('input', function () {
-      var q = search.value.trim().toLowerCase();
-      document.querySelectorAll('[data-rs-q]').forEach(function (r) { r.style.display = !q || r.dataset.rsQ.indexOf(q) !== -1 ? '' : 'none'; });
-    });
+    if (search) search.addEventListener('input', function () { state.q = search.value.trim().toLowerCase(); apply(); });
+
+    // Auto-refresh: ambil ulang halaman, ganti hanya tabel (tab, filter & pencarian tetap).
+    setInterval(function () {
+      if (document.hidden) return;
+      fetch(location.href, { headers: { 'X-Requested-With': 'fetch' } })
+        .then(function (r) { return r.ok ? r.text() : null; })
+        .then(function (html) {
+          if (!html) return;
+          var fresh = new DOMParser().parseFromString(html, 'text/html').querySelector('[data-rs-live]');
+          var live = document.querySelector('[data-rs-live]');
+          if (fresh && live) { live.innerHTML = fresh.innerHTML; apply(); }
+        })
+        .catch(function () {});
+    }, {{ \App\Http\Controllers\PageController::RESULTS_CACHE_SECONDS }} * 1000);
   })();
 </script>
 @endpush

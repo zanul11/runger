@@ -143,27 +143,50 @@ class PageController extends Controller
         return view('pages.gtr-entry-list', ['active' => 'entry', 'categories' => $categories]);
     }
 
+    /** Cache data hasil publik (detik). Halaman juga auto-refresh di browser dengan interval yang sama. */
+    public const RESULTS_CACHE_SECONDS = 30;
+
     public function gtrResults()
     {
         $published = (bool) \App\Models\GtrSetting::first()?->results_published;
-        $categories = collect();
 
-        if ($published) {
-            $categories = \App\Models\GtrCategory::where('is_active', true)->orderBy('sort_order')->get()
-                ->map(function ($cat) {
-                    $rows = \App\Models\GtrResult::with('registration')
-                        ->whereHas('registration', fn ($q) => $q->where('gtr_category_id', $cat->id)->where('payment_status', 'paid'))
-                        ->whereIn('status', ['finisher', 'dnf', 'dq'])
-                        ->get()
-                        ->sortBy(fn ($r) => [$r->status === 'finisher' ? 0 : 1, $r->rank_category ?? PHP_INT_MAX, $r->registration->full_name])
-                        ->values();
+        // Array polos (bukan model) supaya ringan di cache. Peringkat resmi = gun time.
+        $categories = $published
+            ? \Illuminate\Support\Facades\Cache::remember('gtr:results:public', self::RESULTS_CACHE_SECONDS, fn () => self::publicResults())
+            : [];
 
-                    return ['cat' => $cat, 'rows' => $rows];
-                })
-                ->filter(fn ($c) => $c['rows']->count());
-        }
+        return response()
+            ->view('pages.gtr-results', ['active' => 'results', 'published' => $published, 'categories' => $categories])
+            ->header('Cache-Control', 'public, max-age='.self::RESULTS_CACHE_SECONDS);
+    }
 
-        return view('pages.gtr-results', ['active' => 'results', 'published' => $published, 'categories' => $categories]);
+    /** @return list<array{id:int,name:string,distance:?string,rows:list<array>}> */
+    public static function publicResults(): array
+    {
+        return \App\Models\GtrCategory::where('is_active', true)->orderBy('sort_order')->get()
+            ->map(function ($cat) {
+                $rows = \App\Models\GtrResult::with('registration')
+                    ->whereHas('registration', fn ($q) => $q->where('gtr_category_id', $cat->id)->where('payment_status', 'paid'))
+                    ->whereIn('status', ['finisher', 'dnf', 'dq'])
+                    ->get()
+                    ->sortBy(fn ($r) => [$r->status === 'finisher' ? 0 : ($r->status === 'dq' ? 1 : 2), $r->rank_overall ?? PHP_INT_MAX, $r->registration->full_name])
+                    ->map(fn ($r) => [
+                        'bib' => $r->registration->bib_number,
+                        'name' => $r->registration->full_name,
+                        'club' => $r->registration->club,
+                        'gender' => $r->registration->genderCode(),
+                        'status' => $r->status,
+                        'rank' => $r->rank_overall,
+                        'rank_gender' => $r->rank_gender,
+                        'gun' => \App\Models\GtrResult::formatMs($r->gun_time_ms, false),
+                        'net' => \App\Models\GtrResult::formatMs($r->net_time_ms, false),
+                    ])
+                    ->values()->all();
+
+                return ['id' => $cat->id, 'name' => $cat->name, 'distance' => $cat->distance ?: $cat->name, 'rows' => $rows];
+            })
+            ->filter(fn ($c) => count($c['rows']))
+            ->values()->all();
     }
 
     /** Hasil personal: waktu, ranking, split per pos, perbandingan race plan, e-sertifikat & kartu story. */
@@ -176,15 +199,13 @@ class PageController extends Controller
         $result = $reg->result;
         abort_unless($result && in_array($result->status, ['finisher', 'dnf', 'dq'], true), 404);
 
-        $finishers = \App\Models\GtrResult::where('status', 'finisher')->whereNotNull('net_time_seconds')
+        // Peringkat resmi dihitung ResultCalculator (gun time) — tinggal dibaca.
+        $finishers = \App\Models\GtrResult::where('status', 'finisher')->whereNotNull('rank_overall')
             ->whereHas('registration', fn ($q) => $q->where('gtr_category_id', $reg->gtr_category_id));
-        $genderRank = null;
-        $genderTotal = 0;
-        if ($result->status === 'finisher' && $result->net_time_seconds !== null) {
-            $sameGender = (clone $finishers)->whereHas('registration', fn ($q) => $q->where('gender', $reg->gender));
-            $genderTotal = (clone $sameGender)->count();
-            $genderRank = (clone $sameGender)->where('net_time_seconds', '<', $result->net_time_seconds)->count() + 1;
-        }
+        $genderRank = $result->status === 'finisher' ? $result->rank_gender : null;
+        $genderTotal = $genderRank
+            ? (clone $finishers)->whereNotNull('rank_gender')->whereHas('registration', fn ($q) => $q->where('gender', $reg->gender))->count()
+            : 0;
 
         return view('pages.gtr-result', [
             'active' => 'results',

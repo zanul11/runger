@@ -54,7 +54,7 @@ class GtrFilamentSmokeTest extends TestCase
     {
         return [
             'timing points' => ['/admin/gtr-timing-points'],
-            'timing point create' => ['/admin/gtr-timing-points/create'],
+            'scan logs' => ['/admin/gtr-scan-logs'],
             'sponsors' => ['/admin/gtr-sponsors'],
             'sponsor create' => ['/admin/gtr-sponsors/create'],
             'discounts' => ['/admin/gtr-discounts'],
@@ -67,6 +67,22 @@ class GtrFilamentSmokeTest extends TestCase
             'email preview' => ['/admin/gtr-email-preview'],
             'registrations' => ['/admin/gtr-registrations'],
         ];
+    }
+
+    public function test_registration_view_with_scan_history_renders(): void
+    {
+        $this->seedMinimal();
+        $reg = GtrRegistration::first();
+        $tp = GtrTimingPoint::first();
+        $marshal = User::create(['name' => 'Pak Marshal', 'email' => 'pm@t.id', 'password' => 'secret', 'role' => User::ROLE_MARSHAL]);
+        \App\Models\GtrScanLog::create([
+            'gtr_registration_id' => $reg->id, 'gtr_timing_point_id' => $tp->id, 'scanned_at' => now(),
+            'client_uuid' => (string) \Illuminate\Support\Str::uuid(), 'scanned_by' => $marshal->id,
+        ]);
+
+        $admin = $this->admin();
+        $this->actingAs($admin)->get("/admin/gtr-registrations/{$reg->id}")->assertOk();
+        $this->actingAs($admin)->get('/admin/gtr-scan-logs')->assertOk()->assertSee('Pak Marshal');
     }
 
     public function test_category_edit_with_relation_manager_renders(): void

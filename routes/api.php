@@ -1,29 +1,31 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\MarshalController;
-use App\Http\Controllers\Api\MeController;
-use App\Http\Controllers\Api\RosterController;
-use App\Http\Controllers\Api\ScanController;
-use App\Http\Controllers\Api\ServerTimeController;
+use App\Http\Controllers\Api\Timing\RacepackController;
+use App\Http\Controllers\Api\Timing\ScanBatchController;
+use App\Http\Controllers\Api\Timing\SessionController;
+use App\Http\Controllers\Api\Timing\TimeController;
+use App\Http\Controllers\Api\Timing\WaveController;
 use Illuminate\Support\Facades\Route;
 
-// ===== Modul RACE-TIMING GTR =====
+// ===== Modul TIMING GTR (scanner PWA /scanner) =====
+// Role: marshal = timing · racepack = pengambilan racepack · admin = semuanya.
+Route::prefix('timing')->name('timing.')->group(function () {
+    // Login → token Sanctum per device.
+    Route::post('/session', [SessionController::class, 'store'])->middleware('throttle:30,1')->name('session.store');
 
-// Publik: untuk koreksi clock device & login marshal.
-Route::get('/server-time', ServerTimeController::class);
-Route::post('/login', [AuthController::class, 'login']);
+    Route::middleware(['auth:sanctum', 'api.role:marshal,racepack,admin'])->group(function () {
+        Route::get('/session', [SessionController::class, 'show'])->name('session.show');
+        Route::delete('/session', [SessionController::class, 'destroy'])->name('session.destroy');
+        Route::get('/time', TimeController::class)->name('time');
 
-// Butuh bearer token Sanctum (per device/marshal).
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', MeController::class);
-    Route::get('/roster', RosterController::class);
-    Route::post('/scans', [ScanController::class, 'store']);
+        Route::post('/scans/batch', ScanBatchController::class)->middleware('api.role:marshal,admin')->name('scans.batch');
 
-    // Admin-only.
-    Route::middleware('api.admin')->group(function () {
-        Route::post('/marshals', [MarshalController::class, 'store']);
-        Route::put('/marshals/{marshal}/reassign', [MarshalController::class, 'reassign']);
+        Route::middleware('api.role:racepack,admin')->group(function () {
+            Route::get('/racepack/lookup', [RacepackController::class, 'lookup'])->name('racepack.lookup');
+            Route::post('/racepack/checkin', [RacepackController::class, 'checkin'])->name('racepack.checkin');
+        });
+
+        // Tembak start kategori: admin saja.
+        Route::post('/waves/{category}/start', [WaveController::class, 'start'])->middleware('api.admin')->name('waves.start');
     });
 });

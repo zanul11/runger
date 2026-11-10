@@ -5,12 +5,14 @@
 
 @php
   $hms = fn ($s) => $s === null ? '—' : intdiv((int) $s, 3600) . ':' . str_pad((string) intdiv((int) $s % 3600, 60), 2, '0', STR_PAD_LEFT) . ':' . str_pad((string) ((int) $s % 60), 2, '0', STR_PAD_LEFT);
-  $finisher = $result->status === 'finisher' && $result->net_time_seconds !== null;
+  // Waktu resmi = gun time (dasar peringkat). Pace & race plan memakai net time bila ada scan START.
+  $finisher = $result->status === 'finisher' && $result->gun_time_seconds !== null;
+  $runSec = $result->net_time_seconds ?? $result->gun_time_seconds;
   $km = (float) ($track['total_km'] ?: $cat->total_km ?: 0);
-  $pace = $finisher && $km > 0 ? $result->net_time_seconds / $km : null; // detik per km
+  $pace = $finisher && $km > 0 ? $runSec / $km : null; // detik per km
   $mmss = fn ($s) => $s === null ? '—' : intdiv((int) round($s), 60) . ':' . str_pad((string) ((int) round($s) % 60), 2, '0', STR_PAD_LEFT);
   $target = $reg->target_finish_minutes;
-  $vsTarget = $finisher && $target ? $result->net_time_seconds - $target * 60 : null;
+  $vsTarget = $finisher && $target ? $runSec - $target * 60 : null;
   $setting = \App\Models\GtrSetting::first();
   $eventDate = $setting->date_text ?? 'Minggu, 29 November 2026';
 
@@ -94,13 +96,13 @@
       </div>
 
       @if($finisher)
-        <div class="res-time"><small>WAKTU NET</small>{{ $result->net_time_formatted }}</div>
+        <div class="res-time"><small>WAKTU RESMI</small>{{ $result->gun_time_formatted }}</div>
         <div class="res-stats">
           <div><small>Peringkat Kategori</small><b>{{ $result->rank_category }} <span>/ {{ $catTotal }}</span></b></div>
           <div><small>Peringkat {{ $reg->genderCode() === 'F' ? 'Putri' : 'Putra' }}</small><b>{{ $genderRank }} <span>/ {{ $genderTotal }}</span></b></div>
           <div><small>Pace Rata-rata</small><b>{{ $mmss($pace) }} <span>/km</span></b></div>
-          <div><small>{{ $vsTarget !== null ? 'Vs Target ' . intdiv($target, 60) . ':' . str_pad((string) ($target % 60), 2, '0', STR_PAD_LEFT) : 'Gun Time' }}</small>
-            <b>@if($vsTarget !== null){{ $vsTarget <= 0 ? '−' : '+' }}{{ $hms(abs($vsTarget)) }}@else{{ $result->gun_time_formatted ?? '—' }}@endif</b></div>
+          <div><small>{{ $vsTarget !== null ? 'Vs Target ' . intdiv($target, 60) . ':' . str_pad((string) ($target % 60), 2, '0', STR_PAD_LEFT) : ($result->net_time_formatted ? 'Net Time' : 'Jam Finish') }}</small>
+            <b>@if($vsTarget !== null){{ $vsTarget <= 0 ? '−' : '+' }}{{ $hms(abs($vsTarget)) }}@else{{ $result->net_time_formatted ?? ($result->finish_time ? $result->finish_time->format('H:i:s') : '—') }}@endif</b></div>
         </div>
       @else
         <div class="res-status">{{ strtoupper($result->status) }}</div>
@@ -140,8 +142,8 @@
             <text x="800" y="630" fill="#444" font-size="26" text-anchor="middle">{{ $eventDate }} · {{ \Illuminate\Support\Str::limit($setting->location_text ?? 'Bukit Keteri, Gerung — Lombok Barat', 60) }}</text>
             <g transform="translate(330,700)">
               <rect width="300" height="150" rx="18" fill="#F5F5F5"/>
-              <text x="150" y="52" fill="#8A8A8A" font-size="20" font-weight="700" text-anchor="middle" letter-spacing="3">WAKTU NET</text>
-              <text x="150" y="112" fill="#101010" font-size="52" font-weight="900" text-anchor="middle">{{ $result->net_time_formatted }}</text>
+              <text x="150" y="52" fill="#8A8A8A" font-size="20" font-weight="700" text-anchor="middle" letter-spacing="3">WAKTU RESMI</text>
+              <text x="150" y="112" fill="#101010" font-size="52" font-weight="900" text-anchor="middle">{{ $result->gun_time_formatted }}</text>
             </g>
             <g transform="translate(650,700)">
               <rect width="300" height="150" rx="18" fill="#F5F5F5"/>
@@ -175,7 +177,7 @@
               <circle cx="{{ $startXY[0] }}" cy="{{ $startXY[1] }}" r="18" fill="#ffffff" stroke="#E53935" stroke-width="8"/>
             @endif
             <text x="90" y="1430" fill="#B4B4B4" font-size="34" font-weight="800" letter-spacing="8">FINISHER</text>
-            <text x="90" y="1590" fill="#ffffff" font-size="190" font-weight="900">{{ $result->net_time_formatted }}</text>
+            <text x="90" y="1590" fill="#ffffff" font-size="190" font-weight="900">{{ $result->gun_time_formatted }}</text>
             <text x="90" y="1680" fill="#ffffff" font-size="54" font-weight="900">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::limit($reg->full_name, 22)) }}</text>
             <text x="90" y="1750" fill="#B4B4B4" font-size="36" font-weight="700">#{{ $result->rank_category }} dari {{ $catTotal }} · BIB {{ $reg->bib_number }}{{ $cat->elevation_gain ? ' · ' . $cat->elevation_gain : '' }}</text>
             <rect x="90" y="1800" width="900" height="6" fill="#E53935"/>

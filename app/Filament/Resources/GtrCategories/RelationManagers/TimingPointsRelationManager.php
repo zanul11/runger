@@ -2,104 +2,51 @@
 
 namespace App\Filament\Resources\GtrCategories\RelationManagers;
 
-use Filament\Actions\AttachAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DetachAction;
-use Filament\Actions\DetachBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
+use App\Models\GtrTimingPoint;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 /**
- * Kelola titik timing mana yang harus dilewati kategori ini (pivot
- * gtr_category_timing_point: sequence, is_mandatory, cutoff_at).
+ * Pos scan BIB yang dilewati kategori ini. Baca-saja: dibentuk otomatis dari "Titik di Rute"
+ * (App\Services\GtrTimingSync) setiap kali kategori disimpan.
  */
 class TimingPointsRelationManager extends RelationManager
 {
     protected static string $relationship = 'timingPoints';
 
-    protected static ?string $title = 'Titik Timing Kategori';
+    protected static ?string $title = 'Pos Scan BIB';
 
-    /** Field pivot saat mengedit titik yang sudah terpasang. */
-    public function form(Schema $schema): Schema
+    public function isReadOnly(): bool
     {
-        return $schema->components([
-            TextInput::make('sequence')
-                ->label('Urutan')
-                ->numeric()
-                ->default(0)
-                ->required(),
-            TextInput::make('km')
-                ->label('Posisi KM di rute')
-                ->numeric()
-                ->step('0.01')
-                ->helperText('Untuk live tracking di peta. Kosongkan: START = 0, FINISH = ujung rute, CP/WS dicocokkan dengan kode di "Titik di Rute".'),
-            Toggle::make('is_mandatory')
-                ->label('Wajib dilewati')
-                ->default(true),
-            DateTimePicker::make('cutoff_at')
-                ->label('Cut-off')
-                ->seconds(false),
-        ]);
+        return true;
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('code')
+            ->recordTitleAttribute('name')
             ->defaultSort('gtr_category_timing_point.sequence')
+            ->paginated(false)
+            ->description('Otomatis dari "Titik di Rute" + Start & Finish. Ubah titik di rute lalu simpan kategori; pos ikut menyesuaikan.')
             ->columns([
-                TextColumn::make('pivot.sequence')
-                    ->label('#')
-                    ->sortable(),
-                TextColumn::make('code')
-                    ->searchable(),
-                TextColumn::make('pivot.km')
-                    ->label('KM')
-                    ->placeholder('auto'),
-                TextColumn::make('name')
-                    ->searchable(),
+                TextColumn::make('pivot.sequence')->label('#'),
+                TextColumn::make('code')->label('Kode')->badge(),
+                TextColumn::make('name')->label('Lokasi'),
+                TextColumn::make('pivot.km')->label('KM')->placeholder('—'),
                 TextColumn::make('type')
+                    ->label('Jenis')
                     ->badge()
+                    ->formatStateUsing(fn (string $state) => GtrTimingPoint::TYPES[$state] ?? $state)
                     ->color(fn (string $state): string => match ($state) {
                         'start' => 'success',
                         'finish' => 'danger',
                         'water_station' => 'info',
-                        default => 'gray',
+                        default => 'warning',
                     }),
-                IconColumn::make('pivot.is_mandatory')
-                    ->label('Wajib')
-                    ->boolean(),
-                TextColumn::make('pivot.cutoff_at')
-                    ->label('Cut-off')
-                    ->dateTime('d M H:i')
-                    ->placeholder('-'),
-            ])
-            ->headerActions([
-                AttachAction::make()
-                    ->label('Tambah Titik')
-                    ->schema(fn (AttachAction $action): array => [
-                        $action->getRecordSelect(),
-                        TextInput::make('sequence')->label('Urutan')->numeric()->default(0)->required(),
-                        TextInput::make('km')->label('Posisi KM di rute')->numeric()->step('0.01'),
-                        Toggle::make('is_mandatory')->label('Wajib dilewati')->default(true),
-                        DateTimePicker::make('cutoff_at')->label('Cut-off')->seconds(false),
-                    ]),
-            ])
-            ->recordActions([
-                EditAction::make(),
-                DetachAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DetachBulkAction::make(),
-                ]),
+                IconColumn::make('pivot.is_mandatory')->label('Wajib')->boolean(),
+                TextColumn::make('pivot.cutoff_at')->label('Cut-off')->dateTime('d M H:i')->placeholder('—'),
             ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ResultCalculator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,6 +16,16 @@ class GtrSetting extends Model
         'race_guide_published_at' => 'datetime',
         'registration_closes_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        // Hasil resmi dipublikasikan → hitung ulang semua & sinkron race_status peserta.
+        static::saved(function (GtrSetting $setting) {
+            if ($setting->results_published && $setting->wasChanged('results_published')) {
+                app(ResultCalculator::class)->recomputeAll();
+            }
+        });
+    }
 
     /** Pendaftaran online sudah ditutup (lewat registration_closes_at)? */
     public static function registrationClosed(): bool

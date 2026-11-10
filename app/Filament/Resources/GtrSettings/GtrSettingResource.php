@@ -95,6 +95,10 @@ class GtrSettingResource extends Resource
                     TextInput::make('assembly_time')
                         ->label('Jam Kumpul Race Day')
                         ->placeholder('05.15 WITA'),
+                    TextInput::make('race_contact')
+                        ->label('Kontak Darurat Panitia (dicetak di BIB)')
+                        ->placeholder('0859 3660 7558')
+                        ->helperText('Nomor yang bisa dihubungi saat race day. Kosong = pakai kontak RPC.'),
                     Toggle::make('results_published')
                         ->label('Publikasikan hasil resmi')
                         ->helperText('Aktifkan setelah hasil diverifikasi — halaman Results, hasil personal, e-sertifikat & kartu story jadi bisa diakses.'),

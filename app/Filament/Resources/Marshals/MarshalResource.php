@@ -53,7 +53,8 @@ class MarshalResource extends Resource
     /** Opsi pilihan pos: "KODE · Nama". */
     private static function timingPointOptions(): array
     {
-        return GtrTimingPoint::orderBy('sort_order')->get()
+        // Hanya pos yang dipakai kategori (otomatis dari "Titik di Rute").
+        return GtrTimingPoint::whereHas('categories')->orderBy('sort_order')->get()
             ->mapWithKeys(fn (GtrTimingPoint $tp) => [$tp->id => "{$tp->code} · {$tp->name}"])
             ->all();
     }
@@ -103,6 +104,13 @@ class MarshalResource extends Resource
                     ->label('Aktif')
                     ->state(fn (User $record) => (bool) $record->activeAssignment())
                     ->boolean(),
+                // Device scanner terakhir yang login dengan penugasan aktif (lihat SessionController).
+                TextColumn::make('device')
+                    ->label('Device scanner')
+                    ->state(fn (User $record) => ($id = $record->activeAssignment()?->device_id) ? substr($id, 0, 8) : null)
+                    ->description(fn (User $record) => $record->activeAssignment()?->device_seen_at?->diffForHumans())
+                    ->placeholder('— belum login')
+                    ->fontFamily('mono'),
             ])
             ->recordActions([
                 // Pindahkan pos: nonaktifkan lama, aktifkan baru (via MarshalService).

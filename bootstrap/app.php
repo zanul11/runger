@@ -19,7 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias middleware untuk modul race-timing (API admin only).
         $middleware->alias([
             'api.admin' => \App\Http\Middleware\EnsureApiAdmin::class,
+            'api.role' => \App\Http\Middleware\EnsureApiRole::class,
         ]);
+
+        // API timing: simpan BIB persis seperti diketik/discan (audit); normalisasi di App\Support\Bib.
+        $middleware->trimStrings(except: [fn (Request $request) => $request->is('api/timing/*')]);
+        $middleware->convertEmptyStringsToNull(except: [fn (Request $request) => $request->is('api/timing/*')]);
 
         // Rate limit semua request web.
         $middleware->appendToGroup('web', 'throttle:web');

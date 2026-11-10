@@ -355,6 +355,13 @@ class GtrRegistrationResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\ScanLogsRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [

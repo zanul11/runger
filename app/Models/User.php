@@ -22,7 +22,11 @@ class User extends Authenticatable implements FilamentUser
     use HasApiTokens, HasFactory, Notifiable;
 
     public const ROLE_ADMIN = 'admin';
+
     public const ROLE_MARSHAL = 'marshal';
+
+    /** Petugas pengambilan racepack: hanya mode racepack di scanner. */
+    public const ROLE_RACEPACK = 'racepack';
 
     public function isAdmin(): bool
     {
@@ -32,6 +36,11 @@ class User extends Authenticatable implements FilamentUser
     public function isMarshal(): bool
     {
         return $this->role === self::ROLE_MARSHAL;
+    }
+
+    public function isRacepackStaff(): bool
+    {
+        return $this->role === self::ROLE_RACEPACK;
     }
 
     /** Filament admin panel hanya untuk role admin. */
@@ -44,6 +53,12 @@ class User extends Authenticatable implements FilamentUser
     public function timingPointAssignments(): HasMany
     {
         return $this->hasMany(GtrTimingPointAssignment::class);
+    }
+
+    /** Racepack yang diserahkan petugas ini (gtr_registrations.racepack_collected_by). */
+    public function racepackCheckins(): HasMany
+    {
+        return $this->hasMany(GtrRegistration::class, 'racepack_collected_by');
     }
 
     /** Penugasan aktif marshal (maks. satu per event). */

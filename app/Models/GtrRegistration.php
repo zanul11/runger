@@ -108,6 +108,55 @@ class GtrRegistration extends Model
         }
     }
 
+    /** Peserta yang ikut timing: sudah lunas & punya BIB. */
+    public function scopeRaceEligible(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('payment_status', 'paid')->whereNotNull('bib_number')->where('bib_number', '!=', '');
+    }
+
+    /** Nama untuk timing / roster scanner. */
+    public function displayName(): string
+    {
+        return $this->full_name ?: trim(($this->runner?->first_name ?? '') . ' ' . ($this->runner?->last_name ?? ''));
+    }
+
+    /**
+     * Peta BIB kanonik (App\Support\Bib::normalize) → id registrasi, untuk peserta race-eligible.
+     * Kunci dinormalisasi dari sisi database juga, jadi cocok walau ada BIB lama berawalan nol.
+     *
+     * @return array<string,int>
+     */
+    public static function bibMap(): array
+    {
+        $map = [];
+        foreach (static::query()->raceEligible()->pluck('bib_number', 'id') as $id => $bib) {
+            $key = \App\Support\Bib::normalize($bib);
+            if ($key !== null) {
+                $map[$key] = (int) $id;
+            }
+        }
+
+        return $map;
+    }
+
+    /** Cari peserta race-eligible berdasarkan input BIB (dinormalisasi). */
+    public static function findByBib(mixed $input): ?self
+    {
+        $bib = \App\Support\Bib::normalize($input);
+        if ($bib === null) {
+            return null;
+        }
+
+        $exact = static::query()->raceEligible()->where('bib_number', $bib)->first();
+        if ($exact) {
+            return $exact;
+        }
+
+        $id = static::bibMap()[$bib] ?? null;
+
+        return $id ? static::find($id) : null;
+    }
+
     /** Normalisasi gender ke "M"/"F" untuk roster & ranking. */
     public function genderCode(): ?string
     {

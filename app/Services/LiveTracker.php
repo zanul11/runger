@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Casts\DateTimeMs;
 use App\Http\Controllers\RunnerDashboardController;
 use App\Models\Event;
 use App\Models\GtrRegistration;
 use App\Models\GtrTimingPoint;
+use App\Support\Passes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -23,34 +25,38 @@ class LiveTracker
         $coursePoints = $cat->coursePoints()->keyBy('code');
 
         // titik timing kategori (urut sequence) + posisi KM di rute
-        $points = $cat->timingPoints()->get()->map(function (GtrTimingPoint $tp) use ($totalKm, $coursePoints) {
+        // Pos yang dilewati >1 kali (15K di Pertigaan: WS1 & WS2) muncul sekali per kunjungan.
+        $points = $cat->timingPoints()->get()->flatMap(function (GtrTimingPoint $tp) use ($totalKm, $coursePoints) {
             $km = $tp->pivot->km !== null ? (float) $tp->pivot->km : match ($tp->type) {
                 GtrTimingPoint::TYPE_START => 0.0,
                 GtrTimingPoint::TYPE_FINISH => $totalKm,
                 default => $coursePoints->get($tp->code)['km'] ?? null,
             };
+            $visits = Passes::visits($tp->pivot->visits, $tp->code, $km);
 
-            return [
+            return collect($visits)->map(fn ($v, $k) => [
                 'id' => $tp->id,
-                'code' => $tp->code,
+                'visit' => $k,
+                'code' => count($visits) > 1 ? $v['code'] : $tp->code,
                 'name' => $tp->name,
                 'type' => $tp->type,
-                'km' => $km,
-                'cutoff_at' => $tp->pivot->cutoff_at,
-            ];
-        })->values();
+                'km' => $v['km'] ?? $km,
+                'cutoff_at' => $k === 0 ? $tp->pivot->cutoff_at : ($v['cutoff'] ? GtrTimingSync::raceTime($v['cutoff']) : null),
+            ]);
+        })->sortBy('km')->values();
 
-        // scan paling awal per titik
-        $earliest = $reg->scanLogs()
-            ->whereIn('gtr_timing_point_id', $points->pluck('id'))
+        // scan sah per titik → dikelompokkan per lewat (jarak ≥ 10 menit); $earliest = lewat pertama
+        $passesBy = $reg->scanLogs()->valid()
+            ->whereIn('gtr_timing_point_id', $points->pluck('id')->unique())
             ->get(['gtr_timing_point_id', 'scanned_at'])
             ->groupBy('gtr_timing_point_id')
-            ->map(fn ($g) => $g->min('scanned_at'));
+            ->map(fn ($g) => array_map(fn ($ms) => DateTimeMs::toCarbon($ms), Passes::cluster($g->map(fn ($s) => DateTimeMs::toMs($s->scanned_at))->all())));
+        $earliest = $passesBy->map(fn ($list) => $list[0]);
 
         $startPoint = $points->firstWhere('type', GtrTimingPoint::TYPE_START);
         $finishPoint = $points->firstWhere('type', GtrTimingPoint::TYPE_FINISH);
         $startAt = ($startPoint ? $earliest->get($startPoint['id']) : null)
-            ?? $cat->gun_start
+            ?? $cat->officialGunTime()
             ?? Event::query()->value('default_gun_start');
         $startAt = $startAt ? Carbon::parse($startAt) : null;
         $finishAt = $finishPoint ? $earliest->get($finishPoint['id']) : null;
@@ -59,8 +65,8 @@ class LiveTracker
         $target = $reg->target_finish_minutes ?: RunnerDashboardController::defaultTarget($cat);
         $planAt = $this->planElapsedFn($course['splits'] ?? [], $target);
 
-        $passes = $points->map(function ($p) use ($earliest, $startAt, $planAt) {
-            $at = $earliest->get($p['id']);
+        $passes = $points->map(function ($p) use ($passesBy, $startAt, $planAt) {
+            $at = $passesBy->get($p['id'])[$p['visit']] ?? null;
             $elapsed = $at && $startAt ? max(0, $startAt->diffInSeconds($at, false)) : null;
             $plan = $p['km'] !== null && $planAt ? (int) round($planAt($p['km']) * 60) : null;
 

@@ -1,13 +1,37 @@
 <?php
 
+use App\Http\Controllers\GtrBibController;
 use App\Http\Controllers\GtrDocumentController;
 use App\Http\Controllers\GtrRaceGuideController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RunnerAuthController;
-use App\Http\Controllers\RunnerPasswordController;
 use App\Http\Controllers\RunnerDashboardController;
+use App\Http\Controllers\RunnerPasswordController;
 use Illuminate\Support\Facades\Route;
+
+// ===== Scanner timing PWA (Vue + Dexie, resources/js/scanner) =====
+// URL kanonik /scanner/app: .htaccess membuang slash di akhir (/scanner/ → /scanner), padahal
+// scope service worker harus /scanner/.
+Route::get('/scanner/sw.js', function () {
+    $path = public_path('build/scanner-sw.js');
+    abort_unless(is_file($path), 404);
+
+    return response()->file($path, [
+        'Content-Type' => 'application/javascript; charset=utf-8',
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'Service-Worker-Allowed' => '/scanner/',
+    ]);
+})->name('scanner.sw');
+// Manifest PWA di dalam scope (juga di-precache SW dengan path relatif ini).
+Route::get('/scanner/scanner.webmanifest', function () {
+    $path = public_path('build/scanner.webmanifest');
+    abort_unless(is_file($path), 404);
+
+    return response()->file($path, ['Content-Type' => 'application/manifest+json', 'Cache-Control' => 'no-cache']);
+})->name('scanner.manifest');
+Route::redirect('/scanner', '/scanner/app');
+Route::view('/scanner/{any}', 'scanner.app')->where('any', '.*')->name('scanner');
 
 // Formulir pendaftaran offline (blank, untuk dicetak) — admin only.
 Route::get('/gtr/formulir-pendaftaran', [PageController::class, 'gtrRegistrationForm'])
@@ -41,11 +65,8 @@ Route::middleware('auth')->prefix('gtr/race-guide')->name('gtr.race-guide')->gro
 Route::middleware('auth')->get('/gtr/documents/{document}/preview/{lang}', [GtrDocumentController::class, 'preview'])
     ->whereIn('lang', ['id', 'en'])->name('gtr.docs.preview');
 
-// Swagger UI dokumentasi API (dilayani via route agar tidak 404 di /docs).
-Route::get('/docs', fn () => response()->file(public_path('docs/index.html')))->name('api.docs');
-Route::get('/docs/openapi.yaml', fn () => response()->file(public_path('docs/openapi.yaml'), [
-    'Content-Type' => 'application/yaml',
-]));
+// Cetak BIB peserta (PDF A5 landscape) — admin only.
+Route::middleware('auth')->get('/gtr/bib/pdf', [GtrBibController::class, 'pdf'])->name('gtr.bib.pdf');
 
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/agenda', [PageController::class, 'agenda'])->name('agenda');
@@ -54,6 +75,7 @@ Route::get('/galeri', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/gerung-trail-run', [PageController::class, 'gtr'])->name('gtr');
 Route::get('/gerung-trail-run/entry-list', [PageController::class, 'gtrEntryList'])->name('gtr.entry');
 Route::get('/gerung-trail-run/results', [PageController::class, 'gtrResults'])->name('gtr.results');
+Route::redirect('/results', '/gerung-trail-run/results');
 Route::get('/gerung-trail-run/results/{bib}', [PageController::class, 'gtrResult'])->name('gtr.result');
 Route::get('/gerung-trail-run/rules', [PageController::class, 'gtrRules'])->name('gtr.rules');
 Route::get('/gerung-trail-run/race-guide', [GtrRaceGuideController::class, 'index'])->name('gtr.guide');

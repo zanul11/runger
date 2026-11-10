@@ -23,9 +23,23 @@ class GtrCategory extends Model
     public function timingPoints(): BelongsToMany
     {
         return $this->belongsToMany(GtrTimingPoint::class, 'gtr_category_timing_point')
-            ->withPivot(['sequence', 'km', 'is_mandatory', 'cutoff_at'])
+            ->withPivot(['sequence', 'km', 'is_mandatory', 'cutoff_at', 'visits'])
             ->withTimestamps()
             ->orderBy('gtr_category_timing_point.sequence');
+    }
+
+    /**
+     * Gun time resmi kategori: waktu pistol AKTUAL ditembak (gun_fired_at),
+     * fallback ke jadwal (gun_start) selama belum ditembak.
+     */
+    public function officialGunTime(): ?\Illuminate\Support\Carbon
+    {
+        return $this->gun_fired_at ?? $this->gun_start;
+    }
+
+    public function gunFiredBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'gun_fired_by');
     }
 
     protected $casts = [
@@ -37,6 +51,7 @@ class GtrCategory extends Model
         'rundown' => 'array',
         'early_bird_until' => 'date',
         'gun_start' => 'datetime',
+        'gun_fired_at' => \App\Casts\DateTimeMs::class,
         'cut_off_at' => 'datetime',
         'total_km' => 'decimal:2',
         'price_early_bird' => 'integer',
@@ -50,6 +65,14 @@ class GtrCategory extends Model
      */
     protected static function booted(): void
     {
+        // Titik timing (pos scan BIB) mengikuti "Titik di Rute" kategori secara otomatis.
+        static::saved(function (GtrCategory $cat) {
+            $fields = ['water_stations', 'total_km', 'start_time', 'cut_off_time', 'cut_off_at'];
+            if ($cat->wasRecentlyCreated ? ! empty($cat->water_stations) : $cat->wasChanged($fields)) {
+                \App\Services\GtrTimingSync::run();
+            }
+        });
+
         static::saving(function (GtrCategory $cat) {
             if (! $cat->isDirty('gpx_file')) {
                 return;
