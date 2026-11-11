@@ -13,6 +13,11 @@ class RoadToGtrRegistration extends Model
     /** Tanggal acara (WITA). Form ditutup setelah hari acara berakhir. */
     public const EVENT_DATE = '2026-11-15';
 
+    /** Sesuai poster resmi (public/assets/gtr/road-to-gtr/poster.jpg). */
+    public const EVENT_TIME = '06:00 WITA s.d. selesai';
+
+    public const EVENT_PLACE = 'Bukit Keteri — Desa Banyu Urip';
+
     protected static function booted(): void
     {
         // Input admin juga dibakukan (08…) supaya cek dobel & link WhatsApp konsisten.

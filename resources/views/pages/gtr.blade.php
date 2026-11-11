@@ -77,8 +77,8 @@
       <span class="rtg-promo-date"><b>{{ \App\Models\RoadToGtrRegistration::eventDate()->format('j') }}</b>{{ strtoupper(\App\Models\RoadToGtrRegistration::eventDate()->locale('id')->translatedFormat('M')) }}</span>
       <span class="rtg-promo-txt">
         <small>Road to GTR</small>
-        <strong>Fun Trail &amp; Tanam Pohon</strong>
-        <em>Pemanasan bareng sebelum race day, lalu tanam pohon bareng. Kuota terbatas — sisa <b>{{ $rtgLeft }}</b> slot.</em>
+        <strong>Tanam Pohon &amp; Fun Trail</strong>
+        <em>Bukit Keteri · {{ \App\Models\RoadToGtrRegistration::EVENT_TIME }}. Kuota terbatas — sisa <b>{{ $rtgLeft }}</b> slot.</em>
       </span>
       <span class="btn-primary">Daftar <span class="arr">→</span></span>
     </a>

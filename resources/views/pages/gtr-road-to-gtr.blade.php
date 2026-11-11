@@ -2,36 +2,44 @@
 
 @php
   $dateText = $eventDate->locale('id')->translatedFormat('l, j F Y');
-  $shareText = 'Ikut Road to GTR bareng yuk — fun trail + tanam pohon! ' . $dateText . '. Daftar di sini: ' . route('gtr.road');
+  $time = \App\Models\RoadToGtrRegistration::EVENT_TIME;
+  $place = \App\Models\RoadToGtrRegistration::EVENT_PLACE;
+  $mapsQuery = 'Bukit Keteri, Banyu Urip, Gerung, Lombok Barat';
+  $shareText = 'Ikut Road to GTR bareng yuk — penanaman pohon & fun trail Bukit Keteri! ' . $dateText . ', ' . $time . '. Kuota terbatas, daftar di sini: ' . route('gtr.road');
 @endphp
 
 @section('title', 'Road to GTR · Fun Trail & Tanam Pohon — Gerung Trail Run 2026')
 @section('description', 'Daftar Road to GTR, ' . $dateText . ' — fun trail & tanam pohon bareng sebelum Gerung Trail Run 2026.')
-@section('og_image', asset('assets/gtr/gallery/rudi.jpeg'))
+@section('og_image', asset('assets/gtr/road-to-gtr/poster.jpg'))
 @section('bodyClass', 'gtr-sub')
 
 {{--
-  Mobile first: base CSS = layar HP (±360–430 px). Desktop hanya memperlebar hero & memusatkan form.
+  Mobile first: base CSS = layar HP (±360–430 px). Header = poster resmi (4:5, teks sudah di dalam gambar →
+  tidak ditimpa teks/crop). Desktop: poster di kiri, form di kanan.
   - Input 16px → iOS Safari tidak auto-zoom saat fokus; tinggi sentuh ≥ 54px.
   - Tombol Daftar menempel di bawah layar (sticky) selama form terlihat, aman untuk notch (safe-area).
 --}}
 @push('styles')
 <style>
-  /* ---------------------------------------------------------------- Hero --- */
-  .rtg-hero{position:relative;min-height:clamp(300px,52svh,440px);display:flex;align-items:flex-end;overflow:hidden;
-    background:#000 var(--hero-sm) center 30%/cover no-repeat;color:#fff}
-  .rtg-hero::before{content:'';position:absolute;inset:0;
-    background:linear-gradient(180deg,rgba(0,0,0,.25) 0%,rgba(0,0,0,.1) 35%,rgba(0,0,0,.72) 78%,var(--bg) 100%)}
-  .rtg-hero-in{position:relative;width:100%;padding:0 16px 44px}
-  .rtg-eye{font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;
-    display:inline-flex;align-items:center;gap:10px}
-  .rtg-eye::before{content:'';width:22px;height:2px;background:var(--red)}
-  .rtg-title{font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(46px,14vw,96px);line-height:.88;letter-spacing:-.02em;
-    text-transform:uppercase;margin-top:10px;text-shadow:0 6px 28px rgba(0,0,0,.45)}
-  .rtg-title span{color:var(--red)}
-  .rtg-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-  .rtg-chip{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;background:rgba(0,0,0,.45);
-    border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  /* ------------------------------------------------------- Poster header --- */
+  .rtg-hero{position:relative;overflow:hidden;background:#0d130f}
+  /* Latar blur dari poster yang sama untuk layar yang lebih lebar dari poster. */
+  .rtg-hero::before{content:'';position:absolute;inset:-40px;background:var(--poster) center/cover;filter:blur(36px) brightness(.45);transform:scale(1.1)}
+  .rtg-poster{position:relative;display:block;max-width:560px;margin:0 auto}
+  .rtg-poster img{display:block;width:100%;height:auto;aspect-ratio:4/5}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  /* Info acara (tanggal, jam, lokasi) — teks asli, bisa disalin & lokasi membuka Maps. */
+  .rtg-facts{display:grid;gap:8px}
+  .rtg-fact{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:var(--bg-soft);border:1px solid var(--line);color:#fff}
+  .rtg-fact svg{flex:none;width:22px;height:22px;color:#b5e853}
+  .rtg-fact small{display:block;font-family:'Archivo',sans-serif;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-mute);font-weight:700}
+  .rtg-fact b{display:block;margin-top:2px;font-size:15px;font-weight:600}
+  a.rtg-fact .go{margin-left:auto;color:var(--text-mute);font-size:18px}
+  a.rtg-fact:active{background:#1b1b1b}
+  .rtg-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .rtg-chip{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;background:var(--bg-soft);
+    border:1px solid var(--line-strong);
     font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;white-space:nowrap}
   .rtg-chip svg{width:14px;height:14px;color:var(--red);flex-shrink:0}
   .rtg-chip.live i{width:7px;height:7px;border-radius:50%;background:#35E656;box-shadow:0 0 0 0 rgba(53,230,86,.6);animation:rtgPing 1.8s infinite}
@@ -49,9 +57,9 @@
   @keyframes rtgPing{70%{box-shadow:0 0 0 7px rgba(53,230,86,0)}100%{box-shadow:0 0 0 0 rgba(53,230,86,0)}}
 
   /* ------------------------------------------------- Sheet (form / status) --- */
-  .rtg-sheet{position:relative;margin-top:-22px;padding:0 0 40px;background:var(--bg);border-radius:24px 24px 0 0}
-  .rtg-body{max-width:560px;margin:0 auto;padding:26px 16px 0}
-  .rtg-lead{color:var(--text-soft);font-size:15px;line-height:1.6}
+  .rtg-sheet{position:relative;padding:0 0 40px;background:var(--bg)}
+  .rtg-body{max-width:560px;margin:0 auto;padding:22px 16px 0}
+  .rtg-lead{margin-top:18px;color:var(--text-soft);font-size:15px;line-height:1.6}
   .rtg-h{font-family:'Archivo',sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;letter-spacing:-.01em;margin-top:26px}
   .rtg-h small{display:block;margin-top:6px;font-family:inherit;font-weight:400;font-size:13.5px;letter-spacing:0;text-transform:none;color:var(--text-mute);line-height:1.5}
 
@@ -112,14 +120,15 @@
   .rtg-quota.low .rtg-quota-bar i{background:linear-gradient(90deg,#ff7043,var(--red))}
 
   @media (min-width:600px){ .rtg-agenda{grid-template-columns:1fr 1fr} }
+  @media (min-width:600px){ .rtg-facts{grid-template-columns:1fr 1fr} .rtg-fact.wide{grid-column:1/-1} }
   @media (min-width:900px){
-    /* Foto resolusi penuh hanya di layar lebar; HP cukup webp ringan. */
-    .rtg-hero{min-height:460px;background-image:var(--hero-lg);background-position:center 35%}
-    .rtg-hero-in{max-width:1320px;margin:0 auto;padding:0 32px 96px;text-align:center}
-    .rtg-chips{justify-content:center}
-    .rtg-sheet{margin-top:-64px;background:transparent;padding-bottom:110px}
-    .rtg-body{max-width:640px;padding:36px 36px 34px;border-radius:28px;background:var(--bg);border:1px solid var(--line);
-      box-shadow:0 40px 80px -40px rgba(0,0,0,.9)}
+    /* Dua kolom: poster di kiri, form di kanan. */
+    .rtg-layout{display:grid;grid-template-columns:minmax(0,480px) minmax(0,600px);justify-content:center;align-items:start;
+      gap:40px;max-width:1180px;margin:0 auto;padding:48px 32px 110px}
+    .rtg-hero{border-radius:24px;box-shadow:0 40px 80px -40px rgba(0,0,0,.9)}
+    .rtg-hero::before{display:none}
+    .rtg-sheet{margin-top:0;padding:0;background:transparent;border-radius:0}
+    .rtg-body{max-width:none;padding:32px 34px 34px;border-radius:28px;background:var(--bg);border:1px solid var(--line)}
     .rtg-submit{position:static;margin:8px 0 0;padding:0;background:none}
   }
   @media (prefers-reduced-motion:reduce){ .rtg-chip.live i{animation:none} }
@@ -127,40 +136,62 @@
 @endpush
 
 @section('content')
-<header class="rtg-hero" style="--hero-sm:url('{{ asset('assets/gtr/gallery/rudi.webp') }}');--hero-lg:url('{{ asset('assets/gtr/gallery/rudi.jpeg') }}')">
-  <div class="rtg-hero-in">
-    <div class="rtg-eye">Road to GTR</div>
-    <h1 class="rtg-title">Fun <span>Trail</span></h1>
-    <div class="rtg-chips">
-      <span class="rtg-chip">
+<div class="rtg-layout">
+<header class="rtg-hero" style="--poster:url('{{ asset('assets/gtr/road-to-gtr/poster-800.webp') }}')">
+  <h1 class="sr-only">Road to GTR — Penanaman Pohon &amp; Fun Trail Bukit Keteri, {{ $dateText }}</h1>
+  {{-- Ketuk poster → buka ukuran penuh (mudah disimpan / dibagikan). --}}
+  <a class="rtg-poster" href="{{ asset('assets/gtr/road-to-gtr/poster.jpg') }}" target="_blank" rel="noopener">
+    <picture>
+      <source type="image/webp" media="(min-width:600px)" srcset="{{ asset('assets/gtr/road-to-gtr/poster.webp') }}">
+      <source type="image/webp" srcset="{{ asset('assets/gtr/road-to-gtr/poster-800.webp') }}">
+      <img src="{{ asset('assets/gtr/road-to-gtr/poster.jpg') }}" width="1280" height="1600" fetchpriority="high" decoding="async"
+        alt="Poster Road to GTR — Penanaman Pohon & Fun Trail Bukit Keteri, {{ $dateText }}, {{ $place }}, {{ $time }}. Limited slot.">
+    </picture>
+  </a>
+</header>
+
+<section class="rtg-sheet">
+  <div class="rtg-body">
+    <div class="rtg-facts">
+      <div class="rtg-fact">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        {{ $dateText }}
-      </span>
+        <span><small>Tanggal</small><b>{{ $dateText }}</b></span>
+      </div>
+      <div class="rtg-fact">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span><small>Waktu</small><b>{{ $time }}</b></span>
+      </div>
+      <a class="rtg-fact wide" href="https://www.google.com/maps/search/?api=1&amp;query={{ rawurlencode($mapsQuery) }}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span><small>Lokasi · buka Maps</small><b>{{ $place }}</b></span>
+        <span class="go" aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <div class="rtg-chips">
       <span class="rtg-chip tree">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7"/><path d="M12 15c-4 0-7-2.6-7-6.2C5 5.3 8.1 2 12 2s7 3.3 7 6.8c0 3.6-3 6.2-7 6.2Z"/><path d="m9 11 3 2.5 3-2.5"/></svg>
-        Tanam Pohon
+        Go Green
       </span>
       @if($remaining === 0)
         <span class="rtg-chip full">Kuota penuh</span>
       @elseif($total > 0)
         <span class="rtg-chip live"><i></i>{{ $total }}/{{ $quota }} terdaftar</span>
+      @else
+        <span class="rtg-chip">Limited slot · {{ $quota }} orang</span>
       @endif
     </div>
-  </div>
-</header>
 
-<section class="rtg-sheet">
-  <div class="rtg-body">
-    <p class="rtg-lead">Pemanasan bareng sebelum Gerung Trail Run 2026 — lari santai di trail, lalu tanam pohon bareng. Kenalan sama trail-nya, latihan bareng komunitas, sekalian ikut merawat alam tempat kita berlari.</p>
+    <p class="rtg-lead">Penanaman pohon &amp; fun trail di Bukit Keteri — pemanasan bareng sebelum Gerung Trail Run 2026. Kenalan sama trail-nya, latihan bareng komunitas, sekalian ikut merawat alam tempat kita berlari.</p>
 
     <div class="rtg-agenda">
-      <div class="rtg-ag">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l5.5 10.5-3.2-1.6L12 16l-2.3-3.1-3.2 1.6z"/></svg></div>
-        <div><b>Fun Trail</b><span>Lari santai bareng, rasain vibe race day lebih awal.</span></div>
-      </div>
       <div class="rtg-ag tree">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7"/><path d="M12 15c-4 0-7-2.6-7-6.2C5 5.3 8.1 2 12 2s7 3.3 7 6.8c0 3.6-3 6.2-7 6.2Z"/><path d="m9 11 3 2.5 3-2.5"/></svg></div>
         <div><b>Tanam Pohon</b><span>Tanam pohon bareng peserta — kontribusi kecil buat alam.</span></div>
+      </div>
+      <div class="rtg-ag">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l5.5 10.5-3.2-1.6L12 16l-2.3-3.1-3.2 1.6z"/></svg></div>
+        <div><b>Fun Trail</b><span>Lari santai bareng, rasain vibe race day lebih awal.</span></div>
       </div>
     </div>
 
@@ -258,6 +289,7 @@
     @endif
   </div>
 </section>
+</div>
 @endsection
 
 @push('scripts')

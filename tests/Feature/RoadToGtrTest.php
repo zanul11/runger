@@ -34,9 +34,15 @@ class RoadToGtrTest extends TestCase
     {
         $this->get(route('gtr.road'))->assertOk()
             ->assertSee('Form Pendaftaran')->assertSee('Minggu, 15 November 2026')->assertSee('Tanam Pohon')
+            ->assertSee('06:00 WITA s.d. selesai')->assertSee('Bukit Keteri — Desa Banyu Urip')
+            ->assertSee('assets/gtr/road-to-gtr/poster-800.webp', false)
             ->assertSee(route('gtr.road.store'), false);
 
         $this->get(route('gtr'))->assertOk()->assertSee(route('gtr.road'), false);
+
+        foreach (['poster.jpg', 'poster.webp', 'poster-800.webp'] as $f) {
+            $this->assertFileExists(public_path('assets/gtr/road-to-gtr/'.$f));
+        }
     }
 
     public function test_registration_is_stored_with_normalized_phone(): void
