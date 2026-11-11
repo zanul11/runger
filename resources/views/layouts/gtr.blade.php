@@ -14,8 +14,9 @@
 <meta property="og:url" content="{{ url()->current() }}">
 <meta property="og:image" content="@yield('og_image', asset('assets/gtr/gallery/ari.jpeg'))">
 <meta property="og:image:secure_url" content="@yield('og_image', asset('assets/gtr/gallery/ari.jpeg'))">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:image:width" content="@yield('og_image_w', '1200')">
+<meta property="og:image:height" content="@yield('og_image_h', '630')">
+<meta property="og:image:alt" content="@yield('og_image_alt', 'Gerung Trail Run 2026')">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="@yield('title', 'Gerung Trail Run 2026 — 1st Edition · Runger Anniversary')">
 <meta name="twitter:description" content="@yield('description', 'Gerung Trail Run 2026 — race trail perdana di Lombok Barat. Bukit Keteri, Gerung. Dipersembahkan oleh Runners Gerung.')">

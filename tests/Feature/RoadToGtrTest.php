@@ -40,7 +40,14 @@ class RoadToGtrTest extends TestCase
 
         $this->get(route('gtr'))->assertOk()->assertSee(route('gtr.road'), false);
 
-        foreach (['poster.jpg', 'poster.webp', 'poster-800.webp'] as $f) {
+        // Preview share = gambar landscape 1200×630 dari poster, dengan ukuran meta yang cocok.
+        $this->get(route('gtr.road'))
+            ->assertSee('<meta property="og:image" content="'.asset('assets/gtr/road-to-gtr/share.jpg').'">', false)
+            ->assertSee('<meta property="og:image:width" content="1200">', false)
+            ->assertSee('<meta name="twitter:image" content="'.asset('assets/gtr/road-to-gtr/share.jpg').'">', false);
+        $this->assertSame([1200, 630], array_slice(getimagesize(public_path('assets/gtr/road-to-gtr/share.jpg')), 0, 2));
+
+        foreach (['poster.jpg', 'poster.webp', 'poster-800.webp', 'share.jpg'] as $f) {
             $this->assertFileExists(public_path('assets/gtr/road-to-gtr/'.$f));
         }
     }

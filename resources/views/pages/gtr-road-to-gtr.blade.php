@@ -8,9 +8,12 @@
   $shareText = 'Ikut Road to GTR bareng yuk — penanaman pohon & fun trail Bukit Keteri! ' . $dateText . ', ' . $time . '. Kuota terbatas, daftar di sini: ' . route('gtr.road');
 @endphp
 
-@section('title', 'Road to GTR · Fun Trail & Tanam Pohon — Gerung Trail Run 2026')
-@section('description', 'Daftar Road to GTR, ' . $dateText . ' — fun trail & tanam pohon bareng sebelum Gerung Trail Run 2026.')
-@section('og_image', asset('assets/gtr/road-to-gtr/poster.jpg'))
+@section('title', 'Road to GTR — Penanaman Pohon & Fun Trail Bukit Keteri')
+@section('description', $dateText . ' · ' . $time . ' · ' . $place . '. Kuota terbatas ' . \App\Models\RoadToGtrRegistration::QUOTA . ' orang — daftar sekarang!')
+{{-- Preview share (WhatsApp/FB/X): versi landscape 1200×630 dari poster (poster utuh di tengah, latar blur) —
+     poster potret asli akan dipotong / jadi thumbnail kecil. Dibuat dari poster.jpg dengan GD. --}}
+@section('og_image', asset('assets/gtr/road-to-gtr/share.jpg'))
+@section('og_image_alt', 'Poster Road to GTR — Penanaman Pohon & Fun Trail Bukit Keteri, Minggu 15 November 2026')
 @section('bodyClass', 'gtr-sub')
 
 {{--
