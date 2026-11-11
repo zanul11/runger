@@ -14,8 +14,13 @@
    - suara: ding (BIB terdaftar), buzz 3× (tidak terdaftar), nada tunggal (kode lain) — tombol Suara;
    - offline penuh: font lokal + service worker (sw.js) menyimpan halaman, data, font, & logo.
 
+  Mode 'result' (/gerung-trail-run/cek-hasil, GtrResultCheckController): kartu yang sama + panel hasil
+  lomba di kanan (status, waktu resmi/gun time, net time, pace, peringkat kategori & gender).
+  Sebelum hasil dipublikasikan, panel diberi label "Hasil sementara" dan hanya finisher yang tampil.
+
   Uji tanpa mesin: ketik nomor BIB + Enter, atau buka ?bib=7001.
 --}}
+@php($isResult = $mode === 'result')
 <!doctype html>
 <html lang="id">
 <head>
@@ -23,7 +28,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#efede8">
-<title>Cek BIB — {{ $title }}</title>
+<title>{{ $isResult ? 'Cek Hasil' : 'Cek BIB' }} — {{ $title }}</title>
 <link rel="icon" type="image/jpeg" href="{{ asset('assets/gtr/logo.jpeg') }}">
 {{-- Font lokal (bukan Google Fonts) supaya tetap tampil saat offline. --}}
 <link rel="preload" href="{{ asset('assets/gtr/bib-check/fonts/barlowc-900i-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
@@ -117,6 +122,38 @@
   .sponsors img{height:100%;max-width:124px;object-fit:contain;display:block}
   .sponsors .wide{height:36px}
 
+  /* Kiosk BIB: blok BIB + nama di tengah. Kiosk hasil: blok BIB di kiri, panel hasil di kanan. */
+  .bib-id{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+  .res{display:none}
+  .mode-result .bib-body{flex-direction:row;justify-content:space-between;align-items:center;gap:32px;text-align:left}
+  .mode-result .bib-id{flex:0 0 430px}
+  .mode-result .bib-who{max-width:430px;text-align:center}
+  .mode-result .res{display:flex}
+
+  /* ---------------------------------------------------- Panel hasil lomba --- */
+  /* Ukuran dalam unit desain × --k (kartu lebih tinggi dari desain → ikut membesar, maks. 1,3×). */
+  .res{position:relative;flex:0 1 446px;min-width:0;flex-direction:column;gap:calc(var(--k,1)*12px);
+    padding:calc(var(--k,1)*18px) calc(var(--k,1)*22px);border-radius:14px;background:var(--paper);
+    box-shadow:0 16px 34px -20px rgba(0,0,0,.45),0 0 0 1.5px var(--rule)}
+  .res-top{display:flex;align-items:center;gap:10px;justify-content:space-between}
+  .res-st{font:italic 900 calc(var(--k,1)*28px)/1 var(--cond);color:#fff;background:var(--c);border-radius:4px;
+    padding:.16em .55em .04em;text-transform:uppercase;letter-spacing:.04em}
+  .res-st.dnf{background:var(--ink)} .res-st.dq{background:var(--amber)}
+  .res-tag{font:700 calc(var(--k,1)*15px)/1 var(--cond);letter-spacing:.2em;text-transform:uppercase;color:var(--label)}
+  .res-tag.prov{color:var(--amber)}
+  .res-lbl{font:700 calc(var(--k,1)*14px)/1 var(--cond);letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
+  .res-time{font:italic 900 calc(var(--k,1)*104px)/.82 var(--cond);color:var(--ink);letter-spacing:-.01em;
+    font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:calc(var(--k,1)*4px);width:max-content}
+  .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--k,1)*8px)}
+  .res-grid div{border-top:1.5px solid var(--rule);padding-top:calc(var(--k,1)*7px);min-width:0}
+  .res-grid small{display:block;font:700 calc(var(--k,1)*13px)/1 var(--cond);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+  .res-grid b{display:block;margin-top:calc(var(--k,1)*5px);font:italic 900 calc(var(--k,1)*40px)/.9 var(--cond);color:var(--c);
+    white-space:nowrap;font-variant-numeric:tabular-nums}
+  .res-grid b span{font-size:.55em;color:var(--mute);font-style:normal;font-weight:700;margin-left:.2em}
+  .res-msg{font:800 calc(var(--k,1)*54px)/.92 var(--cond);text-transform:uppercase;color:var(--ink);text-wrap:balance}
+  .res-sub{margin-top:calc(var(--k,1)*10px);font:500 calc(var(--k,1)*19px)/1.3 var(--cond);letter-spacing:.03em;text-transform:uppercase;color:var(--mute)}
+  .res [hidden]{display:none}
+
   /* Bilah hitung mundur kembali ke layar scan (tepi bawah pita sponsor) */
   .timer{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(255,255,255,.12);overflow:hidden;z-index:1}
   .timer i{display:block;height:100%;width:100%;background:rgba(255,255,255,.55);transform-origin:left}
@@ -170,7 +207,7 @@
         <img class="gtr" src="{{ asset('assets/gtr/bib-check/gtr-logo.webp') }}" alt="Gerung Trail Run">
         <div class="cobrand"><div class="rg"><img src="{{ asset('assets/runger-logo.png') }}" alt="Runger"></div><div class="sep"></div><div class="kt"><img src="{{ asset('assets/gtr/keteri.webp') }}" alt="Bukit Keteri"></div></div>
       </div>
-      <div class="kicker"><span></span>BIB CHECK<span></span></div>
+      <div class="kicker"><span></span>{{ $isResult ? 'RESULT CHECK' : 'BIB CHECK' }}<span></span></div>
       <div class="qr" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>
@@ -178,14 +215,19 @@
           <rect x="7" y="13.5" width="3.5" height="3.5" rx=".5"/><path d="M13.5 13.5h1.5v1.5M17 13.5v.01M13.5 17h.01M16 16v1h1"/>
         </svg>
       </div>
-      <h1>Scan BIB kamu</h1>
-      <p>Arahkan QR code di BIB ke mesin scanner</p>
+      @if($isResult)
+        <h1>Cek hasil lari</h1>
+        <p>Scan QR code di BIB untuk lihat waktu &amp; peringkatmu</p>
+      @else
+        <h1>Scan BIB kamu</h1>
+        <p>Arahkan QR code di BIB ke mesin scanner</p>
+      @endif
     </div>
 
     {{-- Hasil: kartu BIB --}}
     <div class="view" id="v-ok">
       <div class="cardbox" id="cardbox">
-        <div class="bib" id="card">
+        <div class="bib{{ $isResult ? ' mode-result' : '' }}" id="card">
           <svg class="terrain" id="terrain" viewBox="0 0 1000 500" width="1000" height="500" aria-hidden="true">
             <path class="topo" id="t-topo"/>
             <g id="t-ridges"><path class="r3" id="t-r3"/><path class="r2" id="t-r2"/><path class="r1" id="t-r1"/></g>
@@ -195,12 +237,34 @@
               <img class="gtr" src="{{ asset('assets/gtr/bib-check/gtr-logo.webp') }}" alt="Gerung Trail Run">
               <div class="cobrand"><div class="rg"><img src="{{ asset('assets/runger-logo.png') }}" alt="Runger"></div><div class="sep"></div><div class="kt"><img src="{{ asset('assets/gtr/keteri.webp') }}" alt="Bukit Keteri"></div></div>
             </div>
-            <div class="kicker"><span></span>BIB CHECK<span></span></div>
+            <div class="kicker"><span></span>{{ $isResult ? 'RESULT CHECK' : 'BIB CHECK' }}<span></span></div>
             <div class="cat"><span class="nm" id="c-name"></span><span class="tg" id="c-tag"></span></div>
           </div>
           <div class="bib-body" id="bib-body">
-            <div class="bib-num" id="r-bib"></div>
-            <div class="bib-who"><div class="bib-name" id="r-name"></div><div class="bib-gender" id="r-gender"></div></div>
+            <div class="bib-id" id="bib-id">
+              <div class="bib-num" id="r-bib"></div>
+              <div class="bib-who"><div class="bib-name" id="r-name"></div><div class="bib-gender" id="r-gender"></div></div>
+            </div>
+            @if($isResult)
+              {{-- Panel hasil: diisi renderResult() --}}
+              <div class="res" id="res">
+                <div class="res-top"><span class="res-st" id="x-st"></span><span class="res-tag" id="x-tag"></span></div>
+                <div id="x-fin">
+                  <div class="res-lbl">Waktu resmi · gun time</div>
+                  <div class="res-time" id="x-gun"></div>
+                </div>
+                <div class="res-grid" id="x-grid">
+                  <div><small>Peringkat kategori</small><b id="x-rank"></b></div>
+                  <div><small id="x-rg-lbl">Peringkat gender</small><b id="x-rg"></b></div>
+                  <div><small>Net time</small><b id="x-net"></b></div>
+                  <div><small>Pace rata-rata</small><b id="x-pace"></b></div>
+                </div>
+                <div id="x-none">
+                  <div class="res-msg" id="x-msg"></div>
+                  <div class="res-sub" id="x-sub"></div>
+                </div>
+              </div>
+            @endif
           </div>
           <div class="bib-band">
             <div class="wm" id="c-wm" aria-hidden="true"></div>
@@ -246,12 +310,15 @@
 
 <script>
 (function () {
-  var DATA_URL = @json(route('gtr.bib-check.data'));
-  var SW_URL = @json(route('gtr.bib-check.sw'));
-  var SW_SCOPE = @json(\App\Http\Controllers\GtrBibCheckController::SCOPE);
+  var DATA_URL = @json($dataUrl);
+  var SW_URL = @json($swUrl);
+  var SW_SCOPE = @json($scope);
+  var MODE = @json($mode);
 @verbatim
-  var STORE_KEY = 'gtr-bibcheck-roster-v3';
-  var REFRESH_MS = 5 * 60 * 1000;   // roster diperbarui tiap 5 menit
+  var IS_RESULT = MODE === 'result';
+  var STORE_KEY = IS_RESULT ? 'gtr-resultcheck-roster-v1' : 'gtr-bibcheck-roster-v3';
+  // Roster diperbarui tiap 5 menit; hasil lomba tiap 30 detik (pelari terus masuk finish).
+  var REFRESH_MS = IS_RESULT ? 30 * 1000 : 5 * 60 * 1000;
   var SHOW_OK_MS = 30000;          // lama kartu tampil sebelum kembali ke layar scan
   var SHOW_BAD_MS = 7000;
   var SCAN_GAP_MS = 60;             // jeda antar-karakter mesin scanner (manusia jauh lebih lambat)
@@ -271,7 +338,7 @@
   var offline = false;
   function renderStatus() {
     if (!roster) return setStatus('err', 'Data peserta gagal dimuat — cek koneksi');
-    var info = roster.count + ' peserta · data ' + hhmm(roster.generated_at_ms);
+    var info = roster.count + ' peserta · ' + (IS_RESULT ? (roster.results || 0) + ' hasil' + (roster.published ? ' resmi' : ' sementara') + ' · ' : '') + 'data ' + hhmm(roster.generated_at_ms);
     if (offline || !navigator.onLine) setStatus('stale', 'Offline · ' + info); else setStatus('ok', info);
   }
   function load() {
@@ -397,15 +464,24 @@
   function fitText() {
     // Kartu lebih tinggi dari desain → teks ikut membesar (maks. 1,3×), tetap dibatasi lebar kartu.
     var k = Math.min(1.3, cardH / 500);
+    $('card').style.setProperty('--k', k.toFixed(3));
     var num = $('r-bib'), name = $('r-name'), gender = $('r-gender');
-    var nf = Math.round(250 * k);
+    // Kiosk hasil: blok BIB hanya kolom kiri (430), nomor sedikit lebih kecil.
+    var maxW = IS_RESULT ? 430 : 912, nf = Math.round((IS_RESULT ? 200 : 250) * k);
     num.style.fontSize = nf + 'px';
-    if (num.offsetWidth > 912) num.style.fontSize = Math.floor(nf * 912 / num.offsetWidth) + 'px';
+    if (num.offsetWidth > maxW) num.style.fontSize = Math.floor(nf * maxW / num.offsetWidth) + 'px';
     // Gender di bawah nama, ±55% ukuran nama.
     var fs = Math.round(48 * k);
     var setName = function (f) { name.style.fontSize = f + 'px'; gender.style.fontSize = Math.round(f * .55) + 'px'; };
     setName(fs);
     while (name.offsetHeight > fs * 1.05 * 2 + 4 && fs > 28) { fs -= 2; setName(fs); }
+    // Waktu resmi selebar panel.
+    var gun = $('x-gun');
+    if (gun && gun.offsetParent) {
+      gun.style.fontSize = '';
+      var room = $('res').clientWidth - 44 * k;
+      if (gun.offsetWidth > room) gun.style.fontSize = Math.floor(parseFloat(getComputedStyle(gun).fontSize) * room / gun.offsetWidth) + 'px';
+    }
   }
 
   /**
@@ -414,7 +490,7 @@
    */
   var RIDGE_GAP = 26;   // jarak aman (unit desain) antara teks terbawah & puncak bukit
   function liftAboveRidge(ele) {
-    var body = $('bib-body');
+    var body = $('bib-id');   // hanya blok BIB + nama (panel hasil tetap di tempat)
     body.style.transform = '';
     var cr = $('card').getBoundingClientRect(), s = cr.width / 1000;
     var last = $('r-gender').textContent ? $('r-gender') : $('r-name');
@@ -455,10 +531,44 @@
     $('r-bib').textContent = r.bib;
     $('r-name').textContent = r.name || '—';
     $('r-gender').textContent = GENDER[r.gender] || '';
+    var hasResult = IS_RESULT ? renderResult(r) : true;
 
-    if (!keepTimer) { show('v-ok', SHOW_OK_MS); play('ok'); }
+    if (!keepTimer) { show('v-ok', SHOW_OK_MS); play(hasResult ? 'ok' : 'warn'); }
     fitText();
     liftAboveRidge(cat.ele);
+  }
+
+  /** Isi panel hasil. @returns {boolean} false bila peserta belum punya hasil. */
+  var STATUS = { finisher: 'Finisher', dnf: 'DNF', dq: 'DQ' };
+  function renderResult(r) {
+    var x = r.result, fin = !!(x && x.status === 'finisher' && x.gun);
+    var st = $('x-st'), tag = $('x-tag');
+    st.className = 'res-st' + (x ? ' ' + x.status : '');
+    st.textContent = x ? (STATUS[x.status] || x.status) : '';
+    st.hidden = !x;
+    tag.className = 'res-tag' + (roster.published ? '' : ' prov');
+    tag.textContent = roster.published ? 'Hasil resmi' : 'Hasil sementara';
+    $('x-fin').hidden = $('x-grid').hidden = !fin;
+    $('x-none').hidden = fin;
+
+    if (fin) {
+      var of = function (n, t) { return n ? n + (t ? '<span>/ ' + t + '</span>' : '') : '—'; };
+      $('x-gun').textContent = x.gun;
+      $('x-rank').innerHTML = of(x.rank, x.rank_total);
+      $('x-rg-lbl').textContent = r.gender === 'F' ? 'Peringkat putri' : r.gender === 'M' ? 'Peringkat putra' : 'Peringkat gender';
+      $('x-rg').innerHTML = of(x.rank_gender, x.gender_total);
+      $('x-net').textContent = x.net || '—';
+      $('x-pace').innerHTML = x.pace ? x.pace + '<span>/km</span>' : '—';
+    } else if (x) {
+      $('x-msg').textContent = x.status === 'dq' ? 'Disqualified' : 'Did not finish';
+      $('x-sub').textContent = 'Info lebih lanjut di meja informasi panitia';
+    } else {
+      $('x-msg').textContent = 'Hasil belum tersedia';
+      $('x-sub').textContent = roster.published
+        ? 'Tidak ada catatan waktu — hubungi meja informasi panitia'
+        : 'Hasil muncul setelah kamu melewati garis finish · coba lagi beberapa menit lagi';
+    }
+    return !!x;
   }
 
   function showBad(title, code, sub, warn) {

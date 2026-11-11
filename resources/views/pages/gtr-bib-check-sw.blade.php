@@ -1,11 +1,12 @@
 /*
- * Service worker kiosk Cek BIB — dirender GtrBibCheckController::sw().
+ * Service worker kiosk Cek BIB / Cek Hasil — dirender GtrBibCheckController::sw() (per kiosk: PREFIX, PAGE, DATA).
  * Halaman + data: jaringan dulu (selalu terbaru saat online), cadangan dari cache saat offline.
  * Font + logo: cache dulu (tidak pernah berubah tanpa ganti versi).
  * Versi berubah tiap deploy (mtime view/aset) → cache lama dihapus saat activate.
  */
 const VERSION = @json($version);
-const CACHE = 'gtr-bibcheck-' + VERSION;
+const PREFIX = @json($cachePrefix);
+const CACHE = PREFIX + VERSION;
 const PAGE = @json($page);
 const DATA = @json($data);
 const PRECACHE = @json($precache);
@@ -23,7 +24,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     for (const key of await caches.keys()) {
-      if (key.startsWith('gtr-bibcheck-') && key !== CACHE) await caches.delete(key);
+      if (key.startsWith(PREFIX) && key !== CACHE) await caches.delete(key);
     }
     await self.clients.claim();
   })());

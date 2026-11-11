@@ -29,6 +29,17 @@ class GtrBibCheckController extends Controller
     /** Path halaman (= scope service worker, tanpa slash akhir — .htaccess membuang slash akhir). */
     public const SCOPE = '/gerung-trail-run/cek-bib';
 
+    /** Mode kiosk di view: 'bib' (kartu BIB) / 'result' (kartu BIB + hasil lomba, GtrResultCheckController). */
+    public const MODE = 'bib';
+
+    /** Prefix nama route: <ROUTE>, <ROUTE>.data, <ROUTE>.sw. */
+    public const ROUTE = 'gtr.bib-check';
+
+    public const CACHE_KEY = 'gtr:bib-check:v2';
+
+    /** Prefix nama cache service worker (harus unik per kiosk — activate() membuang prefix yang sama). */
+    public const SW_CACHE_PREFIX = 'gtr-bibcheck-';
+
     /** Logo yang dipakai halaman (di-precache service worker). */
     public const IMAGES = [
         'assets/gtr/logo.jpeg',
@@ -65,6 +76,10 @@ class GtrBibCheckController extends Controller
         return view('pages.gtr-bib-check', [
             'title' => GtrSetting::first()?->title ?: 'Gerung Trail Run 2026',
             'fontFaces' => self::fontFaces(),
+            'mode' => static::MODE,
+            'dataUrl' => route(static::ROUTE.'.data'),
+            'swUrl' => route(static::ROUTE.'.sw'),
+            'scope' => static::SCOPE,
         ]);
     }
 
@@ -76,28 +91,29 @@ class GtrBibCheckController extends Controller
     {
         // Cache HANYA array biasa: config cache.serializable_classes=false menolak unserialize
         // stdClass (hasilnya __PHP_Incomplete_Class → roster kosong). Objek dibuat setelah dibaca.
-        $payload = Cache::remember('gtr:bib-check:v2', self::CACHE_SECONDS, fn () => self::roster());
+        $payload = Cache::remember(static::CACHE_KEY, static::CACHE_SECONDS, fn () => static::roster());
         // Map → objek JSON (bukan [] saat kosong) supaya browser selalu menerima {"<bib>": …}.
         $payload['categories'] = (object) $payload['categories'];
         $payload['runners'] = (object) $payload['runners'];
 
-        return response()->json($payload)->header('Cache-Control', 'public, max-age='.self::CACHE_SECONDS);
+        return response()->json($payload)->header('Cache-Control', 'public, max-age='.static::CACHE_SECONDS);
     }
 
     /** GET /gerung-trail-run/cek-bib/sw.js — service worker kiosk (scope = halaman kiosk). */
     public function sw(): Response
     {
         $js = view('pages.gtr-bib-check-sw', [
-            'version' => self::version(),
-            'page' => route('gtr.bib-check'),
-            'data' => route('gtr.bib-check.data'),
-            'precache' => self::precacheUrls(),
+            'version' => static::version(),
+            'cachePrefix' => static::SW_CACHE_PREFIX,
+            'page' => route(static::ROUTE),
+            'data' => route(static::ROUTE.'.data'),
+            'precache' => static::precacheUrls(),
         ])->render();
 
         return response($js, 200, [
             'Content-Type' => 'application/javascript; charset=utf-8',
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
-            'Service-Worker-Allowed' => self::SCOPE,
+            'Service-Worker-Allowed' => static::SCOPE,
         ]);
     }
 
@@ -121,7 +137,7 @@ class GtrBibCheckController extends Controller
     public static function precacheUrls(): array
     {
         return [
-            route('gtr.bib-check'),
+            route(static::ROUTE),
             ...array_map(fn ($p) => asset($p), self::IMAGES),
             ...array_column(self::fontFaces(), 'url'),
         ];

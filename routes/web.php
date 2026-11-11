@@ -4,6 +4,7 @@ use App\Http\Controllers\GtrBibCheckController;
 use App\Http\Controllers\GtrBibController;
 use App\Http\Controllers\GtrDocumentController;
 use App\Http\Controllers\GtrRaceGuideController;
+use App\Http\Controllers\GtrResultCheckController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RunnerAuthController;
@@ -90,6 +91,10 @@ Route::get('/gerung-trail-run/category/{slug}/gpx', [PageController::class, 'gtr
 Route::get('/gerung-trail-run/cek-bib', [GtrBibCheckController::class, 'index'])->name('gtr.bib-check');
 Route::get('/gerung-trail-run/cek-bib/data', [GtrBibCheckController::class, 'data'])->middleware('throttle:30,1')->name('gtr.bib-check.data');
 Route::get('/gerung-trail-run/cek-bib/sw.js', [GtrBibCheckController::class, 'sw'])->name('gtr.bib-check.sw');
+// Kiosk Cek Hasil (publik): sama dengan Cek BIB + hasil lomba (waktu, pace, peringkat).
+Route::get('/gerung-trail-run/cek-hasil', [GtrResultCheckController::class, 'index'])->name('gtr.result-check');
+Route::get('/gerung-trail-run/cek-hasil/data', [GtrResultCheckController::class, 'data'])->middleware('throttle:30,1')->name('gtr.result-check.data');
+Route::get('/gerung-trail-run/cek-hasil/sw.js', [GtrResultCheckController::class, 'sw'])->name('gtr.result-check.sw');
 Route::get('/gerung-trail-run/lacak', [PageController::class, 'gtrTrackSearch'])->name('gtr.track.search');
 Route::get('/gerung-trail-run/lacak/{bib}', [PageController::class, 'gtrTrack'])->name('gtr.track');
 Route::get('/gerung-trail-run/lacak/{bib}/data', [PageController::class, 'gtrTrackData'])->middleware('throttle:60,1')->name('gtr.track.data');
