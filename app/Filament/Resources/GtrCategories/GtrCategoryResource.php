@@ -258,6 +258,11 @@ class GtrCategoryResource extends Resource
                             ->label('Mandatory Gear')
                             ->placeholder('Ketik lalu Enter')
                             ->columnSpanFull(),
+                        TagsInput::make('recommended_gear')
+                            ->label('Opsional / Recommended Gear')
+                            ->placeholder('Ketik lalu Enter')
+                            ->helperText('Disarankan dibawa, tidak wajib.')
+                            ->columnSpanFull(),
                         Repeater::make('rundown')
                             ->label('Event Rundown')
                             ->schema([

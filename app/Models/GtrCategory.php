@@ -48,6 +48,7 @@ class GtrCategory extends Model
         'water_stations' => 'array',
         'course_pois' => 'array',
         'mandatory_gear' => 'array',
+        'recommended_gear' => 'array',
         'rundown' => 'array',
         'early_bird_until' => 'date',
         'gun_start' => 'datetime',

@@ -42,14 +42,17 @@ class GtrRaceGuide
 
         $racepackNotes = GtrSetting::lines($s->racepack_note);
 
-        // Semua item perlengkapan wajib (gabungan, urutan kemunculan), dicek per kategori.
-        $gear = [];
+        // Semua item perlengkapan wajib & opsional (gabungan, urutan kemunculan), dicek per kategori.
+        $gear = $optGear = [];
         foreach ($categories as $c) {
-            foreach ($c['gear'] as $item) {
-                $key = mb_strtolower(preg_replace('/\s+/', ' ', $item));
-                $gear[$key] ??= ['item' => $item, 'cats' => []];
-                $gear[$key]['cats'][] = $c['id'];
+            foreach (['gear' => &$gear, 'opt_gear' => &$optGear] as $field => &$list) {
+                foreach ($c[$field] as $item) {
+                    $key = mb_strtolower(preg_replace('/\s+/', ' ', $item));
+                    $list[$key] ??= ['item' => $item, 'cats' => []];
+                    $list[$key]['cats'][] = $c['id'];
+                }
             }
+            unset($list);
         }
 
         $data = [
@@ -93,12 +96,14 @@ class GtrRaceGuide
             'timeline' => self::timeline($categories->all(), $s),
             'categories' => $categories->all(),
             'gear' => array_values($gear),
+            'optGear' => array_values($optGear),
             'rules' => $rules->all(),
             'sponsors' => $sponsors->all(),
             'supporters' => [
                 ['name' => 'ALTI NTB', 'logo' => '/assets/gtr/alti.webp'],
                 ['name' => 'Pemkab Lombok Barat', 'logo' => '/assets/gtr/lobar.webp'],
                 ['name' => 'Disparekrafpora Lombok Barat', 'logo' => '/assets/gtr/dispar2.webp'],
+                ['name' => 'Bank NTB Syariah', 'logo' => '/assets/gtr/bank-ntb-syariah.webp'],
                 ['name' => 'PAM Giri Menang', 'logo' => '/assets/gtr/pam.webp'],
             ],
             'logos' => [
@@ -127,7 +132,8 @@ class GtrRaceGuide
             'color' => $c->color ?: '#E53935',
             'start' => $c->start_time,
             'cot' => $c->cut_off_time && trim($c->cut_off_time) !== '-' ? $c->cut_off_time : null,
-            'gain' => $c->gpxElevationGain() ?? $c->elevation_gain,
+            // Pakai elevation gain yang diinput di detail kategori (sama dengan web & app); GPX hanya cadangan.
+            'gain' => $c->elevation_gain ?: $c->gpxElevationGain(),
             'km' => $total ?: null,
             'km_label' => $kmLabel ?: null,
             'ws' => $points->where('type', 'ws')->count(),
@@ -140,6 +146,7 @@ class GtrRaceGuide
             ])->all(),
             'pois' => $c->coursePois()->all(),
             'gear' => array_values(array_filter(array_map('trim', (array) ($c->mandatory_gear ?? [])))),
+            'opt_gear' => array_values(array_filter(array_map('trim', (array) ($c->recommended_gear ?? [])))),
             'awards' => collect(preg_split('/\r\n|\r|\n/', (string) $c->award_prize))
                 ->map(fn ($l) => trim(preg_replace('/^\s*[-•*]\s*/', '', $l)))->filter()->values()->all(),
             'rundown' => collect($c->rundown ?? [])

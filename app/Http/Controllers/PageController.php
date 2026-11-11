@@ -132,6 +132,8 @@ class PageController extends Controller
         $categories = \App\Models\GtrCategory::where('is_active', true)
             ->orderBy('sort_order')
             ->with(['registrations' => fn ($q) => $q
+                // Slot cadangan panitia ("Runners 1", ...) & slot sponsor ("Bank NTB Syariah 1", ...) tidak ditampilkan.
+                ->whereRaw("COALESCE(full_name, '') NOT REGEXP '^(Runners|Bank NTB Syariah) [0-9]+$'")
                 // Urut: lunas dulu → nomor BIB (numerik, 4 digit >999) → nama.
                 ->orderByRaw("CASE WHEN payment_status = 'paid' THEN 0 ELSE 1 END")
                 ->orderByRaw('bib_number IS NULL')      // yang punya BIB dulu

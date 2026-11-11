@@ -132,6 +132,7 @@
 
       <div class="tab-panel" data-panel="gear">
         @if(!empty($cat->mandatory_gear))
+          <div class="gear-group-h"><b>Wajib</b><span>Mandatory · harus dibawa selama lomba</span></div>
           <div class="gear-list">
             @foreach($cat->mandatory_gear as $item)
               <div class="gear-item">
@@ -140,6 +141,17 @@
               </div>
             @endforeach
           </div>
+          @if(!empty($cat->recommended_gear))
+            <div class="gear-group-h opt"><b>Opsional</b><span>Recommended · disarankan, tidak wajib</span></div>
+            <div class="gear-list">
+              @foreach($cat->recommended_gear as $item)
+                <div class="gear-item opt">
+                  <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+                  <span>{{ $item }}</span>
+                </div>
+              @endforeach
+            </div>
+          @endif
         @else
           <p class="tab-note">Daftar mandatory gear akan diumumkan menjelang race day.</p>
         @endif

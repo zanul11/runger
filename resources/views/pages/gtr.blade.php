@@ -177,10 +177,14 @@
         <div class="support-name">Dinas Pariwisata, Ekonomi Kreatif, Pemuda dan Olahraga Lombok Barat</div>
       </div>
       <div class="support-item">
+        <div class="support-logo s-bntbs"><img loading="lazy" decoding="async" src="{{ asset('assets/gtr/bank-ntb-syariah.webp') }}" alt="Bank NTB Syariah"></div>
+        <div class="support-name">Bank NTB Syariah</div>
+      </div>
+      <div class="support-item">
         <div class="support-logo s-pam"><img loading="lazy" decoding="async" src="{{ asset('assets/gtr/pam.webp') }}" alt="PT. Air Minum Giri Menang (Perseroda)"></div>
         <div class="support-name">PT. Air Minum Giri Menang (Perseroda)</div>
       </div>
-      
+
     </div>
   </div>
 </section>
