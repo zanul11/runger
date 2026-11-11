@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GtrBibCheckController;
 use App\Http\Controllers\GtrBibController;
 use App\Http\Controllers\GtrDocumentController;
 use App\Http\Controllers\GtrRaceGuideController;
@@ -85,6 +86,9 @@ Route::get('/gerung-trail-run/dokumen/{slug}/{lang}', [GtrDocumentController::cl
     ->whereIn('lang', ['id', 'en'])->name('gtr.doc');
 Route::get('/gerung-trail-run/category/{slug}', [PageController::class, 'gtrCategory'])->name('gtr.category');
 Route::get('/gerung-trail-run/category/{slug}/gpx', [PageController::class, 'gtrCategoryGpx'])->name('gtr.category.gpx');
+// Kiosk Cek BIB (publik): layar + mesin QR scanner yang membaca QR di BIB.
+Route::get('/gerung-trail-run/cek-bib', [GtrBibCheckController::class, 'index'])->name('gtr.bib-check');
+Route::get('/gerung-trail-run/cek-bib/data', [GtrBibCheckController::class, 'data'])->middleware('throttle:30,1')->name('gtr.bib-check.data');
 Route::get('/gerung-trail-run/lacak', [PageController::class, 'gtrTrackSearch'])->name('gtr.track.search');
 Route::get('/gerung-trail-run/lacak/{bib}', [PageController::class, 'gtrTrack'])->name('gtr.track');
 Route::get('/gerung-trail-run/lacak/{bib}/data', [PageController::class, 'gtrTrackData'])->middleware('throttle:60,1')->name('gtr.track.data');
