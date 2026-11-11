@@ -50,6 +50,42 @@
   </div>
 </header>
 
+@if(\App\Models\RoadToGtrRegistration::isOpen() && ($rtgLeft = \App\Models\RoadToGtrRegistration::remaining()) > 0)
+@push('styles')
+<style>
+  .rtg-promo{background:var(--bg);padding:28px 0 0}
+  .rtg-promo-card{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:18px;border-radius:22px;border:1px solid rgba(229,57,53,.35);
+    background:radial-gradient(460px 220px at 0% 0%,rgba(229,57,53,.28),transparent 70%),var(--bg-soft);transition:border-color .2s,transform .2s}
+  .rtg-promo-card:hover{border-color:var(--red);transform:translateY(-2px)}
+  .rtg-promo-date{flex:none;width:64px;padding:8px 0 7px;border-radius:14px;background:var(--red);text-align:center;
+    font-family:'Archivo',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;line-height:1}
+  .rtg-promo-date b{display:block;font-size:28px;font-weight:900;letter-spacing:0;margin-bottom:3px}
+  .rtg-promo-txt{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:4px}
+  .rtg-promo-txt small{font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);font-weight:700}
+  .rtg-promo-txt strong{font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(18px,2.4vw,24px);text-transform:uppercase;line-height:1.05}
+  .rtg-promo-txt em{font-style:normal;color:var(--text-soft);font-size:13.5px}
+  .rtg-promo-txt em b{color:#fff}
+  .rtg-promo-card .btn-primary{flex:none}
+  @media (max-width:599px){ .rtg-promo-card .btn-primary{flex:1 1 100%;justify-content:center} }
+  @media (min-width:900px){ .rtg-promo{padding-top:44px} .rtg-promo-card{padding:22px 26px;gap:22px} }
+</style>
+@endpush
+<!-- ROAD TO GTR (fun trail pemanasan) -->
+<section class="rtg-promo">
+  <div class="wrap">
+    <a class="rtg-promo-card" href="{{ route('gtr.road') }}">
+      <span class="rtg-promo-date"><b>{{ \App\Models\RoadToGtrRegistration::eventDate()->format('j') }}</b>{{ strtoupper(\App\Models\RoadToGtrRegistration::eventDate()->locale('id')->translatedFormat('M')) }}</span>
+      <span class="rtg-promo-txt">
+        <small>Road to GTR</small>
+        <strong>Fun Trail &amp; Tanam Pohon</strong>
+        <em>Pemanasan bareng sebelum race day, lalu tanam pohon bareng. Kuota terbatas — sisa <b>{{ $rtgLeft }}</b> slot.</em>
+      </span>
+      <span class="btn-primary">Daftar <span class="arr">→</span></span>
+    </a>
+  </div>
+</section>
+@endif
+
 <!-- CATEGORIES -->
 <section class="block" id="category" style="padding-top:56px">
   <div class="wrap">

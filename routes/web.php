@@ -7,6 +7,7 @@ use App\Http\Controllers\GtrRaceGuideController;
 use App\Http\Controllers\GtrResultCheckController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RoadToGtrController;
 use App\Http\Controllers\RunnerAuthController;
 use App\Http\Controllers\RunnerDashboardController;
 use App\Http\Controllers\RunnerPasswordController;
@@ -91,6 +92,9 @@ Route::get('/gerung-trail-run/category/{slug}/gpx', [PageController::class, 'gtr
 Route::get('/gerung-trail-run/cek-bib', [GtrBibCheckController::class, 'index'])->name('gtr.bib-check');
 Route::get('/gerung-trail-run/cek-bib/data', [GtrBibCheckController::class, 'data'])->middleware('throttle:30,1')->name('gtr.bib-check.data');
 Route::get('/gerung-trail-run/cek-bib/sw.js', [GtrBibCheckController::class, 'sw'])->name('gtr.bib-check.sw');
+// Road to GTR fun trail — form pendaftaran publik.
+Route::get('/gerung-trail-run/road-to-gtr', [RoadToGtrController::class, 'index'])->name('gtr.road');
+Route::post('/gerung-trail-run/road-to-gtr', [RoadToGtrController::class, 'store'])->middleware('throttle:10,1')->name('gtr.road.store');
 // Kiosk Cek Hasil (publik): sama dengan Cek BIB + hasil lomba (waktu, pace, peringkat).
 Route::get('/gerung-trail-run/cek-hasil', [GtrResultCheckController::class, 'index'])->name('gtr.result-check');
 Route::get('/gerung-trail-run/cek-hasil/data', [GtrResultCheckController::class, 'data'])->middleware('throttle:30,1')->name('gtr.result-check.data');
