@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\GtrBibCheckController;
 use App\Models\GtrCategory;
 use App\Models\GtrRegistration;
 use App\Models\Runner;
@@ -57,9 +58,49 @@ class GtrBibCheckTest extends TestCase
         }
     }
 
+    public function test_cached_data_is_identical_to_fresh_data(): void
+    {
+        $this->seedRunners();
+
+        $first = $this->getJson(route('gtr.bib-check.data'))->assertOk()->json();
+        $second = $this->getJson(route('gtr.bib-check.data'))->assertOk()->json(); // dari cache
+
+        unset($first['generated_at_ms'], $second['generated_at_ms']);
+        $this->assertSame(2, $second['count']);
+        $this->assertSame($first, $second);
+    }
+
     public function test_data_is_an_object_even_when_empty(): void
     {
         $this->getJson(route('gtr.bib-check.data'))->assertOk()->assertJsonPath('count', 0);
         $this->assertStringContainsString('"runners":{}', $this->get(route('gtr.bib-check.data'))->getContent());
+    }
+
+    public function test_service_worker_covers_kiosk_scope_and_precaches_local_assets(): void
+    {
+        $res = $this->get(route('gtr.bib-check.sw'))->assertOk()
+            ->assertHeader('Service-Worker-Allowed', GtrBibCheckController::SCOPE)
+            ->assertHeader('Content-Type', 'application/javascript; charset=utf-8');
+
+        $js = $res->getContent();
+        $this->assertStringContainsString('const VERSION = '.json_encode(GtrBibCheckController::version()), $js);
+        foreach (GtrBibCheckController::precacheUrls() as $url) {
+            $this->assertStringContainsString(json_encode($url), $js);
+        }
+        $this->assertSame(GtrBibCheckController::SCOPE, parse_url(route('gtr.bib-check'), PHP_URL_PATH));
+    }
+
+    public function test_kiosk_uses_only_local_fonts_and_images_that_exist(): void
+    {
+        $html = $this->get(route('gtr.bib-check'))->assertOk()->getContent();
+        $this->assertStringNotContainsString('fonts.googleapis.com', $html, 'font harus lokal supaya jalan offline');
+
+        foreach (GtrBibCheckController::fontFaces() as $face) {
+            $this->assertStringContainsString($face['url'], $html);
+            $this->assertFileExists(public_path(ltrim(parse_url($face['url'], PHP_URL_PATH), '/')));
+        }
+        foreach (GtrBibCheckController::IMAGES as $img) {
+            $this->assertFileExists(public_path($img));
+        }
     }
 }

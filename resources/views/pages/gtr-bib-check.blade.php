@@ -9,6 +9,11 @@
   layar (bagian tengah memanjang, pita sponsor tetap di dasar). Palet per kategori: merah (15K) / hijau (7K); kategori
   lain memakai warna kategori dari admin.
 
+  Kiosk-proof:
+   - overlay "Scanner tidak aktif" saat jendela kehilangan fokus (ketikan scanner tak lagi masuk);
+   - suara: ding (BIB terdaftar), buzz 3× (tidak terdaftar), nada tunggal (kode lain) — tombol Suara;
+   - offline penuh: font lokal + service worker (sw.js) menyimpan halaman, data, font, & logo.
+
   Uji tanpa mesin: ketik nomor BIB + Enter, atau buka ?bib=7001.
 --}}
 <!doctype html>
@@ -20,9 +25,14 @@
 <meta name="theme-color" content="#efede8">
 <title>Cek BIB — {{ $title }}</title>
 <link rel="icon" type="image/jpeg" href="{{ asset('assets/gtr/logo.jpeg') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,800;1,900&display=swap" rel="stylesheet">
+{{-- Font lokal (bukan Google Fonts) supaya tetap tampil saat offline. --}}
+<link rel="preload" href="{{ asset('assets/gtr/bib-check/fonts/barlowc-900i-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ asset('assets/gtr/bib-check/fonts/barlowc-800-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+<style>
+@foreach($fontFaces as $f)
+  @font-face{font-family:'{{ $f['family'] }}';font-style:{{ $f['style'] }};font-weight:{{ $f['weight'] }};font-display:swap;src:url('{{ $f['url'] }}') format('woff2');unicode-range:{{ $f['range'] }}}
+@endforeach
+</style>
 @verbatim
 <style>
   :root{
@@ -71,9 +81,6 @@
   .cardbox{position:relative;overflow:hidden}
   .bib{position:absolute;left:0;top:0;width:1000px;height:500px;transform-origin:0 0;display:flex;flex-direction:column;
     background:var(--paper);overflow:hidden;font-family:Barlow,sans-serif;color:var(--ink)}
-  .hole{position:absolute;width:16px;height:16px;border-radius:50%;border:2px solid rgba(0,0,0,.18);background:var(--canvas);z-index:2}
-  .hole.tl{left:12px;top:12px} .hole.tr{right:12px;top:12px}
-  .hole.bl{left:12px;bottom:12px;border-color:rgba(255,255,255,.35)} .hole.br{right:12px;bottom:12px;border-color:rgba(255,255,255,.35)}
   .terrain{position:absolute;left:0;top:0;display:block;pointer-events:none}
   .terrain .topo{stroke:var(--c);stroke-opacity:.13;stroke-width:1.2;fill:none}
   .terrain .r3{fill:var(--c);fill-opacity:.07}
@@ -92,18 +99,23 @@
     gap:6px;text-align:center;padding:0 44px 30px}
   .bib-num{font:italic 900 250px/.78 var(--cond);color:var(--c);letter-spacing:-.01em;white-space:nowrap}
   .bib-name{font:800 48px/1.05 var(--cond);letter-spacing:.03em;text-transform:uppercase;text-wrap:balance;max-width:912px;overflow-wrap:anywhere}
-  /* Inisial gender (M/F) — badge senada dengan blok kategori "15K" di kepala kartu */
-  .bib-who{display:flex;align-items:center;justify-content:center;gap:16px;max-width:912px}
+  /* Gender (MALE/FEMALE) di bawah nama, lebih kecil dari nama. Blok BIB+nama+gender diangkat
+     otomatis (liftAboveRidge) bila terlalu dekat puncak bukit; tepi warna kertas sebagai cadangan. */
+  .bib-who{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:912px}
   .bib-who .bib-name{min-width:0}
-  .bib-gender{flex:none;font:italic 900 40px/1 var(--cond);color:#fff;background:var(--c);border-radius:4px;
-    padding:.14em .38em .02em;min-width:1.5em;text-align:center}
+  .bib-gender{flex:none;font:italic 900 26px/1 var(--cond);color:#fff;background:var(--c);border-radius:4px;
+    padding:.16em .6em .04em;min-width:1.6em;text-align:center;box-shadow:0 0 0 3px var(--paper);
+    text-transform:uppercase;letter-spacing:.06em}
   .bib-gender:empty{display:none}
   .bib-band{flex:none;height:78px;position:relative;overflow:hidden;background:linear-gradient(180deg,var(--g1) 0%,var(--g2) 100%);
-    display:flex;align-items:center;gap:14px;padding:0 44px}
+    display:flex;align-items:center;justify-content:center;padding:0 44px}
   .bib-band .wm{position:absolute;right:-6px;top:-34px;font:italic 900 150px/1 var(--cond);color:rgba(255,255,255,.07);white-space:nowrap}
-  .logos{flex:1;display:flex;align-items:center;justify-content:center;gap:34px;position:relative}
-  .logos div{flex:none;height:34px;display:flex;align-items:center;justify-content:center}
-  .logos img{max-width:110px;height:100%;object-fit:contain;display:block}
+  /* Sponsor di pita putih (senada pil Runger | Keteri) — logo berwarna tetap kontras di band merah/hijau. */
+  .sponsors{position:relative;display:flex;align-items:center;gap:28px;height:58px;padding:0 28px;background:#fff;
+    border-radius:14px;box-shadow:0 10px 22px -12px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.05)}
+  .sponsors div{flex:none;height:40px;display:flex;align-items:center}
+  .sponsors img{height:100%;max-width:124px;object-fit:contain;display:block}
+  .sponsors .wide{height:36px}
 
   /* Bilah hitung mundur kembali ke layar scan (tepi bawah pita sponsor) */
   .timer{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(255,255,255,.12);overflow:hidden;z-index:1}
@@ -131,8 +143,20 @@
   .clock{font:700 clamp(15px,1.3vw,20px)/1 var(--cond);letter-spacing:.06em;color:var(--ink);font-variant-numeric:tabular-nums}
   .fs{border:1px solid var(--line);background:none;color:var(--mute);border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer}
   :fullscreen .fs{display:none}
+  .fs.off{color:var(--red);border-color:rgba(184,29,39,.35)}
 
-  @media (prefers-reduced-motion:reduce){ .view.on{animation:none} .qr::after{animation:none;top:48%} }
+  /* ------------------------------------------- Overlay: fokus hilang --- */
+  .lock{position:fixed;inset:0;z-index:50;display:grid;place-items:center;text-align:center;cursor:pointer;
+    background:rgba(28,20,20,.86);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff}
+  .lock[hidden]{display:none}
+  .lock .ring{width:clamp(110px,16vh,180px);height:clamp(110px,16vh,180px);margin:0 auto clamp(18px,3vh,34px);border-radius:50%;
+    display:grid;place-items:center;background:var(--red);box-shadow:0 0 0 0 rgba(184,29,39,.6);animation:ping 1.6s ease-out infinite}
+  .lock .ring svg{width:50%;height:50%}
+  @keyframes ping{to{box-shadow:0 0 0 clamp(26px,4vh,48px) rgba(184,29,39,0)}}
+  .lock h2{font:italic 900 clamp(56px,8vw,140px)/.88 var(--cond);text-transform:uppercase}
+  .lock p{margin-top:clamp(10px,2vh,20px);font:600 clamp(20px,2.2vw,36px)/1.3 var(--cond);letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+
+  @media (prefers-reduced-motion:reduce){ .view.on{animation:none} .qr::after{animation:none;top:48%} .lock .ring{animation:none} }
 </style>
 @endverbatim
 </head>
@@ -162,7 +186,6 @@
     <div class="view" id="v-ok">
       <div class="cardbox" id="cardbox">
         <div class="bib" id="card">
-          <i class="hole tl"></i><i class="hole tr"></i><i class="hole bl"></i><i class="hole br"></i>
           <svg class="terrain" id="terrain" viewBox="0 0 1000 500" width="1000" height="500" aria-hidden="true">
             <path class="topo" id="t-topo"/>
             <g id="t-ridges"><path class="r3" id="t-r3"/><path class="r2" id="t-r2"/><path class="r1" id="t-r1"/></g>
@@ -175,17 +198,17 @@
             <div class="kicker"><span></span>BIB CHECK<span></span></div>
             <div class="cat"><span class="nm" id="c-name"></span><span class="tg" id="c-tag"></span></div>
           </div>
-          <div class="bib-body">
+          <div class="bib-body" id="bib-body">
             <div class="bib-num" id="r-bib"></div>
-            <div class="bib-who"><div class="bib-name" id="r-name"></div><div class="bib-gender" id="r-gender" title="M = laki-laki · F = perempuan"></div></div>
+            <div class="bib-who"><div class="bib-name" id="r-name"></div><div class="bib-gender" id="r-gender"></div></div>
           </div>
           <div class="bib-band">
             <div class="wm" id="c-wm" aria-hidden="true"></div>
-            <div class="logos">
-              <div><img src="{{ asset('assets/gtr/alti.webp') }}" alt="ALTI NTB"></div>
-              <div><img src="{{ asset('assets/gtr/lobar.webp') }}" alt="Pemkab Lombok Barat"></div>
-              <div><img src="{{ asset('assets/gtr/dispar.webp') }}" alt="Dispar Lombok Barat"></div>
-              <div><img src="{{ asset('assets/gtr/bib-check/bank-ntb-syariah.webp') }}" alt="Bank NTB Syariah"></div>
+            <div class="sponsors">
+              <div><img src="{{ asset('assets/gtr/bib-check/sponsor-alti.webp') }}" alt="ALTI NTB"></div>
+              <div><img src="{{ asset('assets/gtr/bib-check/sponsor-lobar.webp') }}" alt="Pemkab Lombok Barat"></div>
+              <div class="wide"><img src="{{ asset('assets/gtr/bib-check/sponsor-dispar.webp') }}" alt="Dispar Lombok Barat"></div>
+              <div class="wide"><img src="{{ asset('assets/gtr/bib-check/bank-ntb-syariah.webp') }}" alt="Bank NTB Syariah"></div>
               <div><img src="{{ asset('assets/gtr/bib-check/pam.webp') }}" alt="PT. Air Minum Giri Menang"></div>
             </div>
             <div class="timer"><i id="timer-bar"></i></div>
@@ -207,20 +230,32 @@
     <span class="typed" id="typed"></span>
     <span class="status" id="status"><i></i><span id="status-text">Memuat data peserta…</span></span>
     <span class="clock" id="clock">--:-- WITA</span>
+    <button class="fs" id="snd" type="button">Suara: ON</button>
     <button class="fs" id="fs" type="button">Layar penuh</button>
   </footer>
 </main>
 
+{{-- Jendela kehilangan fokus → ketikan mesin scanner tidak masuk ke halaman ini. --}}
+<div class="lock" id="lock" role="alertdialog" aria-label="Scanner tidak aktif" hidden>
+  <div>
+    <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V6a3 3 0 0 1 6 0v5"/><path d="M5 11h14v4a7 7 0 0 1-14 0z"/><path d="M12 14v3"/></svg></div>
+    <h2>Scanner tidak aktif</h2>
+    <p>Ketuk layar ini agar scan BIB terbaca</p>
+  </div>
+</div>
+
 <script>
 (function () {
   var DATA_URL = @json(route('gtr.bib-check.data'));
+  var SW_URL = @json(route('gtr.bib-check.sw'));
+  var SW_SCOPE = @json(\App\Http\Controllers\GtrBibCheckController::SCOPE);
 @verbatim
   var STORE_KEY = 'gtr-bibcheck-roster-v3';
   var REFRESH_MS = 5 * 60 * 1000;   // roster diperbarui tiap 5 menit
   var SHOW_OK_MS = 30000;          // lama kartu tampil sebelum kembali ke layar scan
   var SHOW_BAD_MS = 7000;
   var SCAN_GAP_MS = 60;             // jeda antar-karakter mesin scanner (manusia jauh lebih lambat)
-  var GENDER = { M: 'M', F: 'F' };   // inisial: M = laki-laki, F = perempuan
+  var GENDER = { M: 'Male', F: 'Female' };
 
   var roster = null;
   var $ = function (id) { return document.getElementById(id); };
@@ -232,19 +267,26 @@
   function setStatus(cls, text) { $('status').className = 'status ' + cls; $('status-text').textContent = text; }
   function hhmm(ms) { return new Date(ms).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Makassar' }).replace('.', ':'); }
 
+  // Offline = fetch gagal, browser offline, atau service worker menjawab dari cache (X-Gtr-Offline).
+  var offline = false;
+  function renderStatus() {
+    if (!roster) return setStatus('err', 'Data peserta gagal dimuat — cek koneksi');
+    var info = roster.count + ' peserta · data ' + hhmm(roster.generated_at_ms);
+    if (offline || !navigator.onLine) setStatus('stale', 'Offline · ' + info); else setStatus('ok', info);
+  }
   function load() {
     return fetch(DATA_URL, { cache: 'no-store', headers: { Accept: 'application/json' } })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (data) {
-        roster = data; store(data); terrainCache = {};
-        setStatus('ok', data.count + ' peserta · diperbarui ' + hhmm(data.generated_at_ms));
+      .then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        offline = r.headers.get('X-Gtr-Offline') === '1';
+        return r.json();
       })
-      .catch(function () {
-        if (!roster) roster = restore();
-        if (roster) setStatus('stale', 'Offline · data ' + hhmm(roster.generated_at_ms) + ' (' + roster.count + ' peserta)');
-        else setStatus('err', 'Data peserta gagal dimuat — cek koneksi');
-      });
+      .then(function (data) { roster = data; store(data); terrainCache = {}; })
+      .catch(function () { offline = true; if (!roster) roster = restore(); })
+      .then(renderStatus);
   }
+  window.addEventListener('online', function () { load(); });
+  window.addEventListener('offline', renderStatus);
 
   // Sama dengan resources/js/scanner/bib.js (normalizeBib): buang spasi, hanya digit, buang nol di depan.
   function normalizeBib(s) {
@@ -359,11 +401,39 @@
     var nf = Math.round(250 * k);
     num.style.fontSize = nf + 'px';
     if (num.offsetWidth > 912) num.style.fontSize = Math.floor(nf * 912 / num.offsetWidth) + 'px';
-    // Badge gender di samping nama, tingginya mengikuti ukuran nama.
+    // Gender di bawah nama, ±55% ukuran nama.
     var fs = Math.round(48 * k);
-    var setName = function (f) { name.style.fontSize = f + 'px'; gender.style.fontSize = Math.round(f * .82) + 'px'; };
+    var setName = function (f) { name.style.fontSize = f + 'px'; gender.style.fontSize = Math.round(f * .55) + 'px'; };
     setName(fs);
     while (name.offsetHeight > fs * 1.05 * 2 + 4 && fs > 28) { fs -= 2; setName(fs); }
+  }
+
+  /**
+   * Angkat blok BIB + nama + gender bila baris terakhirnya terlalu dekat punggungan bukit depan (r1)
+   * tepat di bawahnya — mis. 7K, yang puncaknya di tengah kartu. Dibatasi ruang kosong di bawah kepala.
+   */
+  var RIDGE_GAP = 26;   // jarak aman (unit desain) antara teks terbawah & puncak bukit
+  function liftAboveRidge(ele) {
+    var body = $('bib-body');
+    body.style.transform = '';
+    var cr = $('card').getBoundingClientRect(), s = cr.width / 1000;
+    var last = $('r-gender').textContent ? $('r-gender') : $('r-name');
+    var lr = last.getBoundingClientRect();
+    var x0 = (lr.left - cr.left) / s - 20, x1 = (lr.right - cr.left) / s + 20, bottom = (lr.bottom - cr.top) / s;
+
+    var e = ele && ele.length > 3 ? ele : FALLBACK_ELE, n = e.length - 1, mx = Math.max.apply(null, e) || 1, top = Infinity;
+    e.forEach(function (v, i) {
+      var x = i / n * 1040 - 20;
+      if (x >= x0 - 10 && x <= x1 + 10) top = Math.min(top, YB - v / mx * 56);
+    });
+    if (top === Infinity) return;
+    top += cardH - 500;   // punggungan digeser ke bawah pada kartu yang lebih tinggi dari desain
+
+    var need = bottom + RIDGE_GAP - top;
+    if (need <= 0) return;
+    var nr = $('r-bib').getBoundingClientRect(), hr = document.querySelector('.bib-head').getBoundingClientRect();
+    var room = Math.max(0, (nr.top - hr.bottom) / s - 4);
+    body.style.transform = 'translateY(' + (-Math.min(need, room)).toFixed(1) + 'px)';
   }
 
   var current = null;
@@ -386,11 +456,13 @@
     $('r-name').textContent = r.name || '—';
     $('r-gender').textContent = GENDER[r.gender] || '';
 
-    if (!keepTimer) show('v-ok', SHOW_OK_MS);
+    if (!keepTimer) { show('v-ok', SHOW_OK_MS); play('ok'); }
     fitText();
+    liftAboveRidge(cat.ele);
   }
 
   function showBad(title, code, sub, warn) {
+    play(warn ? 'warn' : 'bad');
     $('v-bad').classList.toggle('warn', !!warn);
     $('b-title').textContent = title;
     $('b-code').textContent = code || '';
@@ -409,6 +481,62 @@
     if (r) return showRunner(r);
     showBad('BIB tidak terdaftar', 'BIB ' + bib, 'Silakan hubungi meja informasi panitia');
   }
+
+  // ---------------------------------------------------------------- suara ----
+  // Mesin scanner berbunyi "bip" untuk SEMUA QR yang terbaca — suara ini membedakan hasilnya:
+  // ding naik = BIB terdaftar · buzz 3× = BIB tidak terdaftar · nada tunggal = kode lain.
+  // Browser baru mengizinkan suara setelah ada ketukan / ketikan (ketikan mesin scanner pun cukup).
+  var SOUND_KEY = 'gtr-bibcheck-sound';
+  var soundOn = (function () { try { return localStorage.getItem(SOUND_KEY) !== 'off'; } catch (e) { return true; } })();
+  var actx = null;
+  function unlockAudio() {
+    try {
+      if (!actx) { var AC = window.AudioContext || window.webkitAudioContext; if (AC) actx = new AC(); }
+      if (actx && actx.state === 'suspended') actx.resume();
+    } catch (e) { actx = null; }
+  }
+  var SOUNDS = {
+    ok:   [[880, 0, .12, 'sine', .3], [1320, .11, .22, 'sine', .3]],
+    bad:  [[165, 0, .17, 'square', .16], [165, .23, .17, 'square', .16], [165, .46, .32, 'square', .16]],
+    warn: [[440, 0, .32, 'triangle', .3]]
+  };
+  function play(kind) {
+    if (!soundOn) return;
+    unlockAudio();
+    if (!actx) return;
+    var t0 = actx.currentTime + .01;
+    (SOUNDS[kind] || []).forEach(function (n) {
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = n[3]; o.frequency.value = n[0];
+      g.gain.setValueAtTime(.0001, t0 + n[1]);
+      g.gain.exponentialRampToValueAtTime(n[4], t0 + n[1] + .012);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + n[1] + n[2]);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t0 + n[1]); o.stop(t0 + n[1] + n[2] + .03);
+    });
+  }
+  function renderSound() { $('snd').textContent = 'Suara: ' + (soundOn ? 'ON' : 'OFF'); $('snd').classList.toggle('off', !soundOn); }
+  $('snd').addEventListener('click', function () {
+    soundOn = !soundOn;
+    try { localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off'); } catch (e) {}
+    renderSound(); if (soundOn) play('ok');
+    this.blur();
+  });
+  window.addEventListener('pointerdown', unlockAudio, true);
+  window.addEventListener('keydown', unlockAudio, true);
+
+  // ------------------------------------------------------- fokus jendela ----
+  // Ketikan mesin scanner hanya masuk ke jendela yang fokus. Bila fokus pindah (klik address bar,
+  // aplikasi lain, notifikasi), tampilkan overlay besar sampai layar diketuk lagi.
+  function checkFocus() { $('lock').hidden = document.hasFocus(); }
+  window.addEventListener('blur', checkFocus);
+  window.addEventListener('focus', checkFocus);
+  document.addEventListener('visibilitychange', checkFocus);
+  setInterval(checkFocus, 1000);
+  $('lock').addEventListener('pointerdown', function () {
+    window.focus(); unlockAudio();
+    setTimeout(checkFocus, 60);
+  });
 
   // ------------------------------------------- input mesin scanner (HID) ----
   // Mesin scanner = keyboard yang mengetik sangat cepat lalu Enter. Ketikan ditangkap di
@@ -455,6 +583,10 @@
 
   tick(); setInterval(tick, 1000);
   keepAwake();
+  renderSound();
+  checkFocus();
+  // Offline penuh: halaman, data, font, & logo disimpan service worker (butuh HTTPS / localhost).
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE }).catch(function () {});
   load().then(function () {
     var q = new URLSearchParams(location.search).get('bib');
     if (q) handle(q);

@@ -7,6 +7,7 @@ use App\Models\GtrRegistration;
 use App\Models\GtrSetting;
 use App\Support\Bib;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
@@ -17,14 +18,54 @@ use Illuminate\View\View;
  * Roster diunduh sekali ke browser lalu dicari lokal, supaya tampil instan & tetap jalan
  * walau sinyal di venue putus-putus. Isinya HANYA data yang sudah publik di Entry List
  * (BIB, nama, gender, kategori) — tanpa NIK, kontak, nomor registrasi, atau status racepack.
+ *
+ * Offline penuh: font di-host sendiri + service worker (sw()) menyimpan halaman, data, font, dan
+ * logo — sekali dibuka saat online, kiosk tetap hidup walau internet mati & browser di-reload.
  */
 class GtrBibCheckController extends Controller
 {
     public const CACHE_SECONDS = 60;
 
+    /** Path halaman (= scope service worker, tanpa slash akhir — .htaccess membuang slash akhir). */
+    public const SCOPE = '/gerung-trail-run/cek-bib';
+
+    /** Logo yang dipakai halaman (di-precache service worker). */
+    public const IMAGES = [
+        'assets/gtr/logo.jpeg',
+        'assets/gtr/bib-check/gtr-logo.webp',
+        'assets/runger-logo.png',
+        'assets/gtr/keteri.webp',
+        'assets/gtr/bib-check/sponsor-alti.webp',
+        'assets/gtr/bib-check/sponsor-lobar.webp',
+        'assets/gtr/bib-check/sponsor-dispar.webp',
+        'assets/gtr/bib-check/bank-ntb-syariah.webp',
+        'assets/gtr/bib-check/pam.webp',
+    ];
+
+    /** Font Barlow lokal (subset Google Fonts, OFL): [family, style, weight, file]. Hanya bobot yang dipakai. */
+    public const FONTS = [
+        ['Barlow', 'normal', 400, 'barlow-400'],
+        ['Barlow', 'normal', 500, 'barlow-500'],
+        ['Barlow Condensed', 'normal', 500, 'barlowc-500'],
+        ['Barlow Condensed', 'normal', 700, 'barlowc-700'],
+        ['Barlow Condensed', 'normal', 800, 'barlowc-800'],
+        ['Barlow Condensed', 'italic', 900, 'barlowc-900i'],
+    ];
+
+    public const FONT_DIR = 'assets/gtr/bib-check/fonts';
+
+    /** unicode-range per subset (sama dengan CSS Google Fonts). */
+    public const SUBSETS = [
+        'latin-ext' => 'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF',
+        'latin' => 'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+    ];
+
     public function index(): View
     {
-        return view('pages.gtr-bib-check', ['title' => GtrSetting::first()?->title ?: 'Gerung Trail Run 2026']);
+        return view('pages.gtr-bib-check', [
+            'title' => GtrSetting::first()?->title ?: 'Gerung Trail Run 2026',
+            'fontFaces' => self::fontFaces(),
+        ]);
     }
 
     /**
@@ -33,9 +74,69 @@ class GtrBibCheckController extends Controller
      */
     public function data(): JsonResponse
     {
-        $payload = Cache::remember('gtr:bib-check', self::CACHE_SECONDS, fn () => self::roster());
+        // Cache HANYA array biasa: config cache.serializable_classes=false menolak unserialize
+        // stdClass (hasilnya __PHP_Incomplete_Class → roster kosong). Objek dibuat setelah dibaca.
+        $payload = Cache::remember('gtr:bib-check:v2', self::CACHE_SECONDS, fn () => self::roster());
+        // Map → objek JSON (bukan [] saat kosong) supaya browser selalu menerima {"<bib>": …}.
+        $payload['categories'] = (object) $payload['categories'];
+        $payload['runners'] = (object) $payload['runners'];
 
         return response()->json($payload)->header('Cache-Control', 'public, max-age='.self::CACHE_SECONDS);
+    }
+
+    /** GET /gerung-trail-run/cek-bib/sw.js — service worker kiosk (scope = halaman kiosk). */
+    public function sw(): Response
+    {
+        $js = view('pages.gtr-bib-check-sw', [
+            'version' => self::version(),
+            'page' => route('gtr.bib-check'),
+            'data' => route('gtr.bib-check.data'),
+            'precache' => self::precacheUrls(),
+        ])->render();
+
+        return response($js, 200, [
+            'Content-Type' => 'application/javascript; charset=utf-8',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Service-Worker-Allowed' => self::SCOPE,
+        ]);
+    }
+
+    /** @return list<array{family:string, style:string, weight:int, url:string, range:string}> */
+    public static function fontFaces(): array
+    {
+        $faces = [];
+        foreach (self::FONTS as [$family, $style, $weight, $file]) {
+            foreach (self::SUBSETS as $subset => $range) {
+                $faces[] = [
+                    'family' => $family, 'style' => $style, 'weight' => $weight, 'range' => $range,
+                    'url' => asset(self::FONT_DIR."/{$file}-{$subset}.woff2"),
+                ];
+            }
+        }
+
+        return $faces;
+    }
+
+    /** @return list<string> */
+    public static function precacheUrls(): array
+    {
+        return [
+            route('gtr.bib-check'),
+            ...array_map(fn ($p) => asset($p), self::IMAGES),
+            ...array_column(self::fontFaces(), 'url'),
+        ];
+    }
+
+    /** Berubah setiap halaman / SW / aset diubah → cache lama dibuang, kiosk ambil versi baru. */
+    public static function version(): string
+    {
+        $files = [
+            resource_path('views/pages/gtr-bib-check.blade.php'),
+            resource_path('views/pages/gtr-bib-check-sw.blade.php'),
+            ...array_map(fn ($p) => public_path($p), self::IMAGES),
+        ];
+
+        return substr(md5(implode('|', array_map(fn ($f) => is_file($f) ? $f.':'.filemtime($f) : $f, $files))), 0, 12);
     }
 
     public static function roster(): array
@@ -62,8 +163,8 @@ class GtrBibCheckController extends Controller
             });
 
         return [
-            'categories' => (object) $categories->all(),
-            'runners' => (object) $runners,
+            'categories' => $categories->all(),
+            'runners' => $runners,
             'count' => count($runners),
             'generated_at_ms' => (int) floor(microtime(true) * 1000),
         ];
