@@ -3,11 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#f2f4f8">
     <meta name="color-scheme" content="light">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="GTR Scanner">
+    <meta name="application-name" content="GTR Scanner">
     <meta name="robots" content="noindex, nofollow">
     <title>GTR Scanner</title>
     {{-- Halaman ini di-precache service worker: jangan taruh data per-user / CSRF di sini. --}}

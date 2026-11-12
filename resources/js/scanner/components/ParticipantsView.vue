@@ -90,7 +90,7 @@ const todoLabel = computed(() => (isTiming.value ? 'Belum lewat' : 'Belum ambil'
 <template>
     <main class="panel">
         <div class="viewbar">
-            <button class="btn sm" @click="emit('back')"><Icon name="undo" :size="18" /> Kembali</button>
+            <button class="btn sm icon-only" aria-label="Kembali" @click="emit('back')"><Icon name="chevron-left" :size="22" :stroke="2.75" /></button>
             <h2>Data Peserta</h2>
         </div>
 

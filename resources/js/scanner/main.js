@@ -1,3 +1,4 @@
+import './install.js'; // paling awal: menangkap event pasang PWA sebelum aplikasi dimuat
 import { createApp } from 'vue';
 import App from './App.vue';
 import './scanner.css';

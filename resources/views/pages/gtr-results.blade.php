@@ -31,7 +31,7 @@
     <div class="block-head">
       <div class="eye">Race Results</div>
       <h2>Results</h2>
-      <p>{{ $published ? 'Hasil resmi Gerung Trail Run 2026. Klik nama untuk melihat split, e-sertifikat & kartu story.' : 'Hasil resmi dan klasemen akhir akan diumumkan di sini setelah race day.' }}</p>
+      <p>{{ $published ? 'Official results of Gerung Trail Run 2026. Tap a name to see splits, e-certificate & story card.' : 'Official results and final standings will be announced here after race day.' }}</p>
     </div>
     @if($published && count($categories))
       <div class="rs-bar">
@@ -41,17 +41,17 @@
           @endforeach
         </div>
         <div class="rs-tabs">
-          <button type="button" class="on" data-rs-gender="">Semua</button>
-          <button type="button" data-rs-gender="M">Putra</button>
-          <button type="button" data-rs-gender="F">Putri</button>
+          <button type="button" class="on" data-rs-gender="">All</button>
+          <button type="button" data-rs-gender="M">Male</button>
+          <button type="button" data-rs-gender="F">Female</button>
         </div>
-        <input type="search" class="rs-search" placeholder="Cari nama / BIB" data-rs-search>
+        <input type="search" class="rs-search" placeholder="Search name / BIB" data-rs-search>
       </div>
       <div data-rs-live>
         @php $hasNet = collect($categories)->contains(fn ($c) => collect($c['rows'])->whereNotNull('net')->isNotEmpty()); @endphp
         @foreach($categories as $i => $c)
           <div class="rs-table" data-rs-panel="{{ $c['id'] }}" @if($i !== 0) hidden @endif>
-            <div class="rs-row rs-head"><span>#</span><span>BIB</span><span>Nama</span>@if($hasNet)<span class="hide-m">Net</span>@else<span class="hide-m"></span>@endif<span class="r">Waktu</span></div>
+            <div class="rs-row rs-head"><span>#</span><span>BIB</span><span>Name</span>@if($hasNet)<span class="hide-m">Net</span>@else<span class="hide-m"></span>@endif<span class="r">Time</span></div>
             @foreach($c['rows'] as $r)
               <a class="rs-row" href="{{ route('gtr.result', $r['bib']) }}" data-rs-q="{{ strtolower($r['name'] . ' ' . $r['bib']) }}" data-rs-g="{{ $r['gender'] }}">
                 <span class="rk" data-rk="{{ $r['status'] === 'finisher' ? $r['rank'] : strtoupper($r['status']) }}" data-rk-g="{{ $r['status'] === 'finisher' ? $r['rank_gender'] : strtoupper($r['status']) }}">{{ $r['status'] === 'finisher' ? $r['rank'] : strtoupper($r['status']) }}</span>
@@ -64,7 +64,7 @@
           </div>
         @endforeach
       </div>
-      <p class="rs-note">Waktu = gun time (semua kategori start bersama, dasar peringkat). Diperbarui otomatis tiap {{ \App\Http\Controllers\PageController::RESULTS_CACHE_SECONDS }} detik.</p>
+      <p class="rs-note">Time = gun time (all categories start together; rankings are based on it). Updates automatically every {{ \App\Http\Controllers\PageController::RESULTS_CACHE_SECONDS }} seconds.</p>
     @else
     <div class="placeholder">
       <div class="ph-icon">
@@ -72,8 +72,8 @@
           <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
         </svg>
       </div>
-      <div class="ph-title">Race Belum Dimulai</div>
-      <div class="ph-sub">Klasemen finisher, chip time, dan medali certificate akan tersedia online dalam 24 jam setelah race day.</div>
+      <div class="ph-title">Race Has Not Started</div>
+      <div class="ph-sub">Finisher standings, chip times, and finisher certificates will be available online within 24 hours after race day.</div>
       <div class="ph-badge"><span class="pulse"></span>29 Nov 2026</div>
     </div>
     @endif

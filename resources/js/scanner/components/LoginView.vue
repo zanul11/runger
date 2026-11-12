@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { login, state } from '../store.js';
 import { unlockAudio } from '../feedback.js';
 import Icon from './Icon.vue';
+import InstallCard from './InstallCard.vue';
 import logo from '../assets/gtr-logo-dark.png';
 
 const username = ref(state.session?.user?.username ?? '');
@@ -66,6 +67,8 @@ async function submit() {
 
             <button class="btn primary lg block" :disabled="busy">{{ busy ? 'Masuk…' : 'Masuk' }}</button>
         </form>
+
+        <InstallCard />
 
         <p class="login-foot">Akun dibuat panitia di panel admin (Marshal / Petugas Race Pack).</p>
     </main>

@@ -38,11 +38,17 @@ export default defineConfig({
                 scope: '/scanner/',
                 display: 'standalone',
                 orientation: 'portrait',
-                background_color: '#eef1f5',
-                theme_color: '#ffffff',
+                display_override: ['standalone', 'minimal-ui'],
+                background_color: '#f2f4f8',
+                theme_color: '#f2f4f8',
+                categories: ['sports', 'utilities'],
+                prefer_related_applications: false,
+                // Entri "any" dan "maskable" dipisah (syarat pemasangan Chrome + ikon adaptif Android).
                 icons: [
-                    { src: '/pwa/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-                    { src: '/pwa/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+                    { src: '/pwa/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+                    { src: '/pwa/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+                    { src: '/pwa/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+                    { src: '/pwa/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
                 ],
             },
             workbox: {

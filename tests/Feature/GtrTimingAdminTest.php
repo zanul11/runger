@@ -323,7 +323,7 @@ class GtrTimingAdminTest extends TestCase
         $this->get('/gerung-trail-run/results')->assertDontSee('01:10:00');
 
         // Halaman personal: waktu resmi = gun time, peringkat gender tersimpan.
-        $this->get('/gerung-trail-run/results/7002')->assertOk()->assertSee('WAKTU RESMI')->assertSee('01:05:00');
+        $this->get('/gerung-trail-run/results/7002')->assertOk()->assertSee('OFFICIAL TIME')->assertSee('01:05:00');
     }
 
     // ---------- petugas racepack ----------

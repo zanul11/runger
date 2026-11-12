@@ -4,6 +4,7 @@ import { state, canTiming, canRacepack } from '../store.js';
 import { syncSoon } from '../sync.js';
 import Icon from './Icon.vue';
 import MenuSheet from './MenuSheet.vue';
+import InstallCard from './InstallCard.vue';
 import TimingPanel from './TimingPanel.vue';
 import RacepackPanel from './RacepackPanel.vue';
 import ParticipantsView from './ParticipantsView.vue';
@@ -66,7 +67,10 @@ function openParticipants() {
     <div class="shell">
         <!-- Baris 1: aplikasi, status kirim, akun -->
         <header class="top">
-            <div class="brandmark"><Icon name="flag" :size="20" /> GTR <span>Scanner</span></div>
+            <div class="brandmark">
+                <span class="mark"><Icon name="flag" :size="20" /></span>
+                <span>GTR Scanner<small>Gerung Trail Run 2026</small></span>
+            </div>
             <button class="pill" :class="syncPill.cls" :aria-label="`${syncPill.label}, ${state.pending} data menunggu`" @click="syncSoon(0)">
                 <span class="dot"></span>
                 <span>{{ syncPill.label }}</span>
@@ -97,6 +101,8 @@ function openParticipants() {
                 <small>peserta</small>
             </button>
         </section>
+
+        <InstallCard banner @notify="notify" />
 
         <ParticipantsView v-if="view === 'participants'" :mode="mode" @back="view = 'main'" @notify="notify" />
 

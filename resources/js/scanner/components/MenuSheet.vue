@@ -4,6 +4,7 @@ import { state, logout, refreshRoster } from '../store.js';
 import { syncSoon } from '../sync.js';
 import { formatTime, nowMs } from '../clock.js';
 import Icon from './Icon.vue';
+import InstallCard from './InstallCard.vue';
 
 const emit = defineEmits(['close', 'notify', 'participants']);
 const busy = ref(false);
@@ -74,6 +75,8 @@ async function doLogout() {
                 <span class="muted"> · {{ state.online ? 'online' : 'offline' }}</span>
             </div>
         </div>
+
+        <InstallCard style="margin-bottom: 14px" @notify="emit('notify', $event)" />
 
         <div class="actions">
             <button class="btn block" @click="emit('participants')"><Icon name="users" :size="22" /> Data peserta ({{ state.rosterCount }})</button>
