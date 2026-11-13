@@ -58,33 +58,44 @@ async function doLogout() {
 
         <div class="sheet-user">
             <div class="avatar">{{ initials }}</div>
-            <div>
+            <div class="sheet-who">
                 <b>{{ user.name }}</b>
                 <span class="role">{{ ROLES[user.role] ?? user.role }}</span>
             </div>
+            <button class="round" aria-label="Tutup menu" @click="emit('close')"><Icon name="x" :size="20" :stroke="2.5" /></button>
         </div>
 
         <div class="stats">
-            <div class="stat"><small>Jam (WITA)</small><b class="num">{{ formatTime(now) }}</b></div>
-            <div class="stat"><small>Belum terkirim</small><b class="num">{{ state.pending }}</b></div>
+            <div class="stat dark"><small>Jam (WITA)</small><b class="num">{{ formatTime(now) }}</b></div>
+            <div class="stat" :class="{ hot: state.pending > 0 }"><small>Belum terkirim</small><b class="num">{{ state.pending }}</b></div>
             <div class="stat"><small>Data peserta</small><b class="num">{{ state.rosterCount }}</b></div>
             <div class="stat"><small>Selisih jam HP</small><b class="num">{{ offset }}</b></div>
-            <div class="stat" style="grid-column: span 2">
+            <div class="stat wide">
                 <small>Sinkron terakhir</small>
-                <b class="num">{{ state.lastSyncAt ? formatTime(state.lastSyncAt) : '—' }}</b>
-                <span class="muted"> · {{ state.online ? 'online' : 'offline' }}</span>
+                <span><b class="num">{{ state.lastSyncAt ? formatTime(state.lastSyncAt) : '—' }}</b><span class="muted"> · {{ state.online ? 'online' : 'offline' }}</span></span>
             </div>
         </div>
 
-        <InstallCard style="margin-bottom: 14px" @notify="emit('notify', $event)" />
-
-        <div class="actions">
-            <button class="btn block" @click="emit('participants')"><Icon name="users" :size="22" /> Data peserta ({{ state.rosterCount }})</button>
-            <button class="btn block" @click="syncNow"><Icon name="upload" :size="22" /> Kirim data sekarang</button>
-            <button class="btn block" :disabled="busy" @click="reload"><Icon name="refresh" :size="22" /> {{ busy ? 'Memuat…' : 'Muat ulang data peserta' }}</button>
-            <button class="btn danger block" @click="doLogout"><Icon name="logout" :size="22" /> Keluar</button>
-            <button class="btn ghost block" @click="emit('close')">Tutup</button>
+        <div class="tiles">
+            <button class="tile" @click="emit('participants')">
+                <span class="tile-ic"><Icon name="users" :size="18" /></span>
+                <span>Data peserta<small class="num">{{ state.rosterCount }} di HP</small></span>
+            </button>
+            <button class="tile" @click="syncNow">
+                <span class="tile-ic"><Icon name="upload" :size="18" /></span>
+                <span>Kirim data<small>sekarang</small></span>
+            </button>
+            <button class="tile" :disabled="busy" @click="reload">
+                <span class="tile-ic"><Icon name="refresh" :size="18" /></span>
+                <span>{{ busy ? 'Memuat…' : 'Muat ulang' }}<small>data peserta</small></span>
+            </button>
+            <button class="tile danger" @click="doLogout">
+                <span class="tile-ic"><Icon name="logout" :size="18" /></span>
+                <span>Keluar<small>dari scanner</small></span>
+            </button>
         </div>
+
+        <InstallCard class="sheet-install" @notify="emit('notify', $event)" />
 
         <p class="device">Device {{ state.session.device_id?.slice(0, 8) }}</p>
     </section>

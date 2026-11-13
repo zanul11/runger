@@ -119,50 +119,54 @@ onBeforeUnmount(() => {
 
 <template>
     <main class="panel">
-        <!-- Stage: tinggi tetap; isi berganti antara siap / angka diketik / hasil -->
-        <section class="stage" aria-live="assertive">
-            <div v-if="card" :key="card.key" class="result" :class="card.tone" @click="card = null">
-                <div class="result-icon"><Icon :name="card.icon" :size="36" :stroke="3" /></div>
-                <div class="result-title">{{ card.title }}</div>
-                <div class="result-body">
-                    <div class="result-bib num">{{ card.bib }}</div>
-                    <div v-if="card.name" class="result-name">{{ card.name }}</div>
-                    <div v-if="card.tags.length" class="result-tags"><span v-for="t in card.tags" :key="t" class="tag">{{ t }}</span></div>
-                    <div v-if="card.note" class="result-note">{{ card.note }}</div>
+        <!-- Area kerja = tepat satu layar: stage mengisi sisa ruang, keypad selalu terlihat di bawah -->
+        <div class="work" :class="{ 'is-qr': inputMode === 'qr' }">
+            <!-- Mode kamera: kamera paling atas (sejajar pandangan saat HP diarahkan ke BIB), hasil di bawahnya -->
+            <QrReader v-if="inputMode === 'qr'" @decode="submit($event, 'qr')" />
+
+            <section class="stage" aria-live="assertive">
+                <div v-if="card" :key="card.key" class="result" :class="card.tone" @click="card = null">
+                    <div class="result-icon"><Icon :name="card.icon" :size="30" :stroke="3" /></div>
+                    <div class="result-title">{{ card.title }}</div>
+                    <div class="result-body">
+                        <div class="result-bib num">{{ card.bib }}</div>
+                        <div v-if="card.name" class="result-name">{{ card.name }}</div>
+                        <div v-if="card.tags.length" class="result-tags"><span v-for="t in card.tags" :key="t" class="tag">{{ t }}</span></div>
+                        <div v-if="card.note" class="result-note">{{ card.note }}</div>
+                    </div>
+                    <div class="result-timer" :style="{ animationDuration: CARD_MS + 'ms' }"></div>
                 </div>
-                <div class="result-timer" :style="{ animationDuration: CARD_MS + 'ms' }"></div>
-            </div>
-            <div v-else-if="typed" class="stage-typing">
-                <small>NOMOR BIB</small>
-                <b class="num">{{ typed }}<span class="caret"></span></b>
-            </div>
-            <div v-else class="stage-idle">
-                <Icon :name="inputMode === 'qr' ? 'camera' : 'keypad'" :size="40" />
-                <span class="hint">{{ inputMode === 'qr' ? 'Arahkan kamera ke QR di BIB' : 'Ketik nomor BIB pelari' }}</span>
-            </div>
-        </section>
+                <div v-else-if="typed" class="stage-typing">
+                    <small>NOMOR BIB</small>
+                    <b class="num">{{ typed }}<span class="caret"></span></b>
+                </div>
+                <div v-else class="stage-idle">
+                    <Icon :name="inputMode === 'qr' ? 'camera' : 'keypad'" :size="30" />
+                    <span class="hint">{{ inputMode === 'qr' ? 'Hasil scan muncul di sini' : 'Ketik nomor BIB pelari' }}</span>
+                </div>
+            </section>
 
-        <div class="seg" role="tablist" aria-label="Cara input">
-            <button role="tab" :class="{ on: inputMode === 'keypad' }" @click="setMode('keypad')"><Icon name="keypad" :size="20" /> Keypad</button>
-            <button role="tab" :class="{ on: inputMode === 'qr' }" @click="setMode('qr')"><Icon name="camera" :size="20" /> Kamera QR</button>
+            <div v-if="last" class="lastbar">
+                <div class="info">
+                    <small>Terakhir</small>
+                    <b class="num">{{ last.bib }}</b>
+                    <span class="who">{{ last.cancelled ? 'Dibatalkan' : (last.name ?? 'Tidak terdaftar') }}</span>
+                </div>
+                <button class="btn danger sm" :disabled="last.cancelled" @click="undo"><Icon name="undo" :size="18" /> Batalkan</button>
+            </div>
+
+            <div class="seg" role="tablist" aria-label="Cara input">
+                <button role="tab" :class="{ on: inputMode === 'keypad' }" @click="setMode('keypad')"><Icon name="keypad" :size="18" /> Keypad</button>
+                <button role="tab" :class="{ on: inputMode === 'qr' }" @click="setMode('qr')"><Icon name="camera" :size="18" /> Kamera QR</button>
+            </div>
+
+            <Keypad v-if="inputMode === 'keypad'" v-model="typed" @submit="submit($event, 'manual')" @typing="card = null" />
         </div>
 
-        <QrReader v-if="inputMode === 'qr'" @decode="submit($event, 'qr')" />
-        <Keypad v-else v-model="typed" @submit="submit($event, 'manual')" @typing="card = null" />
-
-        <div v-if="last" class="lastbar">
-            <div class="info">
-                <small>Scan terakhir</small>
-                <b class="num">{{ last.bib }}</b>
-                <span class="who">{{ last.cancelled ? 'Dibatalkan' : (last.name ?? 'Tidak terdaftar') }}</span>
-            </div>
-            <button class="btn danger sm" :disabled="last.cancelled" @click="undo"><Icon name="undo" :size="20" /> Batalkan</button>
-        </div>
-
-        <div class="section-title"><span>Riwayat saya</span></div>
+        <div class="section-title"><span>Riwayat saya</span><Icon name="chevron-right" :size="16" :stroke="2.5" class="down" /></div>
         <ul v-if="recent.length" class="history">
             <li v-for="s in recent" :key="s.uuid" :class="[s.local_result, { cancelled: s.cancelled }]">
-                <span class="st"><Icon :name="historyIcon(s)" :size="20" :stroke="2.75" /></span>
+                <span class="st"><Icon :name="historyIcon(s)" :size="18" :stroke="2.75" /></span>
                 <b class="num">{{ s.bib }}</b>
                 <span class="who">
                     <span>{{ s.name ?? 'Tidak terdaftar' }}</span>

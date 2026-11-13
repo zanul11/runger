@@ -39,8 +39,8 @@ export default defineConfig({
                 display: 'standalone',
                 orientation: 'portrait',
                 display_override: ['standalone', 'minimal-ui'],
-                background_color: '#f2f4f8',
-                theme_color: '#f2f4f8',
+                background_color: '#e9eae5',
+                theme_color: '#e9eae5',
                 categories: ['sports', 'utilities'],
                 prefer_related_applications: false,
                 // Entri "any" dan "maskable" dipisah (syarat pemasangan Chrome + ikon adaptif Android).

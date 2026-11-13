@@ -4,7 +4,8 @@ import { login, state } from '../store.js';
 import { unlockAudio } from '../feedback.js';
 import Icon from './Icon.vue';
 import InstallCard from './InstallCard.vue';
-import logo from '../assets/gtr-logo-dark.png';
+import gtrLogo from '../assets/gtr-logo.png';
+import rungerLogo from '../assets/gtr-logo-dark.png';
 
 const username = ref(state.session?.user?.username ?? '');
 const password = ref('');
@@ -33,11 +34,14 @@ async function submit() {
 
 <template>
     <main class="login">
-        <div class="login-brand">
-            <img :src="logo" alt="Gerung Trail Run">
-            <h1>Scanner</h1>
+        <section class="login-brand">
+            <div class="login-logos">
+                <span class="logo-tile"><img :src="gtrLogo" alt="Gerung Trail Run — Keteri Hill"></span>
+                <img class="runger" :src="rungerLogo" alt="Runger — Runners Gerung">
+            </div>
+            <h1>Halo, panitia!<br>Siap scan?</h1>
             <p>Timing &amp; Race Pack · Gerung Trail Run 2026</p>
-        </div>
+        </section>
 
         <div v-if="state.authExpired" class="alert warn">
             <Icon name="alert" :size="20" />
@@ -65,7 +69,7 @@ async function submit() {
 
             <div v-if="error" class="alert bad"><Icon name="x-circle" :size="20" /><span>{{ error }}</span></div>
 
-            <button class="btn primary lg block" :disabled="busy">{{ busy ? 'Masuk…' : 'Masuk' }}</button>
+            <button class="btn success lg block" :disabled="busy">{{ busy ? 'Masuk…' : 'Masuk' }} <span class="go"><Icon name="chevron-right" :size="20" :stroke="2.75" /></span></button>
         </form>
 
         <InstallCard />

@@ -7,6 +7,7 @@ import MenuSheet from './MenuSheet.vue';
 import InstallCard from './InstallCard.vue';
 import TimingPanel from './TimingPanel.vue';
 import RacepackPanel from './RacepackPanel.vue';
+import gtrLogo from '../assets/gtr-logo.png';
 import ParticipantsView from './ParticipantsView.vue';
 
 const point = computed(() => state.session.timing_point);
@@ -65,11 +66,12 @@ function openParticipants() {
 
 <template>
     <div class="shell">
-        <!-- Baris 1: aplikasi, status kirim, akun -->
+        <!-- Header tetap (tidak ikut scroll): akun, status kirim, lokasi -->
         <header class="top">
+            <span class="logo-tile sm"><img :src="gtrLogo" alt="Gerung Trail Run"></span>
             <div class="brandmark">
-                <span class="mark"><Icon name="flag" :size="20" /></span>
-                <span>GTR Scanner<small>Gerung Trail Run 2026</small></span>
+                <b>Scanner</b>
+                <small>{{ mode === 'racepack' ? 'Race Pack' : 'Timing' }} · GTR 2026</small>
             </div>
             <button class="pill" :class="syncPill.cls" :aria-label="`${syncPill.label}, ${state.pending} data menunggu`" @click="syncSoon(0)">
                 <span class="dot"></span>
@@ -79,7 +81,7 @@ function openParticipants() {
             <button class="avatar" aria-label="Menu" @click="menu = true">{{ initials }}</button>
         </header>
 
-        <!-- Baris 2: lokasi — lebar penuh, nama boleh 2 baris supaya selalu terbaca -->
+        <!-- Lokasi — nama boleh 2 baris supaya selalu terbaca -->
         <section class="locbar" :class="mode === 'racepack' ? 'rp' : ''">
             <template v-if="mode === 'timing'">
                 <div class="loc-badge">{{ point?.code ?? '—' }}</div>
@@ -89,47 +91,44 @@ function openParticipants() {
                 </div>
             </template>
             <template v-else>
-                <div class="loc-badge"><Icon name="package" :size="26" /></div>
+                <div class="loc-badge"><Icon name="package" :size="24" /></div>
                 <div class="loc-text">
                     <small>Pengambilan</small>
                     <strong>Race Pack</strong>
                 </div>
             </template>
             <button class="loc-people" :class="{ empty: state.rosterCount === 0 }" aria-label="Lihat data peserta" @click="openParticipants">
-                <Icon name="users" :size="20" />
+                <Icon name="users" :size="18" />
                 <b class="num">{{ state.rosterCount }}</b>
-                <small>peserta</small>
             </button>
         </section>
 
         <InstallCard banner @notify="notify" />
 
+        <div v-if="modes.length > 1 && view === 'main'" class="mode-bar">
+            <div class="seg" role="tablist">
+                <button role="tab" :class="{ on: mode === 'timing' }" :aria-selected="mode === 'timing'" @click="mode = 'timing'">
+                    <Icon name="timer" :size="18" /> Timing
+                </button>
+                <button role="tab" :class="{ on: mode === 'racepack' }" :aria-selected="mode === 'racepack'" @click="mode = 'racepack'">
+                    <Icon name="package" :size="18" /> Race Pack
+                </button>
+            </div>
+        </div>
+
         <ParticipantsView v-if="view === 'participants'" :mode="mode" @back="view = 'main'" @notify="notify" />
 
         <template v-else>
-            <div v-if="modes.length > 1" class="mode-bar">
-                <div class="seg" role="tablist">
-                    <button role="tab" :class="{ on: mode === 'timing' }" :aria-selected="mode === 'timing'" @click="mode = 'timing'">
-                        <Icon name="timer" :size="20" /> Timing
-                    </button>
-                    <button role="tab" :class="{ on: mode === 'racepack' }" :aria-selected="mode === 'racepack'" @click="mode = 'racepack'">
-                        <Icon name="package" :size="20" /> Race Pack
-                    </button>
-                </div>
-            </div>
-
-            <div v-if="state.lastError && !state.authExpired" class="panel" style="flex:none;padding-bottom:0">
-                <div class="alert warn"><Icon name="wifi-off" :size="20" /><span>{{ state.lastError }} Data tersimpan di HP dan dikirim otomatis.</span></div>
-            </div>
-            <div v-if="state.rosterCount === 0" class="panel" style="flex:none;padding-bottom:0">
-                <button class="alert bad" style="text-align:left;width:100%" @click="openParticipants">
+            <div v-if="(state.lastError && !state.authExpired) || state.rosterCount === 0" class="notices">
+                <div v-if="state.lastError && !state.authExpired" class="alert warn"><Icon name="wifi-off" :size="20" /><span>{{ state.lastError }} Data tersimpan di HP dan dikirim otomatis.</span></div>
+                <button v-if="state.rosterCount === 0" class="alert bad" @click="openParticipants">
                     <Icon name="alert" :size="20" /><span>Data peserta belum terunduh di HP ini. Ketuk untuk mengunduh.</span>
                 </button>
             </div>
 
             <TimingPanel v-if="mode === 'timing' && point" />
             <div v-else-if="mode === 'timing'" class="panel">
-                <div class="stage"><div class="stage-idle"><Icon name="map-off" :size="44" /><span class="hint">Akun ini belum ditugaskan ke pos timing.<br>Hubungi admin.</span></div></div>
+                <div class="stage"><div class="stage-idle"><Icon name="map-off" :size="40" /><span class="hint">Akun ini belum ditugaskan ke pos timing.<br>Hubungi admin.</span></div></div>
             </div>
             <RacepackPanel v-else-if="mode === 'racepack'" />
             <div v-else class="panel">

@@ -133,16 +133,16 @@ onBeforeUnmount(() => clearTimeout(doneTimer));
 </script>
 
 <template>
-    <main class="panel">
+    <main class="panel" :class="{ 'rp-qr': (step === 'input' || step === 'loading') && inputMode === 'qr' }">
         <!-- 1. Input -->
         <template v-if="step === 'input' || step === 'loading'">
             <div class="seg" role="tablist" aria-label="Cara mencari peserta">
-                <button role="tab" :class="{ on: inputMode === 'qr' }" @click="setMode('qr')"><Icon name="camera" :size="20" /> Scan e-ticket</button>
-                <button role="tab" :class="{ on: inputMode === 'search' }" @click="setMode('search')"><Icon name="list" :size="20" /> Cari nama</button>
+                <button role="tab" :class="{ on: inputMode === 'qr' }" @click="setMode('qr')"><Icon name="camera" :size="18" /> Scan e-ticket</button>
+                <button role="tab" :class="{ on: inputMode === 'search' }" @click="setMode('search')"><Icon name="list" :size="18" /> Cari nama</button>
             </div>
 
             <section v-if="step === 'loading'" class="stage">
-                <div class="stage-idle"><Icon name="refresh" :size="40" /><span class="hint">Mencari peserta…</span></div>
+                <div class="stage-idle"><Icon name="refresh" :size="30" /><span class="hint">Mencari peserta…</span></div>
             </section>
 
             <template v-else-if="inputMode === 'qr'">
@@ -151,7 +151,7 @@ onBeforeUnmount(() => clearTimeout(doneTimer));
             </template>
 
             <template v-else>
-                <div class="input search">
+                <div class="input search sticky">
                     <Icon name="list" :size="20" />
                     <input ref="searchBox" v-model="query" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="words"
                            placeholder="Nama peserta / no. registrasi" @keydown.enter.prevent="results.length === 1 && lookup(results[0].registration_number)">
@@ -178,7 +178,7 @@ onBeforeUnmount(() => clearTimeout(doneTimer));
         <template v-else-if="step === 'detail' || step === 'saving'">
             <article class="pcard">
                 <div class="pcard-status" :class="found.status">
-                    <Icon :name="status.icon" :size="26" :stroke="2.5" />
+                    <span class="pcard-icon"><Icon :name="status.icon" :size="22" :stroke="2.5" /></span>
                     <div>
                         {{ status.title }}
                         <small v-if="alreadyText || status.sub">{{ alreadyText ?? status.sub }}</small>
@@ -220,25 +220,30 @@ onBeforeUnmount(() => clearTimeout(doneTimer));
                 </template>
             </article>
 
-            <div v-if="found.status === 'available'" class="actions two">
-                <button class="btn lg" :disabled="step === 'saving'" @click="reset">Batal</button>
-                <button class="btn success lg" :disabled="step === 'saving' || (proxy && !proxyName.trim())" @click="take">
-                    <Icon name="package" :size="24" /> {{ step === 'saving' ? 'Menyimpan…' : 'Ambil Race Pack' }}
-                </button>
+            <!-- Tombol aksi menempel di bawah layar: selalu terlihat walau kartu panjang -->
+            <div class="dock">
+                <div v-if="found.status === 'available'" class="actions two">
+                    <button class="btn lg" :disabled="step === 'saving'" @click="reset">Batal</button>
+                    <button class="btn success lg" :disabled="step === 'saving' || (proxy && !proxyName.trim())" @click="take">
+                        <Icon name="package" :size="22" /> {{ step === 'saving' ? 'Menyimpan…' : 'Ambil Race Pack' }}
+                    </button>
+                </div>
+                <button v-else class="btn primary lg block" @click="reset">Scan peserta berikutnya <span class="go"><Icon name="chevron-right" :size="20" :stroke="2.75" /></span></button>
             </div>
-            <button v-else class="btn primary lg block" @click="reset"><Icon name="keypad" :size="22" /> Scan peserta berikutnya</button>
         </template>
 
         <!-- 3. Selesai -->
         <template v-else-if="step === 'done'">
             <section class="done" role="status">
-                <Icon name="check-circle" :size="72" :stroke="2.5" />
+                <span class="done-icon"><Icon name="check" :size="44" :stroke="3" /></span>
                 <h2>Race pack diserahkan</h2>
                 <p>{{ done.name }} · BIB <span class="num">{{ done.bib }}</span></p>
                 <div v-if="done.size" class="size"><small>JERSEY</small><b>{{ done.size }}</b></div>
-                <p v-if="done.queued" style="opacity:.8">Offline — dikirim otomatis saat ada sinyal.</p>
+                <p v-if="done.queued" class="done-note">Offline — dikirim otomatis saat ada sinyal.</p>
             </section>
-            <button class="btn primary lg block" @click="reset"><Icon name="keypad" :size="22" /> Scan peserta berikutnya</button>
+            <div class="dock">
+                <button class="btn primary lg block" @click="reset">Scan peserta berikutnya <span class="go"><Icon name="chevron-right" :size="20" :stroke="2.75" /></span></button>
+            </div>
         </template>
     </main>
 </template>
