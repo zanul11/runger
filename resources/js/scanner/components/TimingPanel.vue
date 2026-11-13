@@ -29,7 +29,7 @@ const VIEW = {
 const GENDER = { M: 'Laki-laki', F: 'Perempuan' };
 const SYNC_TEXT = {
     duplicate: 'duplikat', cancelled: 'dibatalkan', unknown_bib: 'tak terdaftar', invalid_bib: 'tak valid',
-    wrong_category: 'salah kategori', wrong_post: 'salah pos', invalid: 'data rusak',
+    wrong_category: 'salah kategori', wrong_post: 'salah pos', invalid: 'data rusak', before_reset: 'data uji',
 };
 
 function readMode() {

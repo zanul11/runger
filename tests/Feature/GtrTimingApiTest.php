@@ -456,7 +456,7 @@ class GtrTimingApiTest extends TestCase
         $this->postJson('/api/timing/racepack/checkin', ['code' => '7001'])->assertForbidden();
         $this->assertNull($this->budi->fresh()->racepack_collected_at);
 
-        // Admin boleh keduanya.
+        // Admin boleh keduanya (scan timing hanya di pos yang ia pilih — lihat GtrScannerAdminApiTest).
         Sanctum::actingAs(User::create(['name' => 'Admin', 'username' => 'adm', 'password' => 'rahasia6', 'role' => User::ROLE_ADMIN]));
         $this->getJson('/api/timing/racepack/lookup?code=7001')->assertOk();
     }

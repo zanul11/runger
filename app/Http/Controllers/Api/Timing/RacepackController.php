@@ -39,6 +39,12 @@ class RacepackController extends Controller
 
         $at = ! empty($data['collected_at_ms']) ? DateTimeMs::toCarbon((int) $data['collected_at_ms']) : null;
 
+        // Antrean offline sisa uji coba (sebelum gtr:reset-race-day) → tolak, jangan tandai diambil.
+        $resetAtMs = \App\Models\GtrSetting::timingResetAtMs();
+        if ($at && $resetAtMs !== null && DateTimeMs::toMs($at) < $resetAtMs) {
+            return response()->json(['status' => 'before_reset', 'participant' => null], 409);
+        }
+
         return $this->respond($racepack->checkin($data['code'], $request->user(), $data['picked_by'] ?? null, $at));
     }
 

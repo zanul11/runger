@@ -2,7 +2,7 @@ import { api, ApiError } from './api.js';
 import { db } from './db.js';
 import { syncClock } from './clock.js';
 import { nextSyncDelay } from './logic.js';
-import { state, refreshCounts, refreshRoster, mine } from './store.js';
+import { state, refreshCounts, refreshRoster, mine, pushPendingStart } from './store.js';
 
 /**
  * Sinkronisasi antrean ke server:
@@ -61,6 +61,7 @@ async function tick() {
             lastClockAt = Date.now();
         }
 
+        await pushPendingStart();
         await pushScans(token);
         await pushRacepack(token);
 

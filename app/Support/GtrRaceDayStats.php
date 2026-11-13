@@ -4,6 +4,8 @@ namespace App\Support;
 
 use App\Models\GtrCategory;
 use App\Models\GtrRegistration;
+use App\Models\GtrResult;
+use App\Models\GtrResultAdjustment;
 use App\Models\GtrScanLog;
 use App\Models\GtrTimingPoint;
 use App\Models\GtrTimingPointAssignment;
@@ -57,6 +59,7 @@ class GtrRaceDayStats
             }
 
             return [
+                'id' => $tp->id,
                 'code' => $tp->code,
                 'name' => $tp->name,
                 'type' => $tp->type,
@@ -125,10 +128,32 @@ class GtrRaceDayStats
     }
 
     /**
+     * Status yang ditetapkan admin (koreksi status aktif terakhir) per peserta — langsung berlaku
+     * di layar race day, tanpa menunggu hasil dipublikasikan.
+     *
+     * @return array<int,string> registration id => finisher|dnf|dq|dns
+     */
+    public static function manualStatuses(iterable $registrationIds): array
+    {
+        $ids = collect($registrationIds)->values()->all();
+        if (! $ids) {
+            return [];
+        }
+
+        return GtrResultAdjustment::where('is_active', true)
+            ->where('field', GtrResultAdjustment::FIELD_STATUS)
+            ->whereIn('gtr_registration_id', $ids)
+            ->orderBy('id')
+            ->pluck('new_value', 'gtr_registration_id') // id terbesar menimpa → koreksi terakhir
+            ->all();
+    }
+
+    /**
      * Per kategori: peserta yang sudah tercatat di lintasan tetapi belum terlihat di CP terakhir
      * (pos sebelum finish) dan belum finish — posisi terakhir & jamnya untuk sweeper.
+     * Peserta yang sudah ditetapkan DNF / DQ / DNS (mundur, dievakuasi) tidak dicari lagi.
      *
-     * @return list<array{category: string, last_cp: ?string, on_course: int, not_started: int, finished: int, rows: list<array>}>
+     * @return list<array{category: string, last_cp: ?string, on_course: int, not_started: int, finished: int, withdrawn: int, rows: list<array>}>
      */
     public static function notSeenAtLastCp(): array
     {
@@ -145,10 +170,18 @@ class GtrRaceDayStats
                 ->get(['gtr_registration_id', 'gtr_timing_point_id', 'scanned_at'])
                 ->groupBy('gtr_registration_id');
 
+            $manual = self::manualStatuses($regs->pluck('id'));
+
             $rows = [];
             $finished = 0;
             $notStarted = 0;
+            $withdrawn = 0;
             foreach ($regs as $reg) {
+                if (in_array($manual[$reg->id] ?? null, [GtrResult::STATUS_DNF, GtrResult::STATUS_DQ, GtrResult::STATUS_DNS], true)) {
+                    $withdrawn++;
+
+                    continue;
+                }
                 $mine = $scans->get($reg->id);
                 if (! $mine) {
                     $notStarted++;
@@ -183,6 +216,7 @@ class GtrRaceDayStats
                 'on_course' => count($rows),
                 'not_started' => $notStarted,
                 'finished' => $finished,
+                'withdrawn' => $withdrawn,
                 'rows' => $rows,
             ];
         }

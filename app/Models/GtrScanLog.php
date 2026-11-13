@@ -24,6 +24,9 @@ class GtrScanLog extends Model
 
     public const SOURCE_VIDEO = 'video';
 
+    /** Scan ditambahkan admin dari menu Kontrol (peserta lewat tapi tidak ter-scan). */
+    public const SOURCE_ADMIN = 'admin';
+
     /** Sumber yang boleh dikirim scanner (QR atau keypad manual). */
     public const SCANNER_SOURCES = [self::SOURCE_QR, self::SOURCE_MANUAL];
 

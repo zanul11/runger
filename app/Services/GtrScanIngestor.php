@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Casts\DateTimeMs;
 use App\Models\GtrRegistration;
 use App\Models\GtrScanLog;
+use App\Models\GtrSetting;
 use App\Models\GtrTimingPoint;
 use App\Models\User;
 use App\Support\Bib;
@@ -26,14 +27,17 @@ use Illuminate\Support\Str;
  *    datang, jadi hasilnya sama walau batch dari beberapa device tiba acak.
  *  - Waktu terkoreksi dihitung server: device_time_ms + clock_offset_ms.
  *
- * Item ditolak TANPA disimpan hanya bila bentuknya tidak valid atau posnya bukan pos marshal
- * (tidak bisa dipercaya). Semua jawaban final: scanner tidak perlu mengirim ulang.
+ * Item ditolak TANPA disimpan hanya bila bentuknya tidak valid, posnya bukan pos marshal
+ * (tidak bisa dipercaya), atau waktunya sebelum reset data uji (gtr:reset-race-day). Semua jawaban final: scanner tidak perlu mengirim ulang.
  */
 class GtrScanIngestor
 {
     public const REJECT_INVALID = 'invalid';
 
     public const REJECT_WRONG_POST = 'wrong_post';
+
+    /** Scan uji coba yang dibuat sebelum gtr:reset-race-day (antrean HP yang belum bersih). */
+    public const REJECT_BEFORE_RESET = 'before_reset';
 
     /** Batas toleransi waktu terkoreksi di masa depan sebelum ditandai janggal. */
     private const FUTURE_TOLERANCE_MS = 120_000;
@@ -48,6 +52,7 @@ class GtrScanIngestor
     public function ingest(User $user, ?string $deviceId, array $items): array
     {
         $receivedAt = now();
+        $resetAtMs = GtrSetting::timingResetAtMs();
 
         // Pos yang boleh dicatat user ini: semua pos yang pernah ditugaskan (aktif atau tidak),
         // supaya antrean offline dari pos lama tetap masuk setelah marshal dipindah.
@@ -81,6 +86,12 @@ class GtrScanIngestor
 
                 if (! $point) {
                     $results[$uuid] = self::REJECT_WRONG_POST;
+
+                    continue;
+                }
+
+                if ($resetAtMs !== null && $item['device_time_ms'] + (int) ($item['clock_offset_ms'] ?? 0) < $resetAtMs) {
+                    $results[$uuid] = self::REJECT_BEFORE_RESET;
 
                     continue;
                 }

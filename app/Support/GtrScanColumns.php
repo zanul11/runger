@@ -13,6 +13,7 @@ class GtrScanColumns
         GtrScanLog::SOURCE_QR => 'Scan QR',
         GtrScanLog::SOURCE_MANUAL => 'Input manual',
         GtrScanLog::SOURCE_VIDEO => 'Video',
+        GtrScanLog::SOURCE_ADMIN => 'Koreksi admin',
     ];
 
     public static function time(): TextColumn

@@ -8,9 +8,11 @@ use App\Models\GtrRegistration;
 use App\Models\GtrResult;
 use App\Models\GtrResultAdjustment;
 use App\Models\GtrScanLog;
+use App\Models\GtrTimingPoint;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
@@ -101,6 +103,40 @@ class GtrTimingAdmin
         $this->refresh($scan);
 
         return $reg;
+    }
+
+    /**
+     * Tambah scan oleh admin: peserta terbukti lewat pos tapi tidak ter-scan (HP mati, terlewat).
+     * Ditandai source=admin & device_id=admin; dedup (< 60 detik) dan hasil dihitung ulang.
+     */
+    public function addManualScan(GtrTimingPoint $point, string $bib, Carbon $at, User $by): GtrScanLog
+    {
+        $reg = GtrRegistration::findByBib($bib);
+        if (! $reg) {
+            throw new InvalidArgumentException("BIB {$bib} tidak terdaftar / belum lunas.");
+        }
+        if (! $point->categories()->whereKey($reg->gtr_category_id)->exists()) {
+            throw new InvalidArgumentException("Kategori BIB {$bib} tidak melewati pos {$point->code}.");
+        }
+
+        $scan = GtrScanLog::create([
+            'client_uuid' => (string) Str::uuid(),
+            'gtr_registration_id' => $reg->id,
+            'gtr_timing_point_id' => $point->id,
+            'bib_input' => mb_substr($bib, 0, 32),
+            'scanned_by' => $by->id,
+            'device_id' => 'admin',
+            'source' => GtrScanLog::SOURCE_ADMIN,
+            'raw_device_time' => $at,
+            'clock_offset_ms' => 0,
+            'scanned_at' => $at,
+            'server_received_at' => now(),
+            'is_flagged' => false,
+            'is_ignored' => false,
+        ]);
+        $this->refresh($scan);
+
+        return $scan->fresh();
     }
 
     /**

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { state, refreshRoster, participantOverview, pointCategoryIds, categoryName, visitsFor } from '../store.js';
-import { formatTime } from '../clock.js';
+import { formatTime, formatDayTime } from '../clock.js';
 import Icon from './Icon.vue';
 
 /**
@@ -121,7 +121,7 @@ const todoLabel = computed(() => (isTiming.value ? 'Belum lewat' : 'Belum ambil'
         </section>
 
         <!-- Cari & filter -->
-        <div class="input search">
+        <div class="input search sticky">
             <Icon name="list" :size="20" />
             <input v-model="q" type="search" inputmode="search" :placeholder="isTiming ? 'Cari nama atau BIB' : 'Cari nama atau no. registrasi'" autocomplete="off">
             <button v-if="q" class="eye" aria-label="Hapus pencarian" @click="q = ''"><Icon name="x" :size="20" /></button>
@@ -141,6 +141,9 @@ const todoLabel = computed(() => (isTiming.value ? 'Belum lewat' : 'Belum ambil'
                 <span class="who">
                     <span>{{ p.name }}</span>
                     <small>{{ categoryName(p.category_id) }} · {{ GENDER[p.gender] ?? '-' }}<template v-if="!isTiming && p.size"> · Jersey {{ p.size }}</template></small>
+                    <small v-if="!isTiming && p.racepack && (p.racepack_at_ms || p.racepack_by)" class="rp-by">
+                        Diambil {{ formatDayTime(p.racepack_at_ms) }}<template v-if="p.racepack_by"> · oleh {{ p.racepack_by }}</template><template v-if="p.racepack_picked_by"> · diwakilkan {{ p.racepack_picked_by }}</template>
+                    </small>
                 </span>
                 <span v-if="isTiming && !relevant(p)" class="st muted">tidak lewat</span>
                 <span v-else-if="isTiming && isDone(p)" class="st yes">

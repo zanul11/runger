@@ -6,6 +6,7 @@ use App\Casts\DateTimeMs;
 use App\Models\GtrCategory;
 use App\Models\GtrRegistration;
 use App\Models\GtrScanLog;
+use App\Models\GtrSetting;
 use App\Models\User;
 use App\Support\Bib;
 use App\Support\Passes;
@@ -45,9 +46,10 @@ class GtrTimingSession
             })->values();
 
         $registrations = GtrRegistration::query()->raceEligible()
-            ->with('runner:id,first_name,last_name')
+            ->with(['runner:id,first_name,last_name', 'racepackCollector:id,name'])
             ->orderBy('bib_number')
-            ->get(['id', 'runner_id', 'gtr_category_id', 'nomor_registrasi', 'bib_number', 'full_name', 'gender', 'size', 'nik', 'racepack_collected_at']);
+            ->get(['id', 'runner_id', 'gtr_category_id', 'nomor_registrasi', 'bib_number', 'full_name', 'gender', 'size', 'nik',
+                'racepack_collected_at', 'racepack_collected_by', 'racepack_picked_by']);
 
         // NIK hanya untuk verifikasi identitas di meja racepack — tidak dikirim ke HP marshal timing.
         $withNik = in_array($user->role, [User::ROLE_RACEPACK, User::ROLE_ADMIN], true);
@@ -71,7 +73,13 @@ class GtrTimingSession
             'racepack' => $r->racepack_collected_at !== null,
             'seen_at_ms' => $seen[$r->id][0] ?? null,
             'seen_passes_ms' => $seen[$r->id] ?? [],
-        ], $withNik ? ['nik' => $r->nik] : []))->values();
+        ], $withNik ? [
+            'nik' => $r->nik,
+            // Detail pengambilan racepack: kapan, petugas yang menyerahkan, dan pengambil bila diwakilkan.
+            'racepack_at_ms' => DateTimeMs::toMs($r->racepack_collected_at),
+            'racepack_by' => $r->racepackCollector?->name,
+            'racepack_picked_by' => $r->racepack_picked_by,
+        ] : []))->values();
 
         return [
             'user' => [
@@ -93,6 +101,14 @@ class GtrTimingSession
                 'repeat_pass_gap_ms' => Passes::GAP_MS,
                 'bib_max_length' => Bib::MAX_LENGTH,
             ],
+            // Admin memilih sendiri lokasi scan: daftar pos (tanpa START — tidak ada scan di start).
+            'points' => $user->role === User::ROLE_ADMIN
+                ? \App\Models\GtrTimingPoint::with('categories:id')->where('type', '!=', \App\Models\GtrTimingPoint::TYPE_START)
+                    ->orderBy('sort_order')->get()->filter(fn ($p) => $p->categories->isNotEmpty())
+                    ->map(fn ($p) => ['id' => $p->id, 'code' => $p->code, 'name' => $p->name, 'type' => $p->type])->values()
+                : [],
+            // Reset data uji terakhir: scanner menghapus antrean & riwayat lokal yang lebih lama.
+            'reset_at_ms' => GtrSetting::timingResetAtMs(),
             'server_time_ms' => DateTimeMs::toMs(now()),
         ];
     }

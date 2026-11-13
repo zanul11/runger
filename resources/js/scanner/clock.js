@@ -47,6 +47,15 @@ const fmt = new Intl.DateTimeFormat('id-ID', {
     timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
 });
 
+const fmtDay = new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Makassar', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false,
+});
+
+/** "27 Nov 09.12" → "27 Nov 09:12" dalam WITA (untuk kejadian di hari lain, mis. ambil racepack). */
+export function formatDayTime(ms) {
+    return ms == null ? '—' : fmtDay.format(new Date(ms)).replace(/(\d{2})\.(\d{2})$/, '$1:$2').replace(',', '');
+}
+
 /** "07:10:05" dalam WITA. */
 export function formatTime(ms) {
     return ms == null ? '—' : fmt.format(new Date(ms)).replace(/\./g, ':');

@@ -15,6 +15,7 @@ class GtrSetting extends Model
         'race_guide_slides' => 'array',
         'race_guide_published_at' => 'datetime',
         'registration_closes_at' => 'datetime',
+        'timing_reset_at' => \App\Casts\DateTimeMs::class,
     ];
 
     protected static function booted(): void
@@ -25,6 +26,15 @@ class GtrSetting extends Model
                 app(ResultCalculator::class)->recomputeAll();
             }
         });
+    }
+
+    /**
+     * Epoch ms reset data uji race day terakhir (gtr:reset-race-day), null = belum pernah.
+     * Scan / check-in racepack dengan waktu sebelum ini adalah sisa uji coba → ditolak.
+     */
+    public static function timingResetAtMs(): ?int
+    {
+        return \App\Casts\DateTimeMs::toMs(static::first()?->timing_reset_at);
     }
 
     /** Pendaftaran online sudah ditutup (lewat registration_closes_at)? */
