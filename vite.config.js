@@ -43,12 +43,14 @@ export default defineConfig({
                 theme_color: '#e9eae5',
                 categories: ['sports', 'utilities'],
                 prefer_related_applications: false,
-                // Entri "any" dan "maskable" dipisah (syarat pemasangan Chrome + ikon adaptif Android).
+                // Logo resmi GTR (public/gtr/logo-gtr2.png) di latar putih. Entri "any" dan "maskable"
+                // dipisah: versi maskable logonya lebih kecil supaya tidak terpotong ikon adaptif Android.
+                // (public/pwa/icon-*.png tetap milik Runger App.)
                 icons: [
-                    { src: '/pwa/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-                    { src: '/pwa/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-                    { src: '/pwa/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-                    { src: '/pwa/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+                    { src: '/pwa/gtr-scanner-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+                    { src: '/pwa/gtr-scanner-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+                    { src: '/pwa/gtr-scanner-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+                    { src: '/pwa/gtr-scanner-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
                 ],
             },
             workbox: {

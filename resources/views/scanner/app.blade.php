@@ -14,7 +14,8 @@
     <title>GTR Scanner</title>
     {{-- Halaman ini di-precache service worker: jangan taruh data per-user / CSRF di sini. --}}
     <link rel="manifest" href="/scanner/scanner.webmanifest">
-    <link rel="apple-touch-icon" href="/pwa/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="/pwa/gtr-scanner-apple-touch.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa/gtr-scanner-192.png">
     @vite('resources/js/scanner/main.js')
 </head>
 <body>
