@@ -219,6 +219,11 @@ export async function chooseAdminLocation(loc) {
     state.adminLocation = loc;
 }
 
+/** Panitia biasa: hanya checklist Persiapan. */
+export function isPanitia() {
+    return state.session?.user?.role === 'panitia';
+}
+
 export function canAdmin() {
     return state.session?.user?.role === 'admin';
 }

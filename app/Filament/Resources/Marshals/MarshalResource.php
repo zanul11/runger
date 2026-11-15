@@ -26,6 +26,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * Akun panitia di GTR Crew (/crew): marshal (scan timing di pos) dan panitia biasa (hanya
+ * checklist Persiapan — tanpa scan & tanpa data peserta).
+ */
 class MarshalResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -34,20 +38,25 @@ class MarshalResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Race Timing';
 
-    protected static ?string $navigationLabel = 'Marshal';
+    protected static ?string $navigationLabel = 'Marshal & Panitia';
 
-    protected static ?string $modelLabel = 'Marshal';
+    protected static ?string $modelLabel = 'Marshal / Panitia';
 
-    protected static ?string $pluralModelLabel = 'Marshal';
+    protected static ?string $pluralModelLabel = 'Marshal & Panitia';
+
+    public const ROLES = [
+        User::ROLE_MARSHAL => 'Marshal — scan timing di pos',
+        User::ROLE_PANITIA => 'Panitia — hanya checklist Persiapan',
+    ];
 
     protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    /** Hanya tampilkan user dengan role marshal. */
+    /** Hanya tampilkan user dengan role marshal / panitia. */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('role', User::ROLE_MARSHAL);
+        return parent::getEloquentQuery()->whereIn('role', [User::ROLE_MARSHAL, User::ROLE_PANITIA]);
     }
 
     /** Opsi pilihan pos: "KODE · Nama". */
@@ -66,7 +75,14 @@ class MarshalResource extends Resource
             TextInput::make('username')->label('Username')->required()
                 ->alphaDash()
                 ->unique(ignoreRecord: true)->maxLength(191)
-                ->helperText('Dipakai marshal untuk login di aplikasi scanner.'),
+                ->helperText('Dipakai untuk login di aplikasi GTR Crew (/crew).'),
+            Select::make('role')
+                ->label('Peran')
+                ->options(self::ROLES)
+                ->default(User::ROLE_MARSHAL)
+                ->required()
+                ->live()
+                ->helperText('Panitia biasa hanya bisa membuka & mencentang checklist Persiapan.'),
             TextInput::make('password')->label('Password')->password()
                 ->revealable()
                 ->required(fn (string $operation) => $operation === 'create')
@@ -78,8 +94,8 @@ class MarshalResource extends Resource
                 ->label('Tugaskan ke Pos')
                 ->options(fn () => self::timingPointOptions())
                 ->searchable()
-                ->required()
-                ->visibleOn('create'),
+                ->required(fn ($get) => $get('role') === User::ROLE_MARSHAL)
+                ->visible(fn (string $operation, $get) => $operation === 'create' && $get('role') === User::ROLE_MARSHAL),
         ]);
     }
 
@@ -89,9 +105,17 @@ class MarshalResource extends Resource
             ->columns([
                 TextColumn::make('name')->label('Nama')->searchable(),
                 TextColumn::make('username')->label('Username')->searchable()->copyable(),
+                TextColumn::make('role')
+                    ->label('Peran')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state) => $state === User::ROLE_PANITIA ? 'Panitia' : 'Marshal')
+                    ->color(fn (string $state) => $state === User::ROLE_PANITIA ? 'gray' : 'success'),
                 TextColumn::make('active_pos')
                     ->label('Pos Aktif')
                     ->state(function (User $record): string {
+                        if ($record->isPanitia()) {
+                            return '— (Persiapan saja)';
+                        }
                         $a = $record->activeAssignment();
 
                         return $a?->timingPoint
@@ -115,6 +139,7 @@ class MarshalResource extends Resource
             ->recordActions([
                 // Pindahkan pos: nonaktifkan lama, aktifkan baru (via MarshalService).
                 Action::make('reassign')
+                    ->visible(fn (User $record) => $record->isMarshal())
                     ->label('Pindahkan pos')
                     ->icon(Heroicon::OutlinedArrowsRightLeft)
                     ->color('info')
@@ -133,6 +158,7 @@ class MarshalResource extends Resource
 
                 // Toggle aktif/nonaktif penugasan saat ini.
                 Action::make('toggleActive')
+                    ->visible(fn (User $record) => $record->isMarshal())
                     ->label(fn (User $record) => $record->activeAssignment() ? 'Nonaktifkan' : 'Aktifkan')
                     ->icon(Heroicon::OutlinedPower)
                     ->color(fn (User $record) => $record->activeAssignment() ? 'danger' : 'success')

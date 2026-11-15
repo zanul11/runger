@@ -959,3 +959,44 @@ a.round { text-decoration: none; background: var(--surface-2); }
 /* Lacak: ubah status */
 .statusform { display: grid; gap: 8px; }
 .statusform .seg button { min-height: 44px; font-size: 15px; }
+
+/* Persiapan panitia */
+.preplist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.preplist li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px 10px 10px; border-radius: var(--r); background: var(--surface); }
+.preplist li.done { background: var(--surface-2); }
+.preplist li.done .prep-body b { color: var(--faint); text-decoration: line-through; }
+.ckbtn { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid var(--line-strong); background: var(--surface); color: var(--ink); }
+.preplist li.done .ckbtn { border-color: var(--lime); background: var(--lime); }
+.prep-body { min-width: 0; padding-top: 2px; text-align: left; }
+.prep-body:disabled { opacity: 1; }
+.prep-body b { display: block; font-size: 15px; font-weight: 750; line-height: 1.25; overflow-wrap: anywhere; }
+.prep-body small { display: block; margin-top: 2px; color: var(--faint); font-size: 12.5px; font-weight: 650; overflow-wrap: anywhere; }
+.prep-body .prep-notes { color: var(--muted); font-weight: 600; white-space: pre-line; }
+.prep-body .prep-done { color: var(--lime-text); font-weight: 750; }
+.empty-prep { justify-items: stretch; }
+.prep-form { display: grid; gap: 10px; }
+.prep-form h3 { margin: 0 6px; font-size: 20px; font-weight: 800; }
+.prep-form .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.chips.wrap { flex-wrap: wrap; margin: 0; padding: 0; overflow: visible; }
+.input.textarea { border-radius: var(--r); padding: 10px 14px; align-items: stretch; }
+.input textarea { flex: 1; width: 100%; border: 0; outline: 0; background: transparent; resize: vertical; font: inherit; font-weight: 600; color: var(--text); user-select: text; -webkit-user-select: text; }
+.danger-text { color: var(--bad-text) !important; }
+.ckbtn:disabled { opacity: 1; }
+.ckbtn.ro { width: 28px; height: 28px; margin: 6px; border-width: 2px; }
+
+/* Persiapan: akordeon kategori */
+.catgroup { display: grid; gap: 0; border-radius: var(--r-lg); background: var(--surface); overflow: hidden; }
+.cathead { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 14px 14px 16px; text-align: left; }
+.cathead:active { background: var(--lime-soft); }
+.cathead b { display: block; font-size: 16px; font-weight: 800; line-height: 1.2; }
+.cathead small { display: block; margin-top: 2px; color: var(--faint); font-size: 12.5px; font-weight: 650; }
+.catbar { display: block; height: 6px; margin-top: 8px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+.catbar i { display: block; height: 100%; border-radius: 3px; background: var(--ink); }
+.catgroup.complete .catbar i { background: var(--lime-press); }
+.catpct { flex: none; font-size: 17px; font-weight: 800; }
+.catgroup.complete .catpct { color: var(--lime-text); }
+.catchev { color: var(--faint); transition: transform .15s ease; }
+.catgroup.open .catchev { transform: rotate(90deg); }
+.catgroup .preplist { padding: 0 8px 8px; }
+.catgroup .preplist li { background: var(--surface-2); }
+.catgroup .preplist li.done { background: var(--bg); }

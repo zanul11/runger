@@ -5,9 +5,9 @@ import './scanner.css';
 import { restore } from './store.js';
 import { startSync } from './sync.js';
 
-// Service worker scanner (scope /scanner/ saja) — precache aset supaya bisa dibuka tanpa sinyal.
+// Service worker GTR Crew (scope /crew/ saja) — precache aset supaya bisa dibuka tanpa sinyal.
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
-    navigator.serviceWorker.register('/scanner/sw.js', { scope: '/scanner/' }).catch((e) => {
+    navigator.serviceWorker.register('/crew/sw.js', { scope: '/crew/' }).catch((e) => {
         console.warn('Service worker gagal didaftarkan', e);
     });
 }

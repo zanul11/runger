@@ -17,7 +17,7 @@ async function submit() {
     unlockAudio();
     error.value = null;
     if (!navigator.onLine) {
-        error.value = 'Login butuh internet. Setelah login, scanner tetap jalan tanpa sinyal.';
+        error.value = 'Login butuh internet. Setelah login, aplikasi tetap jalan tanpa sinyal.';
         return;
     }
     busy.value = true;
@@ -39,8 +39,8 @@ async function submit() {
                 <span class="logo-tile"><img :src="gtrLogo" alt="Gerung Trail Run — Keteri Hill"></span>
                 <img class="runger" :src="rungerLogo" alt="Runger — Runners Gerung">
             </div>
-            <h1>Halo, panitia!<br>Siap scan?</h1>
-            <p>Timing &amp; Race Pack · Gerung Trail Run 2026</p>
+            <h1>Halo, panitia!<br>Siap bertugas?</h1>
+            <p>GTR Crew · Gerung Trail Run 2026</p>
         </section>
 
         <div v-if="state.authExpired" class="alert warn">

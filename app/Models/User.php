@@ -28,6 +28,12 @@ class User extends Authenticatable implements FilamentUser
     /** Petugas pengambilan racepack: hanya mode racepack di scanner. */
     public const ROLE_RACEPACK = 'racepack';
 
+    /** Panitia biasa: di GTR Crew hanya checklist Persiapan (tanpa scan & tanpa data peserta). */
+    public const ROLE_PANITIA = 'panitia';
+
+    /** Role yang boleh login ke aplikasi GTR Crew (/crew). */
+    public const CREW_ROLES = [self::ROLE_ADMIN, self::ROLE_MARSHAL, self::ROLE_RACEPACK, self::ROLE_PANITIA];
+
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
@@ -41,6 +47,11 @@ class User extends Authenticatable implements FilamentUser
     public function isRacepackStaff(): bool
     {
         return $this->role === self::ROLE_RACEPACK;
+    }
+
+    public function isPanitia(): bool
+    {
+        return $this->role === self::ROLE_PANITIA;
     }
 
     /** Filament admin panel hanya untuk role admin. */

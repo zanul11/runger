@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Timing\AdminController;
+use App\Http\Controllers\Api\Timing\PrepController;
 use App\Http\Controllers\Api\Timing\RacepackController;
 use App\Http\Controllers\Api\Timing\ScanBatchController;
 use App\Http\Controllers\Api\Timing\SessionController;
@@ -8,14 +9,15 @@ use App\Http\Controllers\Api\Timing\TimeController;
 use App\Http\Controllers\Api\Timing\WaveController;
 use Illuminate\Support\Facades\Route;
 
-// ===== Modul TIMING GTR (scanner PWA /scanner) =====
+// ===== Modul TIMING GTR (aplikasi panitia GTR Crew /crew) =====
 // Role: marshal = scan timing · racepack = pengambilan racepack · admin = Kontrol + boleh scan
-// timing (di pos yang ia pilih lewat /admin/location) & racepack.
+// timing (di pos yang ia pilih lewat /admin/location) & racepack · panitia = hanya Persiapan
+// (session / time / prep; endpoint lain punya middleware role sendiri).
 Route::prefix('timing')->name('timing.')->group(function () {
     // Login → token Sanctum per device.
     Route::post('/session', [SessionController::class, 'store'])->middleware('throttle:30,1')->name('session.store');
 
-    Route::middleware(['auth:sanctum', 'api.role:marshal,racepack,admin'])->group(function () {
+    Route::middleware(['auth:sanctum', 'api.role:marshal,racepack,admin,panitia'])->group(function () {
         Route::get('/session', [SessionController::class, 'show'])->name('session.show');
         Route::delete('/session', [SessionController::class, 'destroy'])->name('session.destroy');
         Route::get('/time', TimeController::class)->name('time');
@@ -25,6 +27,19 @@ Route::prefix('timing')->name('timing.')->group(function () {
         Route::middleware('api.role:racepack,admin')->group(function () {
             Route::get('/racepack/lookup', [RacepackController::class, 'lookup'])->name('racepack.lookup');
             Route::post('/racepack/checkin', [RacepackController::class, 'checkin'])->name('racepack.checkin');
+        });
+
+        // Checklist persiapan panitia: semua akun GTR Crew boleh lihat; centang & kelola item hanya
+        // role panitia (dan admin). Versi baca-saja publik: /crew/persiapan.
+        Route::prefix('prep')->name('prep.')->controller(PrepController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::middleware('api.role:panitia,admin')->group(function () {
+                Route::post('/{item}/check', 'check')->name('check');
+                Route::post('/', 'store')->name('store');
+                Route::post('/template', 'template')->name('template');
+                Route::put('/{item}', 'update')->name('update');
+                Route::delete('/{item}', 'destroy')->name('destroy');
+            });
         });
 
         // Tembak start kategori: admin saja.

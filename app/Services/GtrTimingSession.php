@@ -45,7 +45,8 @@ class GtrTimingSession
                 ];
             })->values();
 
-        $registrations = GtrRegistration::query()->raceEligible()
+        // Panitia biasa hanya memakai checklist Persiapan → tanpa roster / data pribadi peserta.
+        $registrations = $user->isPanitia() ? collect() : GtrRegistration::query()->raceEligible()
             ->with(['runner:id,first_name,last_name', 'racepackCollector:id,name'])
             ->orderBy('bib_number')
             ->get(['id', 'runner_id', 'gtr_category_id', 'nomor_registrasi', 'bib_number', 'full_name', 'gender', 'size', 'nik',

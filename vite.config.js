@@ -19,23 +19,24 @@ export default defineConfig({
         tailwindcss(),
         vue(),
 
-        // PWA khusus scanner (scope /scanner/). Service worker dibangun ke public/build/scanner-sw.js
-        // lalu dilayani Laravel di /scanner/sw.js (lihat routes/web.php) supaya scope-nya /scanner/.
+        // PWA GTR Crew (aplikasi panitia, scope /crew/). Service worker dibangun ke
+        // public/build/scanner-sw.js lalu dilayani Laravel di /crew/sw.js (lihat routes/web.php).
+        // Nama file build tetap "scanner-*" (internal); URL publik /crew.
         VitePWA({
             injectRegister: false, // didaftarkan manual di resources/js/scanner/main.js
             registerType: 'autoUpdate',
             filename: 'scanner-sw.js',
             manifestFilename: 'scanner.webmanifest',
-            scope: '/scanner/',
+            scope: '/crew/',
             includeManifestIcons: false,
             manifest: {
-                id: '/scanner/app',
-                name: 'GTR Scanner — Timing',
-                short_name: 'GTR Scanner',
-                description: 'Scanner timing marshal Gerung Trail Run 2026',
+                id: '/crew/app',
+                name: 'GTR Crew — Panitia Gerung Trail Run',
+                short_name: 'GTR Crew',
+                description: 'Aplikasi panitia Gerung Trail Run 2026: scan timing, racepack, kontrol race day & persiapan',
                 lang: 'id',
-                start_url: '/scanner/app',
-                scope: '/scanner/',
+                start_url: '/crew/app',
+                scope: '/crew/',
                 display: 'standalone',
                 orientation: 'portrait',
                 display_override: ['standalone', 'minimal-ui'],
@@ -58,18 +59,19 @@ export default defineConfig({
                 globPatterns: ['assets/**/*.{js,css,woff2,svg,png}'],
                 globIgnores: ['assets/app-*', 'assets/fonts-*', 'assets/instrument-sans-*'],
                 // Halaman shell scanner (Blade) ikut di-precache → bisa dibuka setelah HP restart tanpa sinyal.
-                additionalManifestEntries: [{ url: '/scanner/app', revision: String(Date.now()) }],
-                // URL aset relatif terhadap public/build → jadikan absolut /build/… (SW dilayani di /scanner/).
+                additionalManifestEntries: [{ url: '/crew/app', revision: String(Date.now()) }],
+                // URL aset relatif terhadap public/build → jadikan absolut /build/… (SW dilayani di /crew/).
                 manifestTransforms: [
                     async (entries) => ({
                         manifest: entries.map((e) => ({ ...e, url: e.url.startsWith('/') ? e.url : `/build/${e.url}` })),
                         warnings: [],
                     }),
                 ],
-                navigateFallback: '/scanner/app',
-                navigateFallbackAllowlist: [/^\/scanner\//],
-                navigateFallbackDenylist: [/^\/scanner\/sw\.js/],
-                inlineWorkboxRuntime: true, // tanpa file workbox-*.js terpisah (path relatif /scanner/)
+                navigateFallback: '/crew/app',
+                navigateFallbackAllowlist: [/^\/crew\//],
+                // /crew/persiapan = halaman publik (Blade), bukan bagian aplikasi → selalu dari server.
+                navigateFallbackDenylist: [/^\/crew\/sw\.js/, /^\/crew\/persiapan/],
+                inlineWorkboxRuntime: true, // tanpa file workbox-*.js terpisah (path relatif /crew/)
                 cleanupOutdatedCaches: true,
                 clientsClaim: true,
                 skipWaiting: true,

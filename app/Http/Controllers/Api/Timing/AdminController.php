@@ -104,6 +104,7 @@ class AdminController extends Controller
                 'review' => GtrResult::where('needs_review', true)->count(),
             ],
             'issues' => $this->issueCount(),
+            'prep' => ['done' => \App\Models\GtrPrepItem::whereNotNull('done_at')->count(), 'total' => \App\Models\GtrPrepItem::count()],
             'results_published' => (bool) GtrSetting::first()?->results_published,
             'server_time_ms' => DateTimeMs::toMs(now()),
         ] + $this->alerts($cats->pluck('gun_fired_at')->filter()->isNotEmpty());
@@ -137,7 +138,7 @@ class AdminController extends Controller
         } else {
             $badges['checklist'] = collect($this->checklistItems())->where('state', 'warn')->count();
             if ($badges['checklist']) {
-                $alerts[] = ['level' => 'warn', 'view' => 'checklist', 'text' => "Checklist kesiapan: {$badges['checklist']} perlu dicek"];
+                $alerts[] = ['level' => 'warn', 'view' => 'checklist', 'text' => "Kesiapan sistem: {$badges['checklist']} perlu dicek"];
             }
         }
 

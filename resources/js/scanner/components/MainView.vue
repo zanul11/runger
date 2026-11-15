@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { state, canTiming, canRacepack, canAdmin } from '../store.js';
+import { state, canTiming, canRacepack, canAdmin, isPanitia } from '../store.js';
 import { syncSoon } from '../sync.js';
 import Icon from './Icon.vue';
 import MenuSheet from './MenuSheet.vue';
@@ -9,6 +9,7 @@ import TimingPanel from './TimingPanel.vue';
 import RacepackPanel from './RacepackPanel.vue';
 import gtrLogo from '../assets/gtr-logo.png';
 import ParticipantsView from './ParticipantsView.vue';
+import PrepView from './PrepView.vue';
 import AdminPanel from './admin/AdminPanel.vue';
 import LocationPicker from './admin/LocationPicker.vue';
 
@@ -27,7 +28,7 @@ const active = computed(() => {
 });
 const scanLabel = computed(() => (active.value === 'racepack' ? 'Race Pack' : active.value === 'timing' ? point.value?.code : null));
 const MODE_LABEL = { timing: 'Timing', racepack: 'Race Pack', admin: 'Kontrol' };
-const view = ref('main');   // main | participants
+const view = ref('main');   // main | participants | prep
 const menu = ref(false);
 const toast = ref(null);
 let toastTimer;
@@ -80,8 +81,8 @@ function openParticipants() {
         <header class="top">
             <span class="logo-tile sm"><img :src="gtrLogo" alt="Gerung Trail Run"></span>
             <div class="brandmark">
-                <b>Scanner</b>
-                <small>{{ mode === 'scan' && !active ? 'Pilih lokasi' : (MODE_LABEL[active] ?? 'Timing') }} · GTR 2026</small>
+                <b>GTR Crew</b>
+                <small>{{ isPanitia() ? 'Persiapan' : mode === 'scan' && !active ? 'Pilih lokasi' : (MODE_LABEL[active] ?? 'Timing') }} · GTR 2026</small>
             </div>
             <button class="pill" :class="syncPill.cls" :aria-label="`${syncPill.label}, ${state.pending} data menunggu`" @click="syncSoon(0)">
                 <span class="dot"></span>
@@ -92,7 +93,14 @@ function openParticipants() {
         </header>
 
         <!-- Lokasi — nama boleh 2 baris supaya selalu terbaca -->
-        <section v-if="active === 'admin' || (mode === 'scan' && !active)" class="locbar rp">
+        <section v-if="isPanitia()" class="locbar rp">
+            <div class="loc-badge"><Icon name="check-circle" :size="24" /></div>
+            <div class="loc-text">
+                <small>Panitia</small>
+                <strong>Persiapan GTR</strong>
+            </div>
+        </section>
+        <section v-else-if="active === 'admin' || (mode === 'scan' && !active)" class="locbar rp">
             <div class="loc-badge"><Icon name="grid" :size="24" /></div>
             <div class="loc-text">
                 <small>Admin</small>
@@ -150,7 +158,9 @@ function openParticipants() {
             </div>
         </div>
 
-        <ParticipantsView v-if="view === 'participants'" :mode="active === 'timing' ? 'timing' : 'racepack'" @back="view = 'main'" @notify="notify" />
+        <PrepView v-if="isPanitia()" standalone @notify="notify" />
+        <PrepView v-else-if="view === 'prep'" @back="view = 'main'" @notify="notify" />
+        <ParticipantsView v-else-if="view === 'participants'" :mode="active === 'timing' ? 'timing' : 'racepack'" @back="view = 'main'" @notify="notify" />
 
         <template v-else>
             <div v-if="(state.lastError && !state.authExpired) || state.rosterCount === 0" class="notices">
@@ -168,11 +178,11 @@ function openParticipants() {
             <RacepackPanel v-else-if="active === 'racepack'" />
             <AdminPanel v-else-if="active === 'admin'" @notify="notify" />
             <div v-else class="panel">
-                <div class="alert bad"><Icon name="lock" :size="20" /><span>Akun ini tidak punya akses scanner.</span></div>
+                <div class="alert bad"><Icon name="lock" :size="20" /><span>Akun ini tidak punya akses GTR Crew.</span></div>
             </div>
         </template>
 
-        <MenuSheet v-if="menu" @close="menu = false" @notify="notify" @participants="openParticipants" />
+        <MenuSheet v-if="menu" @close="menu = false" @notify="notify" @participants="openParticipants" @prep="menu = false; view = 'prep'" />
         <div v-if="toast" class="toast" role="status">{{ toast }}</div>
     </div>
 </template>

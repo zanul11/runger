@@ -43,7 +43,7 @@ const warnCount = computed(() => items.value.filter((i) => i.state === 'warn').l
     <main class="panel admin">
         <div class="viewbar">
             <button class="btn sm icon-only" aria-label="Kembali" @click="emit('back')"><Icon name="chevron-left" :size="22" :stroke="2.75" /></button>
-            <h2>Checklist Kesiapan</h2>
+            <h2>Kesiapan Sistem</h2>
             <button class="btn sm icon-only ghost" :disabled="loading" aria-label="Muat ulang" @click="load"><Icon name="refresh" :size="20" /></button>
         </div>
         <div v-if="error" class="alert warn"><Icon name="wifi-off" :size="20" /><span>{{ error }}</span></div>

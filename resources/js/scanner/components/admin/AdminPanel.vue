@@ -12,13 +12,14 @@ import AdminIssues from './AdminIssues.vue';
 import AdminReset from './AdminReset.vue';
 import AdminPointScans from './AdminPointScans.vue';
 import AdminChecklist from './AdminChecklist.vue';
+import PrepView from '../PrepView.vue';
 
 /**
  * Menu Kontrol (admin): START race + ringkasan, dan pintu ke Status pos, Sweep, Lacak,
  * Finish board, Scan bermasalah, Reset data uji.
  */
 const emit = defineEmits(['notify']);
-const view = ref('home');   // home | checklist | posts | point | sweep | track | finish | issues | reset
+const view = ref('home');   // home | checklist | prep | posts | point | sweep | track | finish | issues | reset
 const pointId = ref(null);
 const returnTo = ref('home'); // layar asal saat membuka lacak dari scan per pos
 const trackBib = ref(null);
@@ -132,6 +133,7 @@ function back() {
     <AdminIssues v-else-if="view === 'issues'" @back="back" @track="open('track', $event)" @notify="emit('notify', $event)" />
     <AdminReset v-else-if="view === 'reset'" @back="back" @notify="emit('notify', $event)" />
     <AdminChecklist v-else-if="view === 'checklist'" @back="back" @open="open($event)" />
+    <PrepView v-else-if="view === 'prep'" @back="back" @notify="emit('notify', $event)" />
 
     <main v-else class="panel admin">
         <div v-if="error && !race" class="alert warn"><Icon name="wifi-off" :size="20" /><span>{{ error }}</span></div>
@@ -186,7 +188,11 @@ function back() {
             <button v-if="!firedAt" class="tile" @click="open('checklist')">
                 <span class="tile-ic" :class="{ hot: badge('checklist') }"><Icon name="check-circle" :size="20" /></span>
                 <b v-if="badge('checklist')" class="tile-badge num">{{ badge('checklist') }}</b>
-                <span>Checklist<small>Kesiapan sebelum START</small></span>
+                <span>Kesiapan sistem<small>Marshal, data & HP</small></span>
+            </button>
+            <button class="tile" @click="open('prep')">
+                <span class="tile-ic"><Icon name="list" :size="20" /></span>
+                <span>Persiapan<small>{{ race?.prep?.total ? `${race.prep.done}/${race.prep.total} selesai` : 'Perlengkapan & tugas' }}</small></span>
             </button>
             <button class="tile" @click="open('posts')">
                 <span class="tile-ic" :class="{ hot: badge('posts') }"><Icon name="activity" :size="20" /></span>
@@ -206,7 +212,7 @@ function back() {
                 <span>Scan bermasalah<small>{{ race?.issues ? `${race.issues} perlu dicek` : 'Perbaiki BIB · abaikan' }}</small></span>
             </button>
             <button class="tile danger" @click="open('reset')"><span class="tile-ic"><Icon name="trash" :size="20" /></span><span>Reset data uji<small>Pakai kode reset</small></span></button>
-            <button v-if="firedAt" class="tile" @click="open('checklist')"><span class="tile-ic"><Icon name="check-circle" :size="20" /></span><span>Checklist<small>Kesiapan & kondisi HP</small></span></button>
+            <button v-if="firedAt" class="tile" @click="open('checklist')"><span class="tile-ic"><Icon name="check-circle" :size="20" /></span><span>Kesiapan sistem<small>Marshal, data & HP</small></span></button>
         </div>
 
         <p v-if="race && !race.results_published" class="tip"><Icon name="lock" :size="18" /><span>Hasil <b>belum dipublikasikan</b> — angka di sini masih sementara. Publikasi hasil dari admin web.</span></p>

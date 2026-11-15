@@ -19,7 +19,7 @@ const show = computed(() => {
 });
 
 async function add() {
-    if (await promptInstall()) emit('notify', 'Scanner terpasang — buka dari layar utama HP.');
+    if (await promptInstall()) emit('notify', 'GTR Crew terpasang — buka dari layar utama HP.');
 }
 </script>
 
@@ -35,7 +35,7 @@ async function add() {
 
     <section v-else-if="show" class="install" aria-label="Pasang aplikasi">
         <div class="install-icon"><Icon name="download" :size="24" /></div>
-        <b>Pasang GTR Scanner di HP</b>
+        <b>Pasang GTR Crew di HP</b>
         <p v-if="mode === 'prompt'">Buka lebih cepat dari layar utama, layar penuh, dan tetap jalan tanpa sinyal.</p>
         <p v-else-if="mode === 'ios'">Di iPhone/iPad, pasang lewat menu Bagikan:</p>
         <p v-else>Pasang lewat menu browser:</p>

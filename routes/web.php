@@ -3,6 +3,7 @@
 use App\Http\Controllers\GtrBibCheckController;
 use App\Http\Controllers\GtrBibController;
 use App\Http\Controllers\GtrDocumentController;
+use App\Http\Controllers\GtrPrepPublicController;
 use App\Http\Controllers\GtrRaceGuideController;
 use App\Http\Controllers\GtrResultCheckController;
 use App\Http\Controllers\PageController;
@@ -13,28 +14,57 @@ use App\Http\Controllers\RunnerDashboardController;
 use App\Http\Controllers\RunnerPasswordController;
 use Illuminate\Support\Facades\Route;
 
-// ===== Scanner timing PWA (Vue + Dexie, resources/js/scanner) =====
-// URL kanonik /scanner/app: .htaccess membuang slash di akhir (/scanner/ → /scanner), padahal
-// scope service worker harus /scanner/.
-Route::get('/scanner/sw.js', function () {
+// ===== GTR Crew — aplikasi panitia (PWA Vue + Dexie, kode di resources/js/scanner) =====
+// URL kanonik /crew/app: .htaccess membuang slash di akhir (/crew/ → /crew), padahal
+// scope service worker harus /crew/.
+Route::get('/crew/sw.js', function () {
     $path = public_path('build/scanner-sw.js');
     abort_unless(is_file($path), 404);
 
     return response()->file($path, [
         'Content-Type' => 'application/javascript; charset=utf-8',
         'Cache-Control' => 'no-cache, no-store, must-revalidate',
-        'Service-Worker-Allowed' => '/scanner/',
+        'Service-Worker-Allowed' => '/crew/',
     ]);
-})->name('scanner.sw');
+})->name('crew.sw');
 // Manifest PWA di dalam scope (juga di-precache SW dengan path relatif ini).
-Route::get('/scanner/scanner.webmanifest', function () {
+Route::get('/crew/app.webmanifest', function () {
     $path = public_path('build/scanner.webmanifest');
     abort_unless(is_file($path), 404);
 
     return response()->file($path, ['Content-Type' => 'application/manifest+json', 'Cache-Control' => 'no-cache']);
-})->name('scanner.manifest');
-Route::redirect('/scanner', '/scanner/app');
-Route::view('/scanner/{any}', 'scanner.app')->where('any', '.*')->name('scanner');
+})->name('crew.manifest');
+Route::redirect('/crew', '/crew/app');
+// Checklist persiapan panitia — halaman publik baca-saja tanpa login (noindex); ubah hanya dari
+// aplikasi dengan akun panitia. HARUS sebelum catch-all di bawah, dan dikecualikan dari
+// navigateFallback service worker (vite.config.js) supaya tidak tertangkap sebagai app shell.
+Route::get('/crew/persiapan', [GtrPrepPublicController::class, 'index'])->name('crew.prep');
+Route::view('/crew/{any}', 'scanner.app')->where('any', '.*')->name('crew');
+
+// URL lama /scanner (sebelum 15 Nov 2026). HP yang sudah memasang aplikasi lama masih punya
+// service worker di scope /scanner/: sw.js di sini menggantinya dengan SW "pindah" yang
+// menghapus cache lama, melepas dirinya, lalu membuka /crew/app. Data di HP (IndexedDB) per
+// domain, jadi antrean scan & login ikut pindah.
+Route::get('/scanner/sw.js', fn () => response(<<<'JS'
+    self.addEventListener('install', () => self.skipWaiting());
+    self.addEventListener('activate', (event) => {
+        event.waitUntil((async () => {
+            for (const key of await caches.keys()) {
+                if (key.includes('/scanner/')) await caches.delete(key);
+            }
+            await self.registration.unregister();
+            for (const client of await self.clients.matchAll({ type: 'window' })) {
+                client.navigate('/crew/app');
+            }
+        })());
+    });
+    JS, 200, [
+    'Content-Type' => 'application/javascript; charset=utf-8',
+    'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    'Service-Worker-Allowed' => '/scanner/',
+]))->name('scanner.legacy-sw');
+Route::redirect('/scanner', '/crew/app', 301);
+Route::redirect('/scanner/{any}', '/crew/app', 301)->where('any', '.*');
 
 // Formulir pendaftaran offline (blank, untuk dicetak) — admin only.
 Route::get('/gtr/formulir-pendaftaran', [PageController::class, 'gtrRegistrationForm'])
@@ -92,6 +122,8 @@ Route::get('/gerung-trail-run/category/{slug}/gpx', [PageController::class, 'gtr
 Route::get('/gerung-trail-run/cek-bib', [GtrBibCheckController::class, 'index'])->name('gtr.bib-check');
 Route::get('/gerung-trail-run/cek-bib/data', [GtrBibCheckController::class, 'data'])->middleware('throttle:30,1')->name('gtr.bib-check.data');
 Route::get('/gerung-trail-run/cek-bib/sw.js', [GtrBibCheckController::class, 'sw'])->name('gtr.bib-check.sw');
+// Checklist persiapan panitia: dulu di sini, sekarang /crew/persiapan.
+Route::redirect('/gerung-trail-run/persiapan', '/crew/persiapan', 301);
 // Road to GTR fun trail — form pendaftaran publik.
 Route::get('/gerung-trail-run/road-to-gtr', [RoadToGtrController::class, 'index'])->name('gtr.road');
 Route::post('/gerung-trail-run/road-to-gtr', [RoadToGtrController::class, 'store'])->middleware('throttle:10,1')->name('gtr.road.store');

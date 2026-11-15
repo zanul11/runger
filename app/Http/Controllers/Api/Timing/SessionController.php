@@ -32,7 +32,7 @@ class SessionController extends Controller
         $user = User::where('username', $request->username)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)
-            || ! in_array($user->role, [User::ROLE_MARSHAL, User::ROLE_RACEPACK, User::ROLE_ADMIN], true)) {
+            || ! in_array($user->role, User::CREW_ROLES, true)) {
             throw ValidationException::withMessages(['username' => ['Username atau password salah.']]);
         }
 

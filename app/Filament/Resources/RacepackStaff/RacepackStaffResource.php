@@ -18,7 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Akun petugas pengambilan racepack (role racepack). Login di /scanner/app dan hanya
+ * Akun petugas pengambilan racepack (role racepack). Login di /crew/app (GTR Crew) dan hanya
  * mendapat mode Race Pack — tidak bisa scan timing dan tidak bisa masuk panel admin.
  */
 class RacepackStaffResource extends Resource
@@ -51,7 +51,7 @@ class RacepackStaffResource extends Resource
             TextInput::make('username')->label('Username')->required()
                 ->alphaDash()
                 ->unique(ignoreRecord: true)->maxLength(191)
-                ->helperText('Dipakai untuk login di aplikasi scanner (/scanner).'),
+                ->helperText('Dipakai untuk login di aplikasi GTR Crew (/crew).'),
             TextInput::make('password')->label('Password')->password()
                 ->revealable()
                 ->required(fn (string $operation) => $operation === 'create')
