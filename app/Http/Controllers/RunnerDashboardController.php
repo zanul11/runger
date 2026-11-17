@@ -118,6 +118,51 @@ class RunnerDashboardController extends Controller
         ]);
     }
 
+    /** Menu Guide: kartu ringkas Race Guide + daftar dokumen peserta (viewer dibuka terpisah). */
+    public function guide()
+    {
+        $s = \App\Models\GtrSetting::current();
+        $slides = $this->guideSlides($s);
+
+        return view('pages.runner.guide', [
+            'tab' => 'guide',
+            'published' => $slides->isNotEmpty(),
+            'pageCount' => $slides->count(),
+            'updatedAt' => $s->race_guide_published_at,
+            'docs' => rescue(fn () => \App\Models\GtrDocument::published()->get(), collect(), false),
+        ]);
+    }
+
+    /** Baca Race Guide di dalam app (viewer PDF, cadangan gambar slide). */
+    public function guideView()
+    {
+        $s = \App\Models\GtrSetting::current();
+        $slides = $this->guideSlides($s);
+        if (! $s->raceGuidePublished() || $slides->isEmpty()) {
+            return redirect()->route('gtr.account.guide');
+        }
+
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        $pdf = GtrRaceGuideController::pdfPath($s);
+
+        return view('pages.runner.guide-view', [
+            'tab' => 'guide',
+            'slides' => $slides->map(fn ($p) => $disk->url($p))->values(),
+            'updatedAt' => $s->race_guide_published_at,
+            // Path relatif agar PDF.js memuat dari origin yang sama (lihat GtrRaceGuideController::index).
+            'pdfUrl' => $pdf ? parse_url($disk->url($pdf), PHP_URL_PATH) . '?v=' . $s->race_guide_published_at?->timestamp : null,
+            'hasZip' => $s->race_guide_zip && $disk->exists($s->race_guide_zip),
+        ]);
+    }
+
+    /** Slide race guide yang tayang & filenya masih ada. */
+    private function guideSlides(\App\Models\GtrSetting $s): \Illuminate\Support\Collection
+    {
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+
+        return collect($s->raceGuidePublished() ? $s->race_guide_slides : [])->filter(fn ($p) => $disk->exists($p))->values();
+    }
+
         /** Target bawaan bila peserta belum menyimpan: ~72% COT (sama dengan estimator). */
     public static function defaultTarget(?GtrCategory $cat): ?int
     {

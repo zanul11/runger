@@ -68,7 +68,7 @@
 
   .app-tabs{
     position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:30;
-    display:grid;grid-template-columns:repeat(4,1fr);
+    display:grid;grid-template-columns:repeat(5,1fr);
     background:rgba(255,255,255,.98);backdrop-filter:blur(14px);border-top:1px solid var(--line);
     box-shadow:0 -6px 22px rgba(15,24,48,.07);
     padding-bottom:env(safe-area-inset-bottom);
@@ -77,6 +77,7 @@
   .app-tab svg{width:22px;height:22px}
   .app-tab span{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.03em}
   .app-tab.active{color:var(--blue)}
+  @media (max-width:360px){ .app-tab span{font-size:9px;letter-spacing:0} }
 
   /* shared content bits */
   .sec-title{font-family:'Poppins',sans-serif;font-weight:900;font-size:26px;line-height:1;letter-spacing:-.01em;margin-bottom:4px;color:var(--text)}
@@ -136,6 +137,10 @@
     <a href="{{ route('gtr.account.race') }}" @class(['app-tab', 'active' => $t === 'race'])>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h13l-2.5 4L18 12H5"/></svg>
       <span>My Race</span>
+    </a>
+    <a href="{{ route('gtr.account.guide') }}" @class(['app-tab', 'active' => $t === 'guide'])>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6.5a2.5 2.5 0 0 0 0 5H19"/><path d="M9 7h6M9 11h4"/></svg>
+      <span>Guide</span>
     </a>
     <a href="{{ route('gtr.account.transaction') }}" @class(['app-tab', 'active' => $t === 'transaction'])>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>

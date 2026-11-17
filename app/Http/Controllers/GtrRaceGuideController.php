@@ -23,7 +23,7 @@ class GtrRaceGuideController extends Controller
      * Path PDF race guide yang tayang. Race guide yang dipublikasikan sebelum ada fitur PDF
      * dibuatkan PDF-nya sekali dari slide yang tersimpan.
      */
-    private function pdfPath(GtrSetting $s): ?string
+    public static function pdfPath(GtrSetting $s): ?string
     {
         $slides = $s->race_guide_slides ?? [];
         if (! $s->raceGuidePublished() || ! $slides) {
@@ -156,7 +156,7 @@ class GtrRaceGuideController extends Controller
     public function index()
     {
         $s = GtrSetting::current();
-        $pdf = $this->pdfPath($s);
+        $pdf = self::pdfPath($s);
 
         return view('pages.gtr-race-guide', [
             'active' => 'guide',
@@ -182,7 +182,7 @@ class GtrRaceGuideController extends Controller
 
     public function downloadPdf()
     {
-        $pdf = $this->pdfPath(GtrSetting::current());
+        $pdf = self::pdfPath(GtrSetting::current());
         abort_unless($pdf, 404);
 
         return Storage::disk('public')->download($pdf, 'Race Guide - Gerung Trail Run.pdf', ['Content-Type' => 'application/pdf']);
