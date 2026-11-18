@@ -56,6 +56,8 @@
   <div class="pr-row"><span class="k">Alamat</span><span class="v">{{ $runner->address ?: '-' }}</span></div>
 </div>
 
+@include('pages.runner.partials.install-card', ['variant' => 'card'])
+
 <a class="card prof-link" href="{{ route('gtr.account.transaction') }}">
   <div>
     <b>Riwayat Transaksi</b>

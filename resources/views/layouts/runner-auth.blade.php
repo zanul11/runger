@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0B1A5C">
+@include('pages.runner.partials.pwa-head')
 <title>@yield('title', 'Gerung Trail Run — Akun Peserta')</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -198,6 +199,12 @@
     </div>
   </div>
 </div>
+<script>
+  // PWA: daftarkan service worker juga di halaman Masuk/Buat Akun supaya app bisa dipasang dari sini.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
+  }
+</script>
 @stack('scripts')
 </body>
 </html>

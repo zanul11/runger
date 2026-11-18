@@ -137,6 +137,8 @@
   </a>
 @endforeach
 
+@include('pages.runner.partials.install-card', ['variant' => 'banner'])
+
 @if($dayCard)
   <div style="margin-top:12px">
     @include('pages.runner.partials.race-day-card', ['reg' => $dayReg, 'card' => $dayCard, 'setting' => $gtrSetting, 'compact' => true])

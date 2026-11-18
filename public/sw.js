@@ -12,7 +12,7 @@ const TILES = 'runger-tiles-' + VERSION;
 const MAX_TILES = 2500;
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(STATIC).then(c => c.addAll(['/offline.html', '/pwa/icon-192.png'])).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(STATIC).then(c => c.addAll(['/offline.html', '/pwa/runger-app-192.png'])).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {

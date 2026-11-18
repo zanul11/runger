@@ -1,17 +1,24 @@
 {
   "name": "Runger App — Gerung Trail Run 2026",
   "short_name": "Runger App",
-  "description": "Akun peserta Gerung Trail Run: race plan, course map, dan pace band — bisa dibuka offline saat race day.",
+  "description": "Aplikasi peserta Gerung Trail Run: e-ticket QR, BIB, rute, race plan, jadwal & race guide — bisa dibuka offline saat race day.",
   "id": "/runger-app",
   "start_url": "/runger-app",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#101010",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
   "theme_color": "#101010",
   "lang": "id",
+  "categories": ["sports", "health", "lifestyle"],
   "icons": [
-    { "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/pwa/runger-app-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa/runger-app-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa/runger-app-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/pwa/runger-app-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Race", "short_name": "Race", "description": "BIB, rute & race pack", "url": "/runger-app/race", "icons": [{ "src": "/pwa/runger-app-192.png", "sizes": "192x192" }] },
+    { "name": "Jadwal", "short_name": "Jadwal", "description": "Rundown acara", "url": "/runger-app/jadwal", "icons": [{ "src": "/pwa/runger-app-192.png", "sizes": "192x192" }] }
   ]
 }
