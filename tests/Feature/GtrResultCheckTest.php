@@ -94,6 +94,22 @@ class GtrResultCheckTest extends TestCase
             ->assertJsonPath('runners.7003.result', null); // masih di lintasan = DNF sementara → disembunyikan
     }
 
+    public function test_category_route_is_sent_as_normalized_svg_path(): void
+    {
+        // Rute melebar ke timur (2 km) dari start di barat daya.
+        $this->cat->forceFill(['route_points' => [[-8.72, 116.15], [-8.71, 116.15], [-8.71, 116.17]]])->saveQuietly();
+
+        $route = $this->getJson(route('gtr.result-check.data'))->assertOk()->json('categories.'.$this->cat->id.'.route');
+        $this->assertStringStartsWith('0 0 1000 ', $route['vb']);   // sisi terpanjang (barat–timur) = 1000
+        $this->assertSame(3, substr_count($route['d'], 'M') + substr_count($route['d'], 'L'));
+        $this->assertStringStartsWith('M0 ', $route['d']);          // start paling barat → x = 0
+        $this->assertStringEndsWith('L1000 0', $route['d']);        // finish paling timur-utara → kanan atas
+
+        $this->assertNull(GtrResultCheckController::routeSvg([]));
+        $this->assertNull(GtrResultCheckController::routeSvg([[-8.7, 116.1]]));
+        $this->getJson(route('gtr.bib-check.data'))->assertJsonMissingPath('categories.'.$this->cat->id.'.route');
+    }
+
     public function test_bib_check_data_is_unchanged_by_result_mode(): void
     {
         $this->publish(true);

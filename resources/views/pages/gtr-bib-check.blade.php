@@ -14,9 +14,15 @@
    - suara: ding (BIB terdaftar), buzz 3× (tidak terdaftar), nada tunggal (kode lain) — tombol Suara;
    - offline penuh: font lokal + service worker (sw.js) menyimpan halaman, data, font, & logo.
 
-  Mode 'result' (/gerung-trail-run/cek-hasil, GtrResultCheckController): kartu yang sama + panel hasil
-  lomba di kanan (status, waktu resmi/gun time, net time, pace, peringkat kategori & gender).
-  Sebelum hasil dipublikasikan, panel diberi label "Hasil sementara" dan hanya finisher yang tampil.
+  Mode 'result' (/gerung-trail-run/cek-hasil, GtrResultCheckController): kartu yang sama, isinya panel hasil
+  lomba: waktu resmi (gun time) besar selebar kartu, di bawahnya nomor BIB + nama + gender dan gambar rute
+  kategori ala Strava (dari route_points). Peringkat, net time & pace tidak ditampilkan.
+  Kartu hanya menampilkan waktu (tanpa label status / "hasil sementara"). Sebelum hasil dipublikasikan,
+  hanya finisher yang tampil.
+
+  Mode kamera (tanpa mesin scanner): tombol "Kamera" → webcam bawaan / kamera USB membaca QR di BIB
+  (qr-scanner lokal; butuh HTTPS atau localhost). Bila ada >1 kamera muncul pilihan kamera; kamera
+  eksternal dipilih otomatis saat pertama kali. Status & pilihan diingat per browser.
 
   Uji tanpa mesin: ketik nomor BIB + Enter, atau buka ?bib=7001.
 --}}
@@ -59,12 +65,10 @@
   /* Logo GTR + pil Runger | Bukit Keteri (sama dengan kepala kartu BIB) */
   .brand{display:flex;align-items:center;gap:12px}
   .brand .gtr{width:140px;height:52px;object-fit:contain;display:block}
-  .cobrand{width:140px;height:40px;display:flex;border-radius:10px;overflow:hidden;background:#fff;
-    box-shadow:0 4px 10px -4px rgba(0,0,0,.25),0 0 0 1px rgba(0,0,0,.06)}
-  .cobrand .rg{flex:1.25;min-width:0;background:#0540a7;padding:3px 4px;display:flex;align-items:center;justify-content:center}
-  .cobrand .sep{width:3px;flex:none;background:var(--c,var(--red))}
-  .cobrand .kt{flex:1;min-width:0;padding:4px 6px;display:flex;align-items:center;justify-content:center}
-  .cobrand img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+  /* Logo Runger tanpa kartu: logo putih transparan dipakai sebagai mask, diwarnai biru Runger
+     (Bukit Keteri pindah ke pita sponsor bawah). */
+  .cobrand{flex:none;width:136px;height:34px;background:#0540a7;
+    -webkit-mask:var(--rg-logo) center/contain no-repeat;mask:var(--rg-logo) center/contain no-repeat}
 
   /* ------------------------------------------------------------ Idle --- */
   .idle{place-items:center;align-content:center;text-align:center;gap:clamp(14px,3vh,34px)}
@@ -79,6 +83,26 @@
   .idle .kicker{font-size:clamp(14px,1.3vw,20px)}
   .idle h1{font:italic 900 clamp(64px,10vw,180px)/.85 var(--cond);color:var(--red);letter-spacing:-.01em;text-transform:uppercase}
   .idle p{font:500 clamp(18px,1.8vw,30px)/1.3 var(--cond);letter-spacing:.04em;color:var(--mute);text-transform:uppercase}
+
+  /* ------------------------------------------- Mode kamera (opsional) --- */
+  /* Kamera aktif: ikon QR di layar scan diganti pratinjau kamera (dicerminkan seperti kaca).
+     Layar scan tetap dirender (visibility) saat kartu tampil supaya video & scan terus berjalan. */
+  .camview{display:none;position:relative;height:clamp(180px,36vh,440px);aspect-ratio:4/3;border-radius:18px;overflow:hidden;
+    background:#1c1414;box-shadow:0 18px 40px -22px rgba(0,0,0,.6),0 0 0 3px var(--red);transition:box-shadow .2s}
+  .camview video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+  .camview .frame{position:absolute;inset:14%;border-radius:12px;pointer-events:none;
+    box-shadow:0 0 0 999px rgba(28,20,20,.28);outline:3px dashed rgba(255,255,255,.75);outline-offset:-3px}
+  .camview .frame::after{content:"";position:absolute;left:4%;right:4%;height:3px;border-radius:3px;background:var(--red);
+    box-shadow:0 0 18px 3px rgba(184,29,39,.55);top:6%;animation:sweep 2.2s ease-in-out infinite alternate}
+  .camview .msg{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;background:rgba(28,20,20,.82);
+    color:#fff;font:700 clamp(16px,1.6vw,24px)/1.25 var(--cond);letter-spacing:.06em;text-transform:uppercase}
+  .camview .msg:empty{display:none}
+  .camview.hit{box-shadow:0 18px 40px -22px rgba(0,0,0,.6),0 0 0 6px var(--ok)}
+  .cam-on .camview{display:block}
+  .cam-on .idle .qr{display:none}
+  .cam-on #v-idle:not(.on){display:grid;visibility:hidden}
+  .camsel{max-width:220px;text-overflow:ellipsis}
+  .camsel[hidden]{display:none}
 
   /* ---------------------------------------------- Kartu BIB (1000×500) --- */
   /* Kartu hasil menutupi seluruh layar (di atas padding kiosk & bilah bawah). */
@@ -122,34 +146,35 @@
   .sponsors img{height:100%;max-width:124px;object-fit:contain;display:block}
   .sponsors .wide{height:36px}
 
-  /* Kiosk BIB: blok BIB + nama di tengah. Kiosk hasil: blok BIB di kiri, panel hasil di kanan. */
+  /* Kiosk BIB: blok BIB + nama di tengah, nomor BIB paling besar.
+     Kiosk hasil: satu panel selebar kartu — WAKTU besar penuh di atas, nomor BIB + nama + gambar rute
+     di baris bawahnya. */
   .bib-id{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
   .res{display:none}
-  .mode-result .bib-body{flex-direction:row;justify-content:space-between;align-items:center;gap:32px;text-align:left}
-  .mode-result .bib-id{flex:0 0 430px}
-  .mode-result .bib-who{max-width:430px;text-align:center}
   .mode-result .res{display:flex}
+  .mode-result .bib-id{flex:1 1 280px;flex-direction:row;align-items:center;gap:calc(var(--k,1)*18px);text-align:left}
+  .mode-result .bib-who{align-items:flex-start;gap:calc(var(--k,1)*6px);max-width:none}
+  .mode-result .bib-name{max-width:none}
 
   /* ---------------------------------------------------- Panel hasil lomba --- */
   /* Ukuran dalam unit desain × --k (kartu lebih tinggi dari desain → ikut membesar, maks. 1,3×). */
-  .res{position:relative;flex:0 1 446px;min-width:0;flex-direction:column;gap:calc(var(--k,1)*12px);
+  .res{position:relative;flex:none;width:100%;min-width:0;flex-direction:column;gap:calc(var(--k,1)*12px);text-align:left;
     padding:calc(var(--k,1)*18px) calc(var(--k,1)*22px);border-radius:14px;background:var(--paper);
     box-shadow:0 16px 34px -20px rgba(0,0,0,.45),0 0 0 1.5px var(--rule)}
-  .res-top{display:flex;align-items:center;gap:10px;justify-content:space-between}
-  .res-st{font:italic 900 calc(var(--k,1)*28px)/1 var(--cond);color:#fff;background:var(--c);border-radius:4px;
-    padding:.16em .55em .04em;text-transform:uppercase;letter-spacing:.04em}
-  .res-st.dnf{background:var(--ink)} .res-st.dq{background:var(--amber)}
-  .res-tag{font:700 calc(var(--k,1)*15px)/1 var(--cond);letter-spacing:.2em;text-transform:uppercase;color:var(--label)}
-  .res-tag.prov{color:var(--amber)}
-  .res-lbl{font:700 calc(var(--k,1)*14px)/1 var(--cond);letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
-  .res-time{font:italic 900 calc(var(--k,1)*104px)/.82 var(--cond);color:var(--ink);letter-spacing:-.01em;
+  #x-fin{display:flex;justify-content:center}
+  .res-time{font:italic 900 calc(var(--k,1)*240px)/.82 var(--cond);color:var(--ink);letter-spacing:-.01em;
     font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:calc(var(--k,1)*4px);width:max-content}
-  .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--k,1)*8px)}
-  .res-grid div{border-top:1.5px solid var(--rule);padding-top:calc(var(--k,1)*7px);min-width:0}
-  .res-grid small{display:block;font:700 calc(var(--k,1)*13px)/1 var(--cond);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
-  .res-grid b{display:block;margin-top:calc(var(--k,1)*5px);font:italic 900 calc(var(--k,1)*40px)/.9 var(--cond);color:var(--c);
-    white-space:nowrap;font-variant-numeric:tabular-nums}
-  .res-grid b span{font-size:.55em;color:var(--mute);font-style:normal;font-weight:700;margin-left:.2em}
+  /* Baris bawah: nomor BIB + nama + gender (kiri) · gambar rute (kanan); turun ke baris baru bila sempit. */
+  .res-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:calc(var(--k,1)*10px) calc(var(--k,1)*24px);
+    border-top:1.5px solid var(--rule);padding-top:calc(var(--k,1)*12px)}
+  /* Gambar rute ala Strava (path dari data kategori; ukuran diset fitRoute()). Tebal garis dalam px layar. */
+  .res-route{flex:none;display:block;overflow:visible;filter:drop-shadow(0 3px 4px rgba(0,0,0,.18))}
+  .res-route path{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .res-route .case{stroke:#fff;stroke-width:calc(var(--k,1)*11px)}
+  .res-route .line{stroke:var(--c);stroke-width:calc(var(--k,1)*6px)}
+  .res-route circle{stroke:#fff;vector-effect:non-scaling-stroke;stroke-width:calc(var(--k,1)*3px)}
+  .res-route .fin{fill:var(--ink)} .res-route .start{fill:var(--ok)}
+  #x-none{text-align:center}
   .res-msg{font:800 calc(var(--k,1)*54px)/.92 var(--cond);text-transform:uppercase;color:var(--ink);text-wrap:balance}
   .res-sub{margin-top:calc(var(--k,1)*10px);font:500 calc(var(--k,1)*19px)/1.3 var(--cond);letter-spacing:.03em;text-transform:uppercase;color:var(--mute)}
   .res [hidden]{display:none}
@@ -193,7 +218,7 @@
   .lock h2{font:italic 900 clamp(56px,8vw,140px)/.88 var(--cond);text-transform:uppercase}
   .lock p{margin-top:clamp(10px,2vh,20px);font:600 clamp(20px,2.2vw,36px)/1.3 var(--cond);letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.75)}
 
-  @media (prefers-reduced-motion:reduce){ .view.on{animation:none} .qr::after{animation:none;top:48%} .lock .ring{animation:none} }
+  @media (prefers-reduced-motion:reduce){ .view.on{animation:none} .qr::after,.camview .frame::after{animation:none;top:48%} .lock .ring{animation:none} }
 </style>
 @endverbatim
 </head>
@@ -205,7 +230,7 @@
     <div class="view idle on" id="v-idle">
       <div class="brand">
         <img class="gtr" src="{{ asset('assets/gtr/bib-check/gtr-logo.webp') }}" alt="Gerung Trail Run">
-        <div class="cobrand"><div class="rg"><img src="{{ asset('assets/runger-logo.png') }}" alt="Runger"></div><div class="sep"></div><div class="kt"><img src="{{ asset('assets/gtr/keteri.webp') }}" alt="Bukit Keteri"></div></div>
+        <div class="cobrand" role="img" aria-label="Runger" style="--rg-logo:url('{{ asset('assets/runger-logo-white.webp') }}')"></div>
       </div>
       <div class="kicker"><span></span>{{ $isResult ? 'RESULT CHECK' : 'BIB CHECK' }}<span></span></div>
       <div class="qr" aria-hidden="true">
@@ -215,12 +240,17 @@
           <rect x="7" y="13.5" width="3.5" height="3.5" rx=".5"/><path d="M13.5 13.5h1.5v1.5M17 13.5v.01M13.5 17h.01M16 16v1h1"/>
         </svg>
       </div>
+      <div class="camview" id="camview" aria-hidden="true">
+        <video id="cam-video" muted playsinline autoplay></video>
+        <div class="frame"></div>
+        <div class="msg" id="cam-msg"></div>
+      </div>
       @if($isResult)
         <h1>Cek hasil lari</h1>
-        <p>Scan QR code di BIB untuk lihat waktu &amp; peringkatmu</p>
+        <p id="idle-hint" data-cam="Arahkan QR code di BIB ke kamera">Scan QR code di BIB untuk lihat waktu &amp; peringkatmu</p>
       @else
         <h1>Scan BIB kamu</h1>
-        <p>Arahkan QR code di BIB ke mesin scanner</p>
+        <p id="idle-hint" data-cam="Arahkan QR code di BIB ke kamera">Arahkan QR code di BIB ke mesin scanner</p>
       @endif
     </div>
 
@@ -235,33 +265,34 @@
           <div class="bib-head">
             <div class="brand">
               <img class="gtr" src="{{ asset('assets/gtr/bib-check/gtr-logo.webp') }}" alt="Gerung Trail Run">
-              <div class="cobrand"><div class="rg"><img src="{{ asset('assets/runger-logo.png') }}" alt="Runger"></div><div class="sep"></div><div class="kt"><img src="{{ asset('assets/gtr/keteri.webp') }}" alt="Bukit Keteri"></div></div>
+              <div class="cobrand" role="img" aria-label="Runger" style="--rg-logo:url('{{ asset('assets/runger-logo-white.webp') }}')"></div>
             </div>
             <div class="kicker"><span></span>{{ $isResult ? 'RESULT CHECK' : 'BIB CHECK' }}<span></span></div>
             <div class="cat"><span class="nm" id="c-name"></span><span class="tg" id="c-tag"></span></div>
           </div>
           <div class="bib-body" id="bib-body">
-            <div class="bib-id" id="bib-id">
-              <div class="bib-num" id="r-bib"></div>
-              <div class="bib-who"><div class="bib-name" id="r-name"></div><div class="bib-gender" id="r-gender"></div></div>
-            </div>
-            @if($isResult)
-              {{-- Panel hasil: diisi renderResult() --}}
+            @if(! $isResult)
+              <div class="bib-id" id="bib-id">
+                <div class="bib-num" id="r-bib"></div>
+                <div class="bib-who"><div class="bib-name" id="r-name"></div><div class="bib-gender" id="r-gender"></div></div>
+              </div>
+            @else
+              {{-- Panel hasil: waktu penuh di atas, BIB + nama + gambar rute di bawahnya. Diisi renderResult() --}}
               <div class="res" id="res">
-                <div class="res-top"><span class="res-st" id="x-st"></span><span class="res-tag" id="x-tag"></span></div>
-                <div id="x-fin">
-                  <div class="res-lbl">Waktu resmi · gun time</div>
-                  <div class="res-time" id="x-gun"></div>
-                </div>
-                <div class="res-grid" id="x-grid">
-                  <div><small>Peringkat kategori</small><b id="x-rank"></b></div>
-                  <div><small id="x-rg-lbl">Peringkat gender</small><b id="x-rg"></b></div>
-                  <div><small>Net time</small><b id="x-net"></b></div>
-                  <div><small>Pace rata-rata</small><b id="x-pace"></b></div>
-                </div>
+                <div id="x-fin"><div class="res-time" id="x-gun"></div></div>
                 <div id="x-none">
                   <div class="res-msg" id="x-msg"></div>
                   <div class="res-sub" id="x-sub"></div>
+                </div>
+                <div class="res-foot">
+                  <div class="bib-id" id="bib-id">
+                    <div class="bib-num" id="r-bib"></div>
+                    <div class="bib-who"><div class="bib-name" id="r-name"></div><div class="bib-gender" id="r-gender"></div></div>
+                  </div>
+                  <svg class="res-route" id="x-route" aria-hidden="true">
+                    <path class="case" id="x-route-case"/><path class="line" id="x-route-line"/>
+                    <circle class="fin" id="x-route-fin"/><circle class="start" id="x-route-start"/>
+                  </svg>
                 </div>
               </div>
             @endif
@@ -274,6 +305,9 @@
               <div class="wide"><img src="{{ asset('assets/gtr/bib-check/sponsor-dispar.webp') }}" alt="Dispar Lombok Barat"></div>
               <div class="wide"><img src="{{ asset('assets/gtr/bib-check/bank-ntb-syariah.webp') }}" alt="Bank NTB Syariah"></div>
               <div><img src="{{ asset('assets/gtr/bib-check/pam.webp') }}" alt="PT. Air Minum Giri Menang"></div>
+              <div><img src="{{ asset('assets/gtr/bib-check/pocari.webp') }}" alt="Pocari Sweat"></div>
+              <div><img src="{{ asset('assets/gtr/bib-check/aqua.webp') }}" alt="AQUA"></div>
+              <div><img src="{{ asset('assets/gtr/keteri.webp') }}" alt="Bukit Keteri"></div>
             </div>
             <div class="timer"><i id="timer-bar"></i></div>
           </div>
@@ -294,6 +328,8 @@
     <span class="typed" id="typed"></span>
     <span class="status" id="status"><i></i><span id="status-text">Memuat data peserta…</span></span>
     <span class="clock" id="clock">--:-- WITA</span>
+    <select class="fs camsel" id="cam-sel" aria-label="Pilih kamera" hidden></select>
+    <button class="fs" id="cam" type="button">Kamera: OFF</button>
     <button class="fs" id="snd" type="button">Suara: ON</button>
     <button class="fs" id="fs" type="button">Layar penuh</button>
   </footer>
@@ -308,6 +344,8 @@
   </div>
 </div>
 
+{{-- Decoder QR untuk mode kamera (lokal + di-precache SW; worker dimuat relatif terhadap file ini). --}}
+<script src="{{ asset('assets/gtr/bib-check/qr/qr-scanner.umd.min.js') }}"></script>
 <script>
 (function () {
   var DATA_URL = @json($dataUrl);
@@ -466,21 +504,26 @@
     var k = Math.min(1.3, cardH / 500);
     $('card').style.setProperty('--k', k.toFixed(3));
     var num = $('r-bib'), name = $('r-name'), gender = $('r-gender');
-    // Kiosk hasil: blok BIB hanya kolom kiri (430), nomor sedikit lebih kecil.
-    var maxW = IS_RESULT ? 430 : 912, nf = Math.round((IS_RESULT ? 200 : 250) * k);
+    // Kiosk hasil: nomor BIB kecil di baris bawah — yang ditonjolkan waktunya.
+    var maxW = IS_RESULT ? 260 : 912, nf = Math.round((IS_RESULT ? 72 : 250) * k);
     num.style.fontSize = nf + 'px';
     if (num.offsetWidth > maxW) num.style.fontSize = Math.floor(nf * maxW / num.offsetWidth) + 'px';
     // Gender di bawah nama, ±55% ukuran nama.
-    var fs = Math.round(48 * k);
+    var fs = Math.round((IS_RESULT ? 32 : 48) * k);
     var setName = function (f) { name.style.fontSize = f + 'px'; gender.style.fontSize = Math.round(f * .55) + 'px'; };
     setName(fs);
-    while (name.offsetHeight > fs * 1.05 * 2 + 4 && fs > 28) { fs -= 2; setName(fs); }
-    // Waktu resmi selebar panel.
+    while (name.offsetHeight > fs * 1.05 * 2 + 4 && fs > (IS_RESULT ? 18 : 28)) { fs -= 2; setName(fs); }
+    if (IS_RESULT) fitRoute(k);
+    // Waktu resmi dibuat sebesar mungkin: selebar panel (maks. 340 × k), lalu diperkecil
+    // bila panel jadi lebih tinggi dari ruang di antara kepala kartu & pita sponsor.
     var gun = $('x-gun');
     if (gun && gun.offsetParent) {
       gun.style.fontSize = '';
-      var room = $('res').clientWidth - 44 * k;
-      if (gun.offsetWidth > room) gun.style.fontSize = Math.floor(parseFloat(getComputedStyle(gun).fontSize) * room / gun.offsetWidth) + 'px';
+      var res = $('res'), body = $('bib-body'), gf = parseFloat(getComputedStyle(gun).fontSize);
+      gf = Math.min(340 * k, gf * (res.clientWidth - 44 * k) * .95 / gun.offsetWidth);   // .95: sisa ruang untuk kemiringan italic
+      gun.style.fontSize = Math.floor(gf) + 'px';
+      var over = res.offsetHeight - (body.clientHeight - parseFloat(getComputedStyle(body).paddingBottom) - 16 * k);
+      if (over > 0) gun.style.fontSize = Math.max(60, Math.floor(gf - over / .82)) + 'px';
     }
   }
 
@@ -490,8 +533,9 @@
    */
   var RIDGE_GAP = 26;   // jarak aman (unit desain) antara teks terbawah & puncak bukit
   function liftAboveRidge(ele) {
-    var body = $('bib-id');   // hanya blok BIB + nama (panel hasil tetap di tempat)
+    var body = $('bib-id');   // hanya blok BIB + nama
     body.style.transform = '';
+    if (IS_RESULT) return;    // kiosk hasil: blok BIB ada di dalam panel berlatar kertas
     var cr = $('card').getBoundingClientRect(), s = cr.width / 1000;
     var last = $('r-gender').textContent ? $('r-gender') : $('r-name');
     var lr = last.getBoundingClientRect();
@@ -538,27 +582,41 @@
     liftAboveRidge(cat.ele);
   }
 
+  /** Gambar rute kategori (ala Strava): garis warna kategori bertepi putih, titik start & finish. */
+  function drawRoute(rt) {
+    var svg = $('x-route');
+    svg.hidden = !(rt && rt.d && rt.vb);
+    if (svg.hidden) return;
+    var vb = rt.vb.split(' ').map(Number), d = rt.d;
+    svg.setAttribute('viewBox', rt.vb);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    $('x-route-case').setAttribute('d', d);
+    $('x-route-line').setAttribute('d', d);
+    var nums = d.replace(/[ML]/g, ' ').trim().split(/\s+/).map(Number), n = nums.length;
+    var dot = Math.max(vb[2], vb[3]) * .035;
+    [['x-route-start', nums[0], nums[1]], ['x-route-fin', nums[n - 2], nums[n - 1]]].forEach(function (c) {
+      var el = $(c[0]); el.setAttribute('cx', c[1]); el.setAttribute('cy', c[2]); el.setAttribute('r', dot);
+    });
+    svg.dataset.ratio = vb[3] ? vb[2] / vb[3] : 1;
+  }
+  /** Ukuran gambar rute: setinggi baris BIB + nama, lebar dibatasi supaya nama tetap lega. */
+  function fitRoute(k) {
+    var svg = $('x-route');
+    if (!svg || svg.hidden) return;
+    var ratio = parseFloat(svg.dataset.ratio) || 1, h = 128 * k, w = Math.min(340 * k, h * ratio);
+    if (w < h * ratio) h = w / ratio;
+    svg.style.width = Math.round(w) + 'px'; svg.style.height = Math.round(h) + 'px';
+  }
+
   /** Isi panel hasil. @returns {boolean} false bila peserta belum punya hasil. */
-  var STATUS = { finisher: 'Finisher', dnf: 'DNF', dq: 'DQ' };
   function renderResult(r) {
     var x = r.result, fin = !!(x && x.status === 'finisher' && x.gun);
-    var st = $('x-st'), tag = $('x-tag');
-    st.className = 'res-st' + (x ? ' ' + x.status : '');
-    st.textContent = x ? (STATUS[x.status] || x.status) : '';
-    st.hidden = !x;
-    tag.className = 'res-tag' + (roster.published ? '' : ' prov');
-    tag.textContent = roster.published ? 'Hasil resmi' : 'Hasil sementara';
-    $('x-fin').hidden = $('x-grid').hidden = !fin;
+    $('x-fin').hidden = !fin;
     $('x-none').hidden = fin;
+    drawRoute(((roster.categories || {})[r.category_id] || {}).route);
 
     if (fin) {
-      var of = function (n, t) { return n ? n + (t ? '<span>/ ' + t + '</span>' : '') : '—'; };
       $('x-gun').textContent = x.gun;
-      $('x-rank').innerHTML = of(x.rank, x.rank_total);
-      $('x-rg-lbl').textContent = r.gender === 'F' ? 'Peringkat putri' : r.gender === 'M' ? 'Peringkat putra' : 'Peringkat gender';
-      $('x-rg').innerHTML = of(x.rank_gender, x.gender_total);
-      $('x-net').textContent = x.net || '—';
-      $('x-pace').innerHTML = x.pace ? x.pace + '<span>/km</span>' : '—';
     } else if (x) {
       $('x-msg').textContent = x.status === 'dq' ? 'Disqualified' : 'Did not finish';
       $('x-sub').textContent = 'Info lebih lanjut di meja informasi panitia';
@@ -638,7 +696,8 @@
   // ------------------------------------------------------- fokus jendela ----
   // Ketikan mesin scanner hanya masuk ke jendela yang fokus. Bila fokus pindah (klik address bar,
   // aplikasi lain, notifikasi), tampilkan overlay besar sampai layar diketuk lagi.
-  function checkFocus() { $('lock').hidden = document.hasFocus(); }
+  // Mode kamera tidak butuh fokus → overlay tidak dipasang selama kamera menyala.
+  function checkFocus() { $('lock').hidden = document.hasFocus() || !!(cam && cam.stream); }
   window.addEventListener('blur', checkFocus);
   window.addEventListener('focus', checkFocus);
   document.addEventListener('visibilitychange', checkFocus);
@@ -677,6 +736,176 @@
     clearTimer = setTimeout(function () { buf = ''; renderBuf(); }, 15000); // ketikan manual terbengkalai
   });
 
+  // ------------------------------------------------------------ kamera ----
+  // Opsi tanpa mesin scanner: webcam bawaan / kamera eksternal (USB) membaca QR di BIB.
+  // Status ON/OFF & pilihan kamera diingat di browser ini → kiosk yang di-reload langsung menyala lagi.
+  // Kode yang sama diabaikan selama masih terlihat di kamera (+ CAM_REPEAT_MS setelah hilang),
+  // supaya BIB yang terus dipegang di depan kamera tidak berbunyi berulang-ulang.
+  var CAM_KEY = 'gtr-bibcheck-cam', CAM_ID_KEY = 'gtr-bibcheck-cam-id';
+  var CAM_REPEAT_MS = 4000, CAM_EVERY_MS = 120, CAM_RETRY_MS = 3000, CAM_CROP = 0.75;
+  var BUILTIN_CAM = /facetime|built-?in|integrated|internal/i;
+  var cam = { want: false, stream: null, starting: false, engine: null, canvas: null, timer: 0, retry: 0, last: '', lastAt: 0 };
+  var media = navigator.mediaDevices;
+
+  function getPref(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function setPref(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function camMsg(t) { $('cam-msg').textContent = t || ''; }
+  function stopTracks(s) { if (s) s.getTracks().forEach(function (t) { t.stop(); }); }
+
+  function renderCam() {
+    document.body.classList.toggle('cam-on', cam.want);
+    $('cam').textContent = 'Kamera: ' + (cam.want ? 'ON' : 'OFF');
+    $('cam-sel').hidden = !cam.want || $('cam-sel').options.length < 2;
+    var hint = $('idle-hint');
+    if (!hint.dataset.hid) hint.dataset.hid = hint.textContent;
+    hint.textContent = cam.want ? hint.dataset.cam : hint.dataset.hid;
+    checkFocus();
+  }
+
+  function camErr(e) {
+    var n = e && e.name;
+    if (n === 'NotAllowedError' || n === 'SecurityError') return 'Akses kamera ditolak — izinkan kamera di pengaturan browser';
+    if (n === 'NotFoundError' || n === 'OverconstrainedError') return 'Kamera tidak ditemukan — cek kabel USB';
+    if (n === 'NotReadableError' || n === 'AbortError') return 'Kamera sedang dipakai aplikasi lain';
+    return 'Kamera gagal menyala';
+  }
+
+  function camStart() {
+    if (!cam.want || cam.stream || cam.starting) return;
+    clearTimeout(cam.retry);
+    if (!media || !media.getUserMedia) return camMsg(window.isSecureContext ? 'Browser ini tidak mendukung kamera' : 'Kamera butuh HTTPS atau localhost');
+    if (!window.QrScanner) return camMsg('Modul scan kamera gagal dimuat');
+    cam.starting = true;
+    camMsg('Menyalakan kamera…');
+    var saved = getPref(CAM_ID_KEY);
+    var open = function (id) {
+      // 1080p: QR yang dipegang agak jauh (di jarak fokus tajam webcam) tetap cukup besar dalam piksel.
+      var v = { width: { ideal: 1920 }, height: { ideal: 1080 } };
+      if (id) v.deviceId = { exact: id };
+      return media.getUserMedia({ audio: false, video: v });
+    };
+    open(saved).catch(function (e) {
+      // Kamera pilihan dicabut / pindah port → pakai kamera mana pun yang ada.
+      if (saved && (e.name === 'NotFoundError' || e.name === 'OverconstrainedError')) return open(null);
+      throw e;
+    }).then(function (stream) {
+      cam.starting = false;
+      if (!cam.want) return stopTracks(stream);
+      cam.stream = stream;
+      var track = stream.getVideoTracks()[0];
+      track.addEventListener('ended', function () { if (cam.stream === stream) camLost('Kamera terputus — menyambung ulang…'); });
+      var v = $('cam-video');
+      v.srcObject = stream;
+      v.play().catch(function () {});
+      camMsg('');
+      checkFocus();
+      listCams(track.getSettings ? track.getSettings().deviceId : '');
+      (cam.engine ? Promise.resolve(cam.engine) : QrScanner.createQrEngine())
+        .then(function (eng) { cam.engine = eng; camLoop(); }, function () { camMsg('Modul scan kamera gagal dimuat'); });
+    }, function (e) {
+      cam.starting = false;
+      camMsg(camErr(e));
+      // Izin ditolak tidak akan berubah sendiri; selain itu (kamera dicabut / dipakai) coba lagi.
+      if (!e || (e.name !== 'NotAllowedError' && e.name !== 'SecurityError')) cam.retry = setTimeout(camStart, CAM_RETRY_MS);
+    });
+  }
+
+  function camHalt() {
+    clearTimeout(cam.timer); clearTimeout(cam.retry);
+    stopTracks(cam.stream); cam.stream = null;
+    $('cam-video').srcObject = null;
+  }
+  function camLost(msg) {
+    camHalt();
+    if (!cam.want) return;
+    camMsg(msg); checkFocus();
+    cam.retry = setTimeout(camStart, CAM_RETRY_MS);
+  }
+  function camRestart() { camHalt(); camStart(); }
+  function camStop() {
+    cam.want = false; setPref(CAM_KEY, 'off');
+    camHalt(); camMsg(''); renderCam();
+  }
+
+  /** Isi pilihan kamera (label baru terbaca setelah izin kamera diberikan). */
+  function listCams(currentId) {
+    if (!media || !media.enumerateDevices) return;
+    media.enumerateDevices().then(function (all) {
+      var cams = all.filter(function (d) { return d.kind === 'videoinput'; });
+      var sel = $('cam-sel');
+      sel.innerHTML = '';
+      cams.forEach(function (d, i) {
+        var o = document.createElement('option');
+        o.value = d.deviceId;
+        o.textContent = (d.label || 'Kamera ' + (i + 1)).replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*$/i, '');
+        sel.appendChild(o);
+      });
+      if (currentId) sel.value = currentId;
+      renderCam();
+      // Belum pernah memilih, sedang memakai webcam bawaan, dan ada kamera eksternal → pindah ke eksternal.
+      if (getPref(CAM_ID_KEY) || !currentId) return;
+      var cur = cams.filter(function (d) { return d.deviceId === currentId; })[0];
+      var ext = cams.filter(function (d) { return d.label && !BUILTIN_CAM.test(d.label); })[0];
+      if (cur && BUILTIN_CAM.test(cur.label) && ext) { setPref(CAM_ID_KEY, ext.deviceId); camRestart(); }
+    }).catch(function () {});
+  }
+
+  function camNext(ms) { clearTimeout(cam.timer); cam.timer = setTimeout(camLoop, ms); }
+  function camLoop() {
+    if (!cam.stream || !cam.engine) return;
+    var v = $('cam-video'), w = v.videoWidth, h = v.videoHeight;
+    if (document.visibilityState !== 'visible' || v.readyState < 2 || !w) return camNext(300);
+    if (v.paused) v.play().catch(function () {});
+    // 2 dari 3 frame: kotak tengah (≈ bingkai di pratinjau) pada resolusi asli → QR kecil / jauh tetap
+    // terbaca, jadi peserta tak perlu menempelkan BIB terlalu dekat (di bawah jarak fokus webcam).
+    // 1 dari 3 frame: seluruh gambar diperkecil → QR besar / di pinggir tetap tertangkap.
+    var region;
+    cam.tick = (cam.tick || 0) + 1;
+    if (cam.tick % 3) {
+      var side = Math.round(Math.min(w, h) * CAM_CROP);
+      region = { x: Math.round((w - side) / 2), y: Math.round((h - side) / 2), width: side, height: side, downScaledWidth: side, downScaledHeight: side };
+    } else {
+      var k = Math.min(1, 960 / Math.max(w, h));
+      region = { x: 0, y: 0, width: w, height: h, downScaledWidth: Math.round(w * k), downScaledHeight: Math.round(h * k) };
+    }
+    QrScanner.scanImage(v, {
+      returnDetailedScanResult: true,
+      qrEngine: cam.engine,
+      canvas: cam.canvas || (cam.canvas = document.createElement('canvas')),
+      scanRegion: region
+    }).then(function (res) { camHit(res && res.data); }, function () { /* tidak ada QR di frame ini */ })
+      .then(function () { if (cam.stream) camNext(CAM_EVERY_MS); });
+  }
+
+  function camHit(text) {
+    text = String(text || '').trim();
+    if (!text) return;
+    var now = Date.now(), same = text === cam.last && now - cam.lastAt < CAM_REPEAT_MS;
+    cam.last = text; cam.lastAt = now;
+    if (same) return;
+    var box = $('camview');
+    box.classList.add('hit');
+    setTimeout(function () { box.classList.remove('hit'); }, 450);
+    handle(text);
+  }
+
+  $('cam').addEventListener('click', function () {
+    if (cam.want) camStop();
+    else { cam.want = true; setPref(CAM_KEY, 'on'); renderCam(); show('v-idle'); camStart(); }
+    this.blur();
+  });
+  $('cam-sel').addEventListener('change', function () {
+    setPref(CAM_ID_KEY, this.value);
+    camRestart();
+    this.blur();
+  });
+  // Kamera USB dicolok / dicabut → perbarui daftar, atau nyalakan bila tadi belum ada kamera.
+  if (media && media.addEventListener) media.addEventListener('devicechange', function () {
+    if (!cam.want) return;
+    if (cam.stream) listCams(cam.stream.getVideoTracks()[0].getSettings().deviceId);
+    else { clearTimeout(cam.retry); camStart(); }
+  });
+
   // ------------------------------------------------------- kiosk helpers ----
   function tick() { $('clock').textContent = hhmm(Date.now()) + ' WITA'; }
   function keepAwake() {
@@ -694,7 +923,9 @@
   tick(); setInterval(tick, 1000);
   keepAwake();
   renderSound();
-  checkFocus();
+  cam.want = getPref(CAM_KEY) === 'on';
+  renderCam();
+  if (cam.want) camStart();
   // Offline penuh: halaman, data, font, & logo disimpan service worker (butuh HTTPS / localhost).
   if ('serviceWorker' in navigator) navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE }).catch(function () {});
   load().then(function () {

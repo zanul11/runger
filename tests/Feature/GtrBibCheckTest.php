@@ -99,8 +99,9 @@ class GtrBibCheckTest extends TestCase
             $this->assertStringContainsString($face['url'], $html);
             $this->assertFileExists(public_path(ltrim(parse_url($face['url'], PHP_URL_PATH), '/')));
         }
-        foreach (GtrBibCheckController::IMAGES as $img) {
-            $this->assertFileExists(public_path($img));
+        foreach ([...GtrBibCheckController::IMAGES, ...GtrBibCheckController::SCRIPTS] as $file) {
+            $this->assertFileExists(public_path($file));
         }
+        $this->assertStringContainsString(asset(GtrBibCheckController::SCRIPTS[0]), $html);
     }
 }

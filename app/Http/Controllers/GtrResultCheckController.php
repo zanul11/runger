@@ -83,10 +83,50 @@ class GtrResultCheckController extends GtrBibCheckController
             ];
         }
 
+        // Gambar rute ala Strava di kartu hasil: path SVG siap pakai per kategori.
+        $routes = GtrCategory::whereIn('id', array_keys($payload['categories']))->get(['id', 'route_points']);
+        foreach ($routes as $c) {
+            $payload['categories'][$c->id]['route'] = self::routeSvg($c->route_points ?? []);
+        }
+
         $payload['published'] = $published;
         $payload['results'] = $results->count();
 
         return $payload;
+    }
+
+    /**
+     * Titik rute [[lat, lng], …] → { vb: "0 0 W H", d: "M… L…" } (sisi terpanjang = 1000), atau null.
+     * Proyeksi equirectangular (lng × cos lat) — cukup akurat untuk rute beberapa km.
+     */
+    public static function routeSvg(array $points): ?array
+    {
+        $pts = array_values(array_filter($points, fn ($p) => is_array($p) && is_numeric($p[0] ?? null) && is_numeric($p[1] ?? null)));
+        if (count($pts) < 2) {
+            return null;
+        }
+
+        $cos = cos(deg2rad(array_sum(array_column($pts, 0)) / count($pts)));
+        $xy = array_map(fn ($p) => [(float) $p[1] * $cos, -(float) $p[0]], $pts);
+        $xs = array_column($xy, 0);
+        $ys = array_column($xy, 1);
+        $minX = min($xs);
+        $minY = min($ys);
+        $span = max(max($xs) - $minX, max($ys) - $minY);
+        if ($span <= 0) {
+            return null;
+        }
+
+        $scale = 1000 / $span;
+        $d = '';
+        foreach ($xy as $i => [$x, $y]) {
+            $d .= ($i ? 'L' : 'M').round(($x - $minX) * $scale, 1).' '.round(($y - $minY) * $scale, 1);
+        }
+
+        return [
+            'vb' => '0 0 '.round((max($xs) - $minX) * $scale, 1).' '.round((max($ys) - $minY) * $scale, 1),
+            'd' => $d,
+        ];
     }
 
     /** Detik per km → "m:ss". */

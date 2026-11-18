@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 /**
- * Kiosk "Cek BIB" (publik, tanpa login): layar + mesin QR scanner (mode keyboard/HID).
+ * Kiosk "Cek BIB" (publik, tanpa login): layar + mesin QR scanner (mode keyboard/HID), atau
+ * kamera (webcam bawaan / eksternal) lewat tombol "Kamera".
  * QR di BIB berisi nomor BIB → halaman menampilkan kartu BIB peserta (nomor + nama).
  *
  * Roster diunduh sekali ke browser lalu dicari lokal, supaya tampil instan & tetap jalan
@@ -44,13 +45,24 @@ class GtrBibCheckController extends Controller
     public const IMAGES = [
         'assets/gtr/logo.jpeg',
         'assets/gtr/bib-check/gtr-logo.webp',
-        'assets/runger-logo.png',
+        'assets/runger-logo-white.webp',
         'assets/gtr/keteri.webp',
         'assets/gtr/bib-check/sponsor-alti.webp',
         'assets/gtr/bib-check/sponsor-lobar.webp',
         'assets/gtr/bib-check/sponsor-dispar.webp',
         'assets/gtr/bib-check/bank-ntb-syariah.webp',
         'assets/gtr/bib-check/pam.webp',
+        'assets/gtr/bib-check/pocari.webp',
+        'assets/gtr/bib-check/aqua.webp',
+    ];
+
+    /**
+     * Scan kamera (opsional, tombol "Kamera" di kiosk): qr-scanner 1.4.2 (MIT, salinan dari node_modules).
+     * Pakai BarcodeDetector bawaan browser bila ada; selain itu worker (dimuat relatif terhadap skrip utama).
+     */
+    public const SCRIPTS = [
+        'assets/gtr/bib-check/qr/qr-scanner.umd.min.js',
+        'assets/gtr/bib-check/qr/qr-scanner-worker.min.js',
     ];
 
     /** Font Barlow lokal (subset Google Fonts, OFL): [family, style, weight, file]. Hanya bobot yang dipakai. */
@@ -138,7 +150,7 @@ class GtrBibCheckController extends Controller
     {
         return [
             route(static::ROUTE),
-            ...array_map(fn ($p) => asset($p), self::IMAGES),
+            ...array_map(fn ($p) => asset($p), [...self::IMAGES, ...self::SCRIPTS]),
             ...array_column(self::fontFaces(), 'url'),
         ];
     }
@@ -149,7 +161,7 @@ class GtrBibCheckController extends Controller
         $files = [
             resource_path('views/pages/gtr-bib-check.blade.php'),
             resource_path('views/pages/gtr-bib-check-sw.blade.php'),
-            ...array_map(fn ($p) => public_path($p), self::IMAGES),
+            ...array_map(fn ($p) => public_path($p), [...self::IMAGES, ...self::SCRIPTS]),
         ];
 
         return substr(md5(implode('|', array_map(fn ($f) => is_file($f) ? $f.':'.filemtime($f) : $f, $files))), 0, 12);
