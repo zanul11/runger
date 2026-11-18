@@ -29,6 +29,11 @@
   .err{color:var(--red);font-size:12.5px;margin-top:6px}
   .pw-hint{color:var(--mute);font-size:12px;margin:0 0 14px}
   .btn-pw{width:100%;background:linear-gradient(135deg,var(--blue-bright),var(--blue));color:#fff;border:none;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:14px;border-radius:12px;cursor:pointer}
+  .prof-link{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .prof-link b{display:block;font-weight:800;font-size:14.5px;color:var(--text)}
+  .prof-link span.s{display:block;font-size:12.5px;color:var(--soft);margin-top:2px}
+  .prof-link span.s em{font-style:normal;color:#B45309;font-weight:700}
+  .prof-link .arr{flex-shrink:0;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#F1F3F8;font-weight:900;color:var(--text)}
 </style>
 @endverbatim
 @endpush
@@ -50,6 +55,22 @@
   <div class="pr-row"><span class="k">Jenis Kelamin</span><span class="v">{{ $runner->gender === 'male' ? 'Laki-laki' : ($runner->gender === 'female' ? 'Perempuan' : '-') }}</span></div>
   <div class="pr-row"><span class="k">Alamat</span><span class="v">{{ $runner->address ?: '-' }}</span></div>
 </div>
+
+<a class="card prof-link" href="{{ route('gtr.account.transaction') }}">
+  <div>
+    <b>Riwayat Transaksi</b>
+    <span class="s">{{ $trxCount }} pendaftaran @if($trxPending)· <em>{{ $trxPending }} menunggu pembayaran</em>@endif</span>
+  </div>
+  <span class="arr">→</span>
+</a>
+
+<a class="card prof-link" href="{{ route('gtr') }}">
+  <div>
+    <b>Info Event di Website</b>
+    <span class="s">Kategori, rute, rules &amp; sponsor Gerung Trail Run</span>
+  </div>
+  <span class="arr">↗</span>
+</a>
 
 <div class="card" id="ganti-password">
   <div class="card-h">Ganti Password</div>

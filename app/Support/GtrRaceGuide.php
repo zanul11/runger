@@ -149,15 +149,44 @@ class GtrRaceGuide
             'opt_gear' => array_values(array_filter(array_map('trim', (array) ($c->recommended_gear ?? [])))),
             'awards' => collect(preg_split('/\r\n|\r|\n/', (string) $c->award_prize))
                 ->map(fn ($l) => trim(preg_replace('/^\s*[-•*]\s*/', '', $l)))->filter()->values()->all(),
-            'rundown' => collect($c->rundown ?? [])
-                ->filter(fn ($r) => is_array($r) && trim(($r['time'] ?? '') . ($r['activity'] ?? '')) !== '')
-                ->map(fn ($r) => array_map(fn ($v) => trim((string) $v), $r + ['date' => null, 'time' => null, 'activity' => null, 'location' => null]))
-                ->values()->all(),
+            'rundown' => self::rundown($c),
             'map' => self::routeSvg($c->route_points ?? [], $points->all(), $total),
             'elevation' => self::elevationSvg($c->elevation_profile ?? [], $points->all()),
             'url' => route('gtr.category', $c->slug),
             'qr' => self::qr(route('gtr.category', $c->slug)),
             'gpx' => $c->canDownloadGpx(),
+        ];
+    }
+
+    /** Baris rundown kategori yang terisi, kolom dinormalisasi (date/time/activity/location). */
+    private static function rundown(GtrCategory $c): array
+    {
+        return collect($c->rundown ?? [])
+            ->filter(fn ($r) => is_array($r) && trim(($r['time'] ?? '') . ($r['activity'] ?? '')) !== '')
+            ->map(fn ($r) => array_map(fn ($v) => trim((string) $v), $r + ['date' => null, 'time' => null, 'activity' => null, 'location' => null]))
+            ->values()->all();
+    }
+
+    /**
+     * Timeline event untuk menu Jadwal Runger App — sama dengan slide Event Timeline race guide,
+     * tanpa membangun aset slide (peta, QR, elevasi).
+     *
+     * @return array{timeline: array, categories: array<int, array{distance: string, color: string}>}
+     */
+    public static function eventTimeline(): array
+    {
+        $cats = GtrCategory::where('is_active', true)->orderBy('sort_order')->get()->map(fn (GtrCategory $c) => [
+            'id' => $c->id,
+            'distance' => $c->distance ?: $c->name,
+            'color' => $c->color ?: '#E53935',
+            'start' => $c->start_time,
+            'cot' => $c->cut_off_time && trim($c->cut_off_time) !== '-' ? $c->cut_off_time : null,
+            'rundown' => self::rundown($c),
+        ])->values();
+
+        return [
+            'timeline' => self::timeline($cats->all(), GtrSetting::current()),
+            'categories' => $cats->mapWithKeys(fn ($c) => [$c['id'] => ['distance' => $c['distance'], 'color' => $c['color']]])->all(),
         ];
     }
 

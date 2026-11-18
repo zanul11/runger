@@ -57,7 +57,7 @@
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px">
                 <tr>
                   <td align="center" style="background:#ffffff;border:1px solid #e6e9f2;border-radius:12px;padding:20px">
-                    <img src="{{ $reg->qrImageUrl(300) }}" alt="QR {{ $reg->nomor_registrasi }}" width="210" height="210" style="display:block;width:210px;height:210px">
+                    <img src="{{ $message->embedData($reg->qrPng(), 'eticket-' . $reg->nomor_registrasi . '.png', 'image/png') }}" alt="QR {{ $reg->nomor_registrasi }}" width="210" height="210" style="display:block;width:210px;height:210px">
                     <div style="margin-top:10px;font-size:12px;color:#667;letter-spacing:.03em">Tunjukkan QR ini saat pengambilan race pack / di garis start</div>
                   </td>
                 </tr>

@@ -21,26 +21,53 @@ class RunnerDashboardController extends Controller
         $runner = $this->runner();
         $categories = GtrCategory::where('is_active', true)->orderBy('sort_order')->get();
         $registeredIds = $runner->registrations()->pluck('gtr_category_id')->all();
+        $setting = \App\Models\GtrSetting::first();
+
+        $myRegs = $runner->registrations()->with('category')->oldest('id')->get();
+
+        // Kartu Race Day: registrasi lunas pertama yang sedang punya mode (racepack / race).
+        $dayReg = null;
+        $dayCard = null;
+        foreach ($myRegs->where('payment_status', 'paid') as $reg) {
+            if ($card = \App\Support\RaceDayCard::for($reg, $setting)) {
+                [$dayReg, $dayCard] = [$reg, $card];
+                break;
+            }
+        }
+
+        // Countdown ke jam start kategori peserta (lunas) — selain itu start paling awal.
+        $startCat = $myRegs->firstWhere('payment_status', 'paid')?->category;
 
         return view('pages.runner.home', [
             'tab' => 'home',
             'runner' => $runner,
             'categories' => $categories,
             'registeredIds' => $registeredIds,
-            'gtrSetting' => \App\Models\GtrSetting::first(),
+            'gtrSetting' => $setting,
+            'dayReg' => $dayReg,
+            'dayCard' => $dayCard,
+            'myRegs' => $myRegs,
+            'closed' => \App\Models\GtrSetting::registrationClosed(),
+            'raceStartMs' => GtrCategory::raceStartAt($startCat)->getTimestampMs(),
         ]);
     }
 
+    /** Tab Race: Runner Information untuk registrasi utama (lunas lebih dulu). */
     public function race()
     {
         $runner = $this->runner();
-        $registrations = $runner->registrations()->with('category')->latest()->get();
+        $regs = $runner->registrations()->with('category')->oldest('id')->get();
+        $reg = $regs->firstWhere('payment_status', 'paid') ?? $regs->first();
 
-        return view('pages.runner.race', [
-            'tab' => 'race',
-            'runner' => $runner,
-            'registrations' => $registrations,
-        ]);
+        if (! $reg) {
+            return view('pages.runner.race', [
+                'tab' => 'race',
+                'runner' => $runner,
+                'closed' => \App\Models\GtrSetting::registrationClosed(),
+            ]);
+        }
+
+        return $this->renderRace($reg, $regs);
     }
 
     public function raceDetail(GtrRegistration $registration)
@@ -48,17 +75,41 @@ class RunnerDashboardController extends Controller
         $runner = $this->runner();
         abort_unless($registration->runner_id === $runner->id, 403);
 
-        $registration->load('category');
+        return $this->renderRace($registration->load('category'), $runner->registrations()->with('category')->oldest('id')->get());
+    }
 
+    private function renderRace(GtrRegistration $registration, \Illuminate\Support\Collection $all)
+    {
         $target = $registration->target_finish_minutes ?: self::defaultTarget($registration->category);
         $plan = $target && $registration->category ? $registration->category->racePlan($target) : [];
+        $setting = \App\Models\GtrSetting::first();
 
         return view('pages.runner.race-detail', [
             'tab' => 'race',
-            'runner' => $runner,
+            'runner' => $this->runner(),
             'reg' => $registration,
+            'allRegs' => $all,
             'plan' => $plan,
             'planTarget' => $target,
+            'setting' => $setting,
+            'dayCard' => \App\Support\RaceDayCard::for($registration, $setting),
+        ]);
+    }
+
+    /** Tab Jadwal: rundown event gabungan semua kategori (sama dengan Event Timeline race guide). */
+    public function schedule()
+    {
+        $runner = $this->runner();
+        $data = \App\Support\GtrRaceGuide::eventTimeline();
+        $myCatIds = $runner->registrations()->where('payment_status', 'paid')->pluck('gtr_category_id')->all();
+
+        return view('pages.runner.schedule', [
+            'tab' => 'schedule',
+            'runner' => $runner,
+            'timeline' => $data['timeline'],
+            'cats' => $data['categories'],
+            'myCatIds' => $myCatIds,
+            'today' => now('Asia/Makassar')->locale('id')->translatedFormat('l, j F Y'),
         ]);
     }
 
@@ -184,7 +235,7 @@ class RunnerDashboardController extends Controller
         $registrations = $runner->registrations()->with('category')->latest()->get();
 
         return view('pages.runner.transaction', [
-            'tab' => 'transaction',
+            'tab' => 'profile',
             'runner' => $runner,
             'registrations' => $registrations,
         ]);
@@ -192,9 +243,13 @@ class RunnerDashboardController extends Controller
 
     public function profile()
     {
+        $runner = $this->runner();
+
         return view('pages.runner.profile', [
             'tab' => 'profile',
-            'runner' => $this->runner(),
+            'runner' => $runner,
+            'trxCount' => $runner->registrations()->count(),
+            'trxPending' => $runner->registrations()->where('payment_status', 'pending')->count(),
         ]);
     }
 

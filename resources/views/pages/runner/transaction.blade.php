@@ -19,7 +19,8 @@
 @endpush
 
 @section('content')
-<div class="sec-title">Transaction</div>
+<a href="{{ route('gtr.account.profile') }}" style="display:inline-flex;gap:6px;margin-bottom:12px;font-weight:700;font-size:12px;color:var(--soft)">← Profil</a>
+<div class="sec-title">Riwayat Transaksi</div>
 <div class="sec-sub">Riwayat & pembayaran pendaftaranmu.</div>
 
 @forelse($registrations as $reg)

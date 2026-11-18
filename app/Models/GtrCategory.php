@@ -447,6 +447,20 @@ class GtrCategory extends Model
         return preg_match('/(\d{1,2})[:.](\d{2})/', (string) $this->start_time, $m) ? (int) $m[1] * 60 + (int) $m[2] : null;
     }
 
+    /**
+     * Jadwal start race (WITA) untuk countdown: services.gtr.race_date + start_time kategori. Tanpa
+     * kategori → start paling awal di antara kategori aktif; tanpa jam terbaca → 06:00.
+     */
+    public static function raceStartAt(?self $category = null): \Illuminate\Support\Carbon
+    {
+        $minutes = $category?->startMinutes()
+            ?? static::where('is_active', true)->get()->map->startMinutes()->filter(fn ($m) => $m !== null)->min()
+            ?? 6 * 60;
+
+        return \Illuminate\Support\Carbon::parse(config('services.gtr.race_date'), 'Asia/Makassar')
+            ->startOfDay()->addMinutes($minutes);
+    }
+
     /** Batas waktu total (menit) dari teks "4 Jam" / "4,5 jam" / "150 menit". */
     public function cutOffMinutes(): ?int
     {

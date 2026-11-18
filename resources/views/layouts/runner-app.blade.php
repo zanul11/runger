@@ -66,18 +66,55 @@
   .app-main{flex:1;padding:18px 18px calc(96px + env(safe-area-inset-bottom))}
   .app-ok{background:#DCFCE7;border:1px solid #A7F3D0;color:#15803D;padding:12px 14px;border-radius:12px;font-size:13.5px;margin-bottom:16px}
 
+  /* header kanan: QR + avatar */
+  .app-acts{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .app-ico{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;cursor:pointer;color:#fff;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px)}
+  .app-ico svg{width:20px;height:20px}
+  .app-ava{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--red);color:#fff;
+    font-weight:900;font-size:16px;box-shadow:0 6px 14px rgba(229,57,53,.35)}
+  .app-top.compact .app-ico,.app-top.compact .app-ava{width:34px;height:34px;border-radius:11px}
+
+  /* menu bawah: pill melayang, tab aktif = lingkaran merah */
   .app-tabs{
-    position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:30;
-    display:grid;grid-template-columns:repeat(5,1fr);
-    background:rgba(255,255,255,.98);backdrop-filter:blur(14px);border-top:1px solid var(--line);
-    box-shadow:0 -6px 22px rgba(15,24,48,.07);
-    padding-bottom:env(safe-area-inset-bottom);
+    position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;
+    width:calc(100% - 24px);max-width:456px;
+    display:grid;grid-template-columns:repeat(5,1fr);padding:6px;border-radius:24px;
+    background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border:1px solid var(--line);
+    box-shadow:0 12px 30px rgba(15,24,48,.16);
   }
-  .app-tab{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 0 13px;color:var(--mute);transition:color .2s}
-  .app-tab svg{width:22px;height:22px}
-  .app-tab span{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.03em}
-  .app-tab.active{color:var(--blue)}
-  @media (max-width:360px){ .app-tab span{font-size:9px;letter-spacing:0} }
+  .app-tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0 5px;color:var(--mute);transition:color .2s}
+  .app-tab svg{width:20px;height:20px;box-sizing:content-box;padding:8px;border-radius:50%;transition:background .2s,color .2s,box-shadow .2s}
+  .app-tab span{font-family:'Poppins',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.03em}
+  .app-tab.active{color:var(--text)}
+  .app-tab.active svg{background:var(--red);color:#fff;box-shadow:0 6px 14px rgba(229,57,53,.4)}
+  @media (max-width:360px){ .app-tab span{font-size:8.5px;letter-spacing:0} }
+
+  /* section header ala app (judul tebal kapital) */
+  .ttl{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 2px 10px}
+  .ttl h2{font-weight:900;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--text)}
+  .ttl a{font-weight:700;font-size:12px;color:var(--blue)}
+
+  /* lembar My QR */
+  .qr-sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center}
+  .qr-sheet[hidden]{display:none}
+  .qr-sheet-bg{position:absolute;inset:0;background:rgba(8,10,18,.55);backdrop-filter:blur(3px);animation:qr-fade .2s ease}
+  .qr-sheet-card{position:relative;width:100%;max-width:480px;background:#fff;border-radius:26px 26px 0 0;
+    padding:10px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;animation:qr-up .25s ease}
+  .qr-sheet-grab{display:block;width:44px;height:5px;border-radius:5px;background:#E1E5EE;margin:0 auto 14px}
+  .qr-sheet-k{font-weight:800;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
+  .qr-sheet-n{font-weight:900;font-size:19px;color:var(--text);margin-top:4px}
+  .qr-sheet-card img{display:block;width:240px;max-width:72%;height:auto;aspect-ratio:1;margin:16px auto 6px}
+  .qr-sheet-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .qr-sheet-meta div{padding:10px;border-radius:14px;background:#F4F6FB}
+  .qr-sheet-meta small{display:block;font-weight:700;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+  .qr-sheet-meta b{display:block;font-weight:900;font-size:16px;color:var(--text);margin-top:2px;font-variant-numeric:tabular-nums}
+  .qr-sheet-hint{font-size:12px;color:var(--soft);margin-top:12px;line-height:1.5}
+  .qr-sheet-x{width:100%;margin-top:14px;padding:14px;border-radius:14px;border:none;background:#101010;color:#fff;
+    font-family:'Poppins',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+  @keyframes qr-up{from{transform:translateY(40px);opacity:.4}}
+  @keyframes qr-fade{from{opacity:0}}
+  @media (prefers-reduced-motion:reduce){.qr-sheet-bg,.qr-sheet-card{animation:none}}
 
   /* shared content bits */
   .sec-title{font-family:'Poppins',sans-serif;font-weight:900;font-size:26px;line-height:1;letter-spacing:-.01em;margin-bottom:4px;color:var(--text)}
@@ -105,7 +142,12 @@
 @stack('styles')
 </head>
 <body>
-@php $t = $tab ?? 'home'; @endphp
+@php
+  $t = $tab ?? 'home';
+  $me = auth('runner')->user();
+  // E-ticket untuk lembar "My QR" (header & Home): registrasi lunas pertama.
+  $qrReg = $me?->registrations()->with('category')->where('payment_status', 'paid')->whereNotNull('nomor_registrasi')->oldest('id')->first();
+@endphp
 <div class="app">
   <header class="app-top">
     <a class="app-logo" href="{{ route('gtr') }}" aria-label="Gerung Trail Run 2026">
@@ -119,7 +161,16 @@
         <img class="rg" src="{{ asset('assets/runger-logo-white.png') }}" alt="Runger — Runners Gerung" width="1000" height="245">
       </picture>
     </a>
-    <span class="app-title">@yield('app-title', 'Akun Peserta')</span>
+    <div class="app-acts">
+      @if($qrReg)
+        <button type="button" class="app-ico" data-open-qr aria-label="Tampilkan QR e-ticket">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+        </button>
+      @endif
+      @if($me)
+        <a class="app-ava" href="{{ route('gtr.account.profile') }}" aria-label="Profil">{{ strtoupper(mb_substr($me->first_name ?: 'R', 0, 1)) }}</a>
+      @endif
+    </div>
   </header>
 
   <main class="app-main">
@@ -135,22 +186,41 @@
       <span>Home</span>
     </a>
     <a href="{{ route('gtr.account.race') }}" @class(['app-tab', 'active' => $t === 'race'])>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h13l-2.5 4L18 12H5"/></svg>
-      <span>My Race</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      <span>Race</span>
+    </a>
+    <a href="{{ route('gtr.account.schedule') }}" @class(['app-tab', 'active' => $t === 'schedule'])>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Jadwal</span>
     </a>
     <a href="{{ route('gtr.account.guide') }}" @class(['app-tab', 'active' => $t === 'guide'])>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6.5a2.5 2.5 0 0 0 0 5H19"/><path d="M9 7h6M9 11h4"/></svg>
       <span>Guide</span>
     </a>
-    <a href="{{ route('gtr.account.transaction') }}" @class(['app-tab', 'active' => $t === 'transaction'])>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
-      <span>Transaction</span>
-    </a>
     <a href="{{ route('gtr.account.profile') }}" @class(['app-tab', 'active' => $t === 'profile'])>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-      <span>Profile</span>
+      <span>Profil</span>
     </a>
   </nav>
+
+  @if($qrReg)
+    {{-- Lembar "My QR": e-ticket (SVG dari server → tetap tampil offline dari cache halaman). --}}
+    <div class="qr-sheet" id="qr-sheet" hidden>
+      <div class="qr-sheet-bg" data-close-qr></div>
+      <div class="qr-sheet-card" role="dialog" aria-modal="true" aria-labelledby="qr-sheet-t">
+        <span class="qr-sheet-grab"></span>
+        <div class="qr-sheet-k" id="qr-sheet-t">E-Ticket · {{ $qrReg->category->distance ?? 'GTR 2026' }}</div>
+        <div class="qr-sheet-n">{{ $qrReg->full_name }}</div>
+        <img src="{{ $qrReg->qrDataUri() }}" alt="QR e-ticket {{ $qrReg->nomor_registrasi }}" width="240" height="240">
+        <div class="qr-sheet-meta">
+          <div><small>No. Registrasi</small><b>{{ $qrReg->nomor_registrasi }}</b></div>
+          <div><small>BIB</small><b>{{ $qrReg->bib_number ?: '—' }}</b></div>
+        </div>
+        <p class="qr-sheet-hint">Tunjukkan ke petugas race pack. Naikkan kecerahan layar agar mudah dipindai.</p>
+        <button type="button" class="qr-sheet-x" data-close-qr>Tutup</button>
+      </div>
+    </div>
+  @endif
 </div>
 <script>
   (function () {
@@ -158,6 +228,17 @@
     var onScroll = function () { top.classList.toggle('compact', window.scrollY > 24); };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+  })();
+  // Lembar My QR: tombol [data-open-qr] di header / Home.
+  (function () {
+    var sheet = document.getElementById('qr-sheet');
+    if (!sheet) { document.querySelectorAll('[data-open-qr]').forEach(function (b) { b.hidden = true; }); return; }
+    var close = function () { sheet.hidden = true; document.body.style.overflow = ''; };
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-open-qr]')) { e.preventDefault(); sheet.hidden = false; document.body.style.overflow = 'hidden'; }
+      else if (e.target.closest('[data-close-qr]')) close();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !sheet.hidden) close(); });
   })();
   document.addEventListener('click', function (e) {
     const icon = e.target.closest('.info-i');

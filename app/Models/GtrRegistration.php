@@ -263,11 +263,34 @@ class GtrRegistration extends Model
         return (string) $this->nomor_registrasi;
     }
 
-    /** URL gambar QR (layanan yang sama dengan runger-app). */
-    public function qrImageUrl(int $size = 300): string
+    /**
+     * QR e-ticket sebagai data URI SVG, dibuat di server. Dulu memakai api.qrserver.com: gambar dari
+     * domain luar itu tidak ikut di-cache service worker, jadi QR kosong saat sinyal di lokasi RPC /
+     * race day hilang — dan nomor registrasi bocor ke pihak ketiga.
+     */
+    public function qrDataUri(): string
     {
-        return 'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size
-            . '&margin=0&data=' . urlencode($this->qrData());
+        return (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions([
+            'outputType' => \chillerlan\QRCode\Output\QROutputInterface::MARKUP_SVG,
+            'outputBase64' => true,
+            'eccLevel' => \chillerlan\QRCode\Common\EccLevel::M,
+            'addQuietzone' => true,
+            'quietzoneSize' => 1,
+        ])))->render($this->qrData());
+    }
+
+    /** QR e-ticket sebagai PNG mentah — untuk email (Gmail tidak menampilkan SVG / data URI, jadi di-embed inline). */
+    public function qrPng(int $scale = 10): string
+    {
+        return (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions([
+            'outputType' => \chillerlan\QRCode\Output\QROutputInterface::GDIMAGE_PNG,
+            'outputBase64' => false,
+            'eccLevel' => \chillerlan\QRCode\Common\EccLevel::M,
+            'scale' => $scale,
+            'addQuietzone' => true,
+            'quietzoneSize' => 1,
+            'imageTransparent' => false,
+        ])))->render($this->qrData());
     }
 
     /** Kirim email KONFIRMASI PENDAFTARAN (aman: tak menggagalkan proses bila error). */

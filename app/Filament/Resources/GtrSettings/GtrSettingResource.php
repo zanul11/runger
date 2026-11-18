@@ -7,6 +7,7 @@ use App\Filament\Resources\GtrSettings\Pages\ListGtrSettings;
 use App\Models\GtrSetting;
 use BackedEnum;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
@@ -87,6 +88,17 @@ class GtrSettingResource extends Resource
                     TextInput::make('racepack_schedule')
                         ->label('Jadwal Pengambilan')
                         ->placeholder('Jumat–Sabtu, 27–28 Nov 2026 · 10.00–20.00 WITA'),
+                    DatePicker::make('racepack_starts_on')
+                        ->label('Hari Pertama RPC')
+                        ->native(false)
+                        ->displayFormat('d M Y')
+                        ->helperText('Kartu "Ambil Race Pack" muncul di atas app peserta mulai H-1 tanggal ini.'),
+                    DatePicker::make('racepack_ends_on')
+                        ->label('Hari Terakhir RPC')
+                        ->native(false)
+                        ->displayFormat('d M Y')
+                        ->afterOrEqual('racepack_starts_on')
+                        ->helperText('Kosong = sama dengan hari pertama.'),
                     Textarea::make('racepack_note')
                         ->label('Catatan Race Pack')
                         ->placeholder('Bawa e-ticket (QR) & KTP. Boleh diwakilkan dengan surat kuasa + foto KTP peserta.')

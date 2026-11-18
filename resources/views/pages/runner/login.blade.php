@@ -6,6 +6,13 @@
 <h1 class="auth-title">Selamat Datang 👋</h1>
 <p class="auth-sub">Masuk ke akun peserta Gerung Trail Run kamu</p>
 
+@if(\App\Models\GtrSetting::registrationClosed())
+  <div class="alert-closed">
+    <b>Pendaftaran GTR 2026 sudah ditutup.</b>
+    Masuk untuk melihat e-ticket, BIB, dan info race day — khusus peserta yang sudah terdaftar.
+  </div>
+@endif
+
 @if(session('success'))
   <div class="alert-ok">{{ session('success') }}</div>
 @endif

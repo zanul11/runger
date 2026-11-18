@@ -6,6 +6,13 @@
 <h1 class="auth-title">Buat Akun</h1>
 <p class="auth-sub">Isi data kamu untuk mendaftar Gerung Trail Run</p>
 
+@if(\App\Models\GtrSetting::registrationClosed())
+  <div class="alert-closed">
+    <b>Pendaftaran race GTR 2026 sudah ditutup.</b>
+    Akun baru tidak bisa lagi mendaftar race. Sudah terdaftar? <a href="{{ route('gtr.login') }}">Masuk</a> dengan akun yang kamu pakai saat mendaftar.
+  </div>
+@endif
+
 @if($errors->any())
   <div class="alert-err">Periksa kembali isian kamu — ada {{ $errors->count() }} yang perlu diperbaiki.</div>
 @endif

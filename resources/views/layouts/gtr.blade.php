@@ -1057,6 +1057,7 @@
   </div>
 </footer>
 
+<script>window.GTR_RACE_START_MS = {{ \App\Models\GtrCategory::raceStartAt()->getTimestampMs() }};</script>
 @verbatim
 <script>
   // Mobile drawer toggle
@@ -1073,10 +1074,10 @@
   window.addEventListener('scroll', onNavScroll, {passive:true});
   onNavScroll();
 
-  // Countdown to 29 Nov 2026, 05:30 WITA (only if present)
+  // Countdown ke jam start race (race_date + start_time kategori, lihat GtrCategory::raceStartAt)
   const cdD = document.getElementById('cd-d');
   if(cdD){
-    const EVENT_UTC = Date.UTC(2026, 10, 29, 5, 30) - 8*3600000;
+    const EVENT_UTC = window.GTR_RACE_START_MS;
     const target = new Date(EVENT_UTC);
     const pad = n => String(Math.max(0,n)).padStart(2,'0');
     const set = (id,v) => { const el = document.getElementById(id); if(el) el.textContent = v; };

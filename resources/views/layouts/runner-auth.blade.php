@@ -110,6 +110,9 @@
   .auth-foot{text-align:center;margin-top:22px;font-size:11.5px;color:#aeb3c0}
 
   .alert-ok{background:#ECFDF3;border:1px solid #ABEFC6;color:#067647;padding:12px 14px;border-radius:11px;font-size:13.5px;margin-bottom:18px}
+  .alert-closed{background:#FFFAEB;border:1px solid #FEDF89;color:#93370D;padding:12px 14px;border-radius:11px;font-size:13.5px;line-height:1.5;margin-bottom:18px}
+  .alert-closed b{display:block;margin-bottom:2px}
+  .alert-closed a{color:inherit;font-weight:700;text-decoration:underline}
   .alert-err{background:#FEF3F2;border:1px solid #FECDCA;color:#B42318;padding:12px 14px;border-radius:11px;font-size:13.5px;margin-bottom:18px}
   .pwd-reqs{background:#f7f8fb;border:1px solid #ECEFF5;border-radius:12px;padding:14px 16px;margin:4px 0 18px}
   .pwd-reqs .h{font-weight:700;font-size:12.5px;margin-bottom:8px}

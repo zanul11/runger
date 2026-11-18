@@ -15,6 +15,8 @@ class GtrSetting extends Model
         'race_guide_slides' => 'array',
         'race_guide_published_at' => 'datetime',
         'registration_closes_at' => 'datetime',
+        'racepack_starts_on' => 'date',
+        'racepack_ends_on' => 'date',
         'timing_reset_at' => \App\Casts\DateTimeMs::class,
     ];
 
