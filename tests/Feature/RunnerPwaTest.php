@@ -34,13 +34,16 @@ class RunnerPwaTest extends TestCase
             ->assertSee('rel="manifest"', false)
             ->assertSee('/pwa/runger-app-apple-touch.png')
             ->assertSee('beforeinstallprompt', false)
-            ->assertSee('Pasang Runger App di HP');
+            ->assertSee('id="pwa-pop"', false)->assertSee('Nanti saja');
 
         $runner = Runner::create(['first_name' => 'Rina', 'email' => 'rina@t.id', 'password' => 'x']);
-        foreach (['gtr.dashboard', 'gtr.account.profile'] as $route) {
-            $this->actingAs($runner, 'runner')->get(route($route))->assertOk()
-                ->assertSee('rel="manifest"', false)
-                ->assertSee('data-pwa-install', false);
-        }
+        // Home: pop-up otomatis; Profil: kartu tetap (tanpa pop-up).
+        $this->actingAs($runner, 'runner')->get(route('gtr.dashboard'))->assertOk()
+            ->assertSee('rel="manifest"', false)
+            ->assertSee('id="pwa-pop"', false)
+            ->assertSee('data-pwa-install', false);
+        $this->actingAs($runner, 'runner')->get(route('gtr.account.profile'))->assertOk()
+            ->assertSee('Pasang Runger App di HP')
+            ->assertDontSee('id="pwa-pop"', false);
     }
 }

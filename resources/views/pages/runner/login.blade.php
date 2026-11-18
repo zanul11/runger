@@ -50,7 +50,7 @@
 
 <div class="auth-alt">Belum punya akun? <a href="{{ route('gtr.register') }}">Buat Akun</a></div>
 
-@include('pages.runner.partials.install-card', ['variant' => 'banner'])
+@include('pages.runner.partials.install-card', ['variant' => 'popup'])
 
 @push('scripts')
 @verbatim

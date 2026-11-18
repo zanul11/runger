@@ -137,7 +137,7 @@
   </a>
 @endforeach
 
-@include('pages.runner.partials.install-card', ['variant' => 'banner'])
+@include('pages.runner.partials.install-card', ['variant' => 'popup'])
 
 @if($dayCard)
   <div style="margin-top:12px">
