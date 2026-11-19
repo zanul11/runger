@@ -6,6 +6,10 @@
 @verbatim
 <style>
   .back{display:inline-flex;align-items:center;gap:6px;margin-bottom:14px;font-weight:700;font-size:12.5px;color:var(--blue)}
+  .rv-mode{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin-bottom:10px;border-radius:14px;background:#fff;border:1px solid var(--line)}
+  .rv-mode button{padding:10px;border:0;border-radius:10px;cursor:pointer;background:transparent;color:var(--soft);
+    font-family:'Poppins',sans-serif;font-weight:800;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+  .rv-mode button[aria-selected="true"]{background:#D9F27A;color:#0E2217}
   .rv-acts{display:flex;gap:8px;margin-bottom:14px}
   .rv-acts button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 12px;border-radius:12px;cursor:pointer;
     font-family:'Poppins',sans-serif;font-weight:800;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;border:1px solid #0E2217;color:#fff;background:#0E2217}
@@ -42,6 +46,12 @@
 <div class="sec-title">Peta Race Village</div>
 <div class="sec-sub">Lihat posisi stage, tenda medali, refreshment, toilet &amp; gate start sebelum datang ke venue.</div>
 
+@if($village2d)
+  <div class="rv-mode" role="tablist" aria-label="Tampilan peta">
+    <button type="button" role="tab" aria-selected="true" data-rv-mode="{{ $village }}">Peta 3D</button>
+    <button type="button" role="tab" aria-selected="false" data-rv-mode="{{ $village2d }}">Denah 2D</button>
+  </div>
+@endif
 <div class="rv-acts">
   <button type="button" data-rv-full>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
@@ -73,6 +83,15 @@
   var wrap = document.getElementById('rv-wrap');
   var frame = wrap.querySelector('iframe');
   frame.addEventListener('load', function () { wrap.classList.add('ready'); });
+  // 3D ↔ Denah 2D: ganti isi iframe.
+  document.querySelectorAll('[data-rv-mode]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.getAttribute('aria-selected') === 'true') return;
+      document.querySelectorAll('[data-rv-mode]').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+      wrap.classList.remove('ready');
+      frame.src = b.dataset.rvMode;
+    });
+  });
   var setFull = function (on) {
     wrap.classList.toggle('full', on);
     document.body.classList.toggle('rv-lock', on);

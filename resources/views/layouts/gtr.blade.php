@@ -925,6 +925,7 @@
   $gtrNavCats = \App\Models\GtrCategory::where('is_active', true)->orderBy('sort_order')->get(['slug', 'name']);
   // Menu Race Guide hanya tampil setelah panitia mempublikasikan versi final.
   $gtrGuideOn = (bool) optional(\App\Models\GtrSetting::first())->raceGuidePublished();
+  $gtrVillageOn = \App\Support\RaceVillage::url() !== null;
   $roadToGtrOn = \App\Models\RoadToGtrRegistration::isOpen();
   // Dokumen peserta (Waiver, PAR-Q, Surat Kuasa) yang sudah dipublikasikan dari admin.
   $gtrDocs = rescue(fn () => \App\Models\GtrDocument::published()->get(['slug', 'nav_label', 'has_en', 'pdf_en']), collect(), false);
@@ -945,6 +946,7 @@
         <span @class(['nav-link', 'active' => $navActive === 'guide'])>Race Info <span class="caret">▾</span></span>
         <div class="nav-dd">
           @if($gtrGuideOn)<a href="{{ route('gtr.guide') }}">Race Guide</a>@endif
+          @if($gtrVillageOn)<a href="{{ route('gtr.village') }}">Race Village · Peta 3D</a>@endif
           @if($roadToGtrOn)<a href="{{ route('gtr.road') }}">Road to GTR · Fun Trail &amp; Tanam Pohon</a>@endif
           <!-- <a href="{{ route('gtr') }}#overview">Race Venue</a>
           <a href="{{ route('gtr') }}#overview">Event Schedule</a> -->
@@ -994,6 +996,7 @@
     <summary>Race Info</summary>
     <div class="dd-links">
       @if($gtrGuideOn)<a href="{{ route('gtr.guide') }}">Race Guide</a>@endif
+      @if($gtrVillageOn)<a href="{{ route('gtr.village') }}">Race Village · Peta 3D</a>@endif
       @if($roadToGtrOn)<a href="{{ route('gtr.road') }}">Road to GTR · Fun Trail &amp; Tanam Pohon</a>@endif
       <a href="{{ route('gtr.rules') }}">Rules and Regulations</a>
       @foreach($gtrDocs as $d)
@@ -1044,6 +1047,7 @@
       <a href="{{ route('home') }}">Runger Home</a>
       <a href="{{ route('gtr') }}#category">Category</a>
       @if($gtrGuideOn)<a href="{{ route('gtr.guide') }}">Race Guide</a>@endif
+      @if($gtrVillageOn)<a href="{{ route('gtr.village') }}">Race Village</a>@endif
       <a href="{{ route('gtr.entry') }}">Entry List</a>
       <a href="{{ route('gtr.results') }}">Results</a>
       {{-- <a href="{{ route('gtr.track.search') }}">Lacak</a> --}}

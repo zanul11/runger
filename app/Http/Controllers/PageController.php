@@ -230,6 +230,15 @@ class PageController extends Controller
         return view('pages.gtr-rules', ['active' => 'rules', 'rules' => $rules]);
     }
 
+    /** Peta 3D race village (Race Info → Race Village). */
+    public function gtrRaceVillage()
+    {
+        $url = \App\Support\RaceVillage::url();
+        abort_unless($url, 404);
+
+        return view('pages.gtr-race-village', ['active' => 'guide', 'village' => $url, 'village2d' => \App\Support\RaceVillage::url2d()]);
+    }
+
     public function gtrCategory(string $slug)
     {
         $cat = \App\Models\GtrCategory::where('slug', $slug)

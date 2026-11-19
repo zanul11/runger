@@ -79,7 +79,7 @@ class RunnerGuideTest extends TestCase
     public function test_race_village_map_is_linked_and_embedded(): void
     {
         $runner = $this->runner();
-        $this->assertNotNull(\App\Http\Controllers\RunnerDashboardController::raceVillageUrl());
+        $this->assertNotNull(\App\Support\RaceVillage::url());
 
         $this->actingAs($runner, 'runner')->get(route('gtr.account.guide'))
             ->assertOk()
@@ -88,7 +88,9 @@ class RunnerGuideTest extends TestCase
 
         $this->actingAs($runner, 'runner')->get(route('gtr.account.guide.village'))
             ->assertOk()
-            ->assertSee('<iframe src="/assets/gtr/race-village/Peta-Race-Village-GTR-web/index.html?v=', false);
+            ->assertSee('<iframe src="/assets/gtr/race-village/Peta-Race-Village-GTR-web/index.html?v=', false)
+            ->assertSee('Denah 2D')
+            ->assertSee('data-rv-mode="/assets/gtr/race-village/Peta-Race-Village-GTR-web/denah-2d.html?v=', false);
     }
 
     public function test_race_village_requires_login(): void

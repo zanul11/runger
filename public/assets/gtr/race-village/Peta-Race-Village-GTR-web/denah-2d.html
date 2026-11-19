@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Denah Race Village GTR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800;1,900&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/*
+ * Denah 2D (tampak atas) race village GTR 2026. Koordinat = koordinat model 3D di index.html
+ * (satuan meter kira-kira; x ke kanan, z ke bawah = arah jalan raya). Ubah posisi di sana → ubah juga di sini.
+ * Tanpa library: SVG + JS kecil, tetap jalan offline. #toilet dsb. langsung menyorot fasilitas.
+ */
+:root {
+  --forest: #0e2217; --forest-2: #16301f; --moss: #2f6044; --lime: #d9f27a; --paper: #f4f6ef; --muted: #b9c8bc; --red: #c8202b;
+  --display: 'Barlow Condensed', 'Arial Narrow', sans-serif; --body: 'Barlow', system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--forest); color: var(--paper); font-family: var(--body); }
+
+.page { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: calc(12px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)); }
+@media (min-width: 860px) {
+  .page { height: 100%; grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: auto minmax(0, 1fr); padding: 16px; }
+  .brand { grid-column: 1 / -1; }
+  .side { overflow: auto; }
+}
+
+.brand { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 16px; }
+.brand .eyebrow { font: 700 11px/1 var(--body); letter-spacing: .2em; color: var(--lime); text-transform: uppercase; }
+.brand h1 { margin: 6px 0 0; font: italic 900 26px/.95 var(--display); }
+.brand p { margin: 6px 0 0; font: 500 13px/1.35 var(--body); color: var(--muted); }
+.brand p b { color: var(--forest); background: var(--lime); font: 800 11px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; padding: 3px 6px 2px; border-radius: 4px; margin-right: 6px; }
+
+/* peta */
+.mapbox { position: relative; min-height: 0; border-radius: 14px; overflow: hidden; background: #c9d8ad; border: 1px solid color-mix(in srgb, var(--lime) 30%, transparent); }
+.mapbox svg { display: block; width: 100%; height: 100%; max-height: 100%; aspect-ratio: 60 / 57; touch-action: manipulation; }
+@media (min-width: 860px) { .mapbox svg { aspect-ratio: auto; } }
+.reset { position: absolute; top: 10px; right: 10px; font: 700 12px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--forest); background: var(--lime);
+  border: 0; border-radius: 999px; padding: 9px 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+.reset[hidden] { display: none; }
+
+svg text { font-family: var(--display); }
+.lbl { font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.mk { cursor: pointer; }
+.mk circle.dot { fill: var(--forest); stroke: var(--lime); stroke-width: .28; transition: fill .15s; }
+.mk text { fill: var(--lime); font-weight: 800; font-size: 1.25px; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.mk .ring { fill: none; stroke: var(--red); stroke-width: .35; opacity: 0; }
+.mk.on circle.dot { fill: var(--red); stroke: #fff; }
+.mk.on text { fill: #fff; }
+.mk.on .ring { opacity: 1; animation: ping 1.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes ping { from { transform: scale(1); opacity: .9; } to { transform: scale(2.4); opacity: 0; } }
+.dim .area { opacity: .45; transition: opacity .2s; }
+.dim .area.on { opacity: 1; }
+
+/* legenda */
+.side { display: grid; align-content: start; gap: 10px; }
+.note { margin: 0; padding: 11px 13px; border-radius: 12px; background: var(--forest-2); border: 1px solid color-mix(in srgb, var(--lime) 30%, transparent); font-size: 13.5px; line-height: 1.45; min-height: 44px; }
+.note b { color: var(--lime); }
+.legend h2 { margin: 4px 2px 8px; font: 800 13px/1 var(--display); letter-spacing: .16em; color: var(--lime); }
+.legend ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+@media (min-width: 860px) { .legend ol { grid-template-columns: 1fr; } }
+.legend button { width: 100%; display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 10px; cursor: pointer; text-align: left;
+  background: transparent; border: 1px solid color-mix(in srgb, var(--paper) 16%, transparent); color: var(--paper); font: 600 14px/1.2 var(--body); }
+.legend button:hover { border-color: color-mix(in srgb, var(--lime) 55%, transparent); }
+.legend button[aria-pressed="true"] { background: var(--lime); color: var(--forest); border-color: var(--lime); }
+.legend .n { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--forest); color: var(--lime); border: 2px solid var(--lime); font: 800 12px/1 var(--display); }
+.legend button[aria-pressed="true"] .n { background: var(--red); color: #fff; border-color: #fff; }
+.keys { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 2px 2px 0; font-size: 12px; color: var(--muted); }
+.keys span { display: inline-flex; align-items: center; gap: 6px; }
+.keys i { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+@media (prefers-reduced-motion: reduce) { .mk.on .ring { animation: none; } }
+@media print { body { background: #fff; color: #000; } .reset { display: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="brand">
+    <div>
+      <div class="eyebrow">Denah race village · 2D</div>
+      <h1>Gerung Trail Run 2026</h1>
+      <p><b>Venue</b>SD Negeri 4 Banyu Urip · Minggu, 29 Nov 2026</p>
+    </div>
+  </header>
+
+  <div class="mapbox">
+    <button type="button" class="reset" id="reset" hidden>Lihat semua</button>
+    <svg id="map" viewBox="-33 -26 60 57" role="img" aria-labelledby="map-t">
+      <title id="map-t">Denah tampak atas race village Gerung Trail Run 2026</title>
+      <defs>
+        <pattern id="pave" width="1" height="1" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#e2dccf"/><path d="M1 0H0V1" fill="none" stroke="#cbc3b4" stroke-width=".06"/></pattern>
+        <pattern id="grass" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="#c9d8ad"/><circle cx=".7" cy=".9" r=".12" fill="#b4c693"/><circle cx="2.2" cy="2.1" r=".1" fill="#b4c693"/></pattern>
+        <pattern id="stairs" width=".35" height=".35" patternUnits="userSpaceOnUse"><rect width=".35" height=".35" fill="#5d6562"/><path d="M0 .34H.35" stroke="#3b403e" stroke-width=".05"/></pattern>
+      </defs>
+
+      <!-- tanah & jalan -->
+      <rect x="-33" y="-26" width="60" height="57" fill="url(#grass)"/>
+      <rect x="-32.5" y="-26" width="5" height="50" fill="#4a4e50"/>
+      <rect x="-33" y="23" width="60" height="8" fill="#4a4e50"/>
+      <path d="M-33 27H-9M-4 27H27" stroke="#f2f2ee" stroke-width=".18" stroke-dasharray="2 1.6" opacity=".7"/>
+      <g fill="#f2f2ee">
+        <rect x="-8.55" y="24.5" width=".5" height="3.4"/><rect x="-7.65" y="24.5" width=".5" height="3.4"/><rect x="-6.75" y="24.5" width=".5" height="3.4"/><rect x="-5.85" y="24.5" width=".5" height="3.4"/><rect x="-4.95" y="24.5" width=".5" height="3.4"/>
+      </g>
+      <text class="lbl" x="6" y="29.6" font-size="1.5" fill="#d7dadb" text-anchor="middle" letter-spacing=".4">Jalan raya</text>
+
+      <!-- area berpaving -->
+      <g fill="url(#pave)">
+        <rect x="-8" y="-13.2" width="13.8" height="29"/>
+        <rect x="-14" y="7.2" width="6" height="8.6"/>
+        <rect x="5.8" y="11.8" width="2.4" height="4"/>
+      </g>
+
+      <!-- gedung sekolah (atap) -->
+      <g stroke-width=".15">
+        <rect x="-26.5" y="-23" width="13" height="23.8" fill="#c3c8cb" stroke="#9ea4a8"/>
+        <path d="M-20 -23V.8" stroke="#9ea4a8" stroke-dasharray=".6 .4"/>
+        <rect x="6" y="-10" width="13" height="21.5" fill="#e6e8ea" stroke="#b5babe"/>
+        <path d="M12.5 -10v21.5" stroke="#b5babe" stroke-dasharray=".6 .4"/>
+        <rect x="4.5" y="-24.5" width="13" height="13" fill="#d49088" stroke="#b8423a"/>
+        <path d="M4.5 -18h13" stroke="#b8423a" stroke-dasharray=".6 .4"/>
+      </g>
+      <g class="lbl" font-size="1.1" fill="#6f777c" text-anchor="middle">
+        <text x="-20" y="-11" transform="rotate(-90 -20 -11)">Gedung SD</text>
+        <text x="12.5" y=".75" transform="rotate(-90 12.5 .75)">Gedung SD</text>
+        <text x="11" y="-21" fill="#8c3a33">Gedung SD</text>
+      </g>
+
+      <!-- pohon -->
+      <g opacity=".92">
+        <circle cx="-12" cy="-19" r="3.4" fill="#5f8a3d"/><circle cx="-15" cy="-9" r="3.6" fill="#4f7a33"/><circle cx="-17" cy="-2" r="3.2" fill="#5f8a3d"/>
+        <circle cx="-12.5" cy="3" r="3.6" fill="#4f7a33"/><circle cx="-19" cy="10" r="3" fill="#5f8a3d"/><circle cx="-21" cy="19" r="3.4" fill="#4f7a33"/>
+        <circle cx="-3" cy="-21" r="3.2" fill="#5f8a3d"/><circle cx="21" cy="14" r="2.4" fill="#4f7a33"/><circle cx="26" cy="25" r="2.6" fill="#5f8a3d"/>
+        <circle cx="-24" cy="-24" r="2.8" fill="#4f7a33"/><circle cx="24" cy="-4" r="2.4" fill="#5f8a3d"/><circle cx="-9.5" cy="-17" r="2.6" fill="#4f7a33"/>
+      </g>
+
+      <!-- pagar depan, papan sekolah, gapura masuk -->
+      <rect x="-20.4" y="16.05" width="5.8" height=".3" fill="#b0a594"/>
+      <rect x="-17.8" y="17.25" width="4.4" height=".35" fill="#1d4f8f"/>
+      <g class="area" data-k="masuk">
+        <rect x="-13.5" y="15.95" width="1.2" height=".5" fill="#b5654a"/><rect x="-10.9" y="15.95" width="1.2" height=".5" fill="#b5654a"/>
+        <path d="M-11.6 24.2V12.6" stroke="#c8202b" stroke-width=".5" fill="none"/><path d="M-12.7 13.9l1.1-1.6 1.1 1.6" stroke="#c8202b" stroke-width=".5" fill="none" stroke-linejoin="round"/>
+        <text class="lbl" x="-11.6" y="22.6" font-size=".95" fill="#fff" text-anchor="middle" paint-order="stroke" stroke="#4a4e50" stroke-width=".3">Masuk</text>
+      </g>
+
+      <!-- jalur start + barikade + gate -->
+      <g class="area" data-k="start">
+        <rect x="-9.5" y="17.5" width="31" height="4.2" fill="#2b6a3c"/>
+        <path d="M-6 19.6H10" stroke="#d9f27a" stroke-width=".35" stroke-dasharray="1.2 .8"/><path d="M9.2 18.6l1.6 1 -1.6 1" stroke="#d9f27a" stroke-width=".35" fill="none" stroke-linejoin="round"/>
+        <text class="lbl" x="1.5" y="18.95" font-size="1" fill="#d9f27a" text-anchor="middle">Jalur start →</text>
+      </g>
+      <rect x="-9.8" y="21.8" width="29.9" height=".22" fill="#2f6044"/>
+      <rect x="-9.8" y="15.9" width="17.4" height=".2" fill="#9fa6a9"/>
+      <g fill="#f06a1d"><circle cx="21.5" cy="17.5" r=".3"/><circle cx="21.5" cy="21.7" r=".3"/><circle cx="19" cy="17.5" r=".3"/><circle cx="19" cy="21.7" r=".3"/></g>
+      <g class="area" data-k="gate">
+        <rect x="13" y="16.65" width="1" height="6" fill="#0e2217" stroke="#d9f27a" stroke-width=".15"/>
+        <rect x="13" y="16.65" width="1" height="1" fill="#2f6044"/><rect x="13" y="21.65" width="1" height="1" fill="#2f6044"/>
+        <text class="lbl" x="13.5" y="19.65" font-size=".75" fill="#d9f27a" text-anchor="middle" dominant-baseline="central" transform="rotate(-90 13.5 19.65)">Start</text>
+      </g>
+
+      <!-- tenda: atap limas (diagonal), garis lime = sisi depan / valance -->
+      <g class="area" data-k="vip">
+        <rect x="-8" y="-10.9" width="5" height="5" fill="#1f4a30"/><path d="M-8 -10.9l5 5M-3 -10.9l-5 5" stroke="#2f6044" stroke-width=".12"/><rect x="-8" y="-6.15" width="5" height=".25" fill="#d9f27a"/>
+        <text class="lbl" x="-5.5" y="-8.4" font-size="1.1" fill="#fff" text-anchor="middle" dominant-baseline="central">VIP</text>
+      </g>
+      <g class="area" data-k="event">
+        <g transform="translate(-8 -3.5)"><rect width="3" height="3" fill="#1f4a30"/><path d="M0 0l3 3M3 0l-3 3" stroke="#2f6044" stroke-width=".1"/><rect x="2.78" width=".22" height="3" fill="#d9f27a"/></g>
+        <g transform="translate(-8 -.2)"><rect width="3" height="3" fill="#1f4a30"/><path d="M0 0l3 3M3 0l-3 3" stroke="#2f6044" stroke-width=".1"/><rect x="2.78" width=".22" height="3" fill="#d9f27a"/></g>
+        <g transform="translate(-8 3.1)"><rect width="3" height="3" fill="#1f4a30"/><path d="M0 0l3 3M3 0l-3 3" stroke="#2f6044" stroke-width=".1"/><rect x="2.78" width=".22" height="3" fill="#d9f27a"/></g>
+        <g transform="translate(2.7 -3.5)"><rect width="3" height="3" fill="#1f4a30"/><path d="M0 0l3 3M3 0l-3 3" stroke="#2f6044" stroke-width=".1"/><rect width=".22" height="3" fill="#d9f27a"/></g>
+        <g transform="translate(2.7 -.2)"><rect width="3" height="3" fill="#1f4a30"/><path d="M0 0l3 3M3 0l-3 3" stroke="#2f6044" stroke-width=".1"/><rect width=".22" height="3" fill="#d9f27a"/></g>
+        <g transform="translate(2.7 3.1)"><rect width="3" height="3" fill="#1f4a30"/><path d="M0 0l3 3M3 0l-3 3" stroke="#2f6044" stroke-width=".1"/><rect width=".22" height="3" fill="#d9f27a"/></g>
+      </g>
+      <g class="area" data-k="medali15">
+        <rect x="-7.4" y="9.4" width="4" height="4" fill="#1f4a30"/><path d="M-7.4 9.4l4 4M-3.4 9.4l-4 4" stroke="#2f6044" stroke-width=".12"/><rect x="-7.4" y="9.4" width="4" height=".25" fill="#d9f27a"/>
+        <text class="lbl" x="-5.4" y="12.6" font-size=".85" fill="#d9f27a" text-anchor="middle">Medali 15K</text>
+      </g>
+      <g class="area" data-k="medali7">
+        <rect x="-3.3" y="9.4" width="4" height="4" fill="#1f4a30"/><path d="M-3.3 9.4l4 4M.7 9.4l-4 4" stroke="#2f6044" stroke-width=".12"/><rect x="-3.3" y="9.4" width="4" height=".25" fill="#d9f27a"/>
+        <text class="lbl" x="-1.3" y="12.6" font-size=".85" fill="#d9f27a" text-anchor="middle">Medali 7K</text>
+      </g>
+      <g class="area" data-k="refreshment">
+        <rect x=".8" y="9.4" width="4" height="4" fill="#1f4a30"/><path d="M.8 9.4l4 4M4.8 9.4l-4 4" stroke="#2f6044" stroke-width=".12"/><rect x=".8" y="9.4" width="4" height=".25" fill="#d9f27a"/>
+        <text class="lbl" x="2.8" y="12.6" font-size=".85" fill="#d9f27a" text-anchor="middle">Refresh</text>
+      </g>
+
+      <!-- meja & bangku -->
+      <g class="area" data-k="istirahat" fill="#b9874f">
+        <rect x="-2.4" y="-1.2" width="2.4" height=".8"/><rect x="-2.4" y="-1.65" width="2.4" height=".3" opacity=".8"/><rect x="-2.4" y="-.25" width="2.4" height=".3" opacity=".8"/>
+        <rect x="-2.4" y="1.5" width="2.4" height=".8"/><rect x="-2.4" y="1.05" width="2.4" height=".3" opacity=".8"/><rect x="-2.4" y="2.45" width="2.4" height=".3" opacity=".8"/>
+        <rect x="-2.4" y="4.2" width="2.4" height=".8"/><rect x="-2.4" y="3.75" width="2.4" height=".3" opacity=".8"/><rect x="-2.4" y="5.15" width="2.4" height=".3" opacity=".8"/>
+      </g>
+
+      <!-- stage -->
+      <g class="area" data-k="stage">
+        <rect x="-2.3" y="-12.9" width="7" height="7" fill="#1a1d1c"/>
+        <rect x="-2.1" y="-12.85" width="6.6" height=".3" fill="#2f6044"/><rect x="-2.1" y="-12.6" width="6.6" height=".08" fill="#d9f27a"/>
+        <g fill="#c7ccce"><rect x="-2.45" y="-13.05" width=".3" height=".3"/><rect x="4.55" y="-13.05" width=".3" height=".3"/><rect x="-2.45" y="-6.05" width=".3" height=".3"/><rect x="4.55" y="-6.05" width=".3" height=".3"/></g>
+        <rect x="0" y="-5.9" width="2.4" height="1.4" fill="url(#stairs)"/>
+        <text class="lbl" x="1.2" y="-9.2" font-size="1.4" fill="#fff" text-anchor="middle" dominant-baseline="central">Stage</text>
+      </g>
+
+      <!-- photo booth -->
+      <g class="area" data-k="photo">
+        <rect x="-10.5" y="8" width="1.2" height="3.2" fill="#24452f"/><rect x="-10.62" y="8.1" width=".24" height="3" fill="#0e2217" stroke="#d9f27a" stroke-width=".08"/>
+      </g>
+
+      <!-- toilet -->
+      <g class="area" data-k="toilet">
+        <rect x="6.625" y="11.925" width="1.15" height="1.15" fill="#2f6db0"/><rect x="6.625" y="13.325" width="1.15" height="1.15" fill="#2f6db0"/>
+        <text x="7.2" y="12.5" font-size=".55" font-weight="800" fill="#fff" text-anchor="middle" dominant-baseline="central">WC</text>
+        <text x="7.2" y="13.9" font-size=".55" font-weight="800" fill="#fff" text-anchor="middle" dominant-baseline="central">WC</text>
+      </g>
+
+      <!-- penanda bernomor (diisi JS dari daftar FAC) -->
+      <g id="markers"></g>
+    </svg>
+  </div>
+
+  <aside class="side">
+    <p class="note" id="note" aria-live="polite">Ketuk nomor di denah atau nama fasilitas untuk melihat lokasinya.</p>
+    <nav class="legend" aria-label="Fasilitas">
+      <h2>FASILITAS</h2>
+      <ol id="legend"></ol>
+    </nav>
+    <div class="keys" aria-hidden="true">
+      <span><i style="background:#1f4a30;box-shadow:inset 0 -3px 0 #d9f27a"></i>Tenda (garis lime = sisi depan)</span>
+      <span><i style="background:#2b6a3c"></i>Jalur start</span>
+      <span><i style="background:#e2dccf"></i>Area berpaving</span>
+      <span><i style="background:#c3c8cb"></i>Gedung</span>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function () {
+  // [kunci, nama, posisi penanda (x, z), area zoom [x, z, lebar, tinggi], catatan] — kunci sama dengan #hash di peta 3D.
+  var FAC = [
+    ['masuk', 'Pintu masuk peserta', -11.6, 17.4, [-22, 6, 22, 20], 'Pintu masuk peserta ada di samping papan nama SD Negeri 4 Banyu Urip, dari arah jalan raya.'],
+    ['photo', 'Photo booth', -12.2, 9.6, [-17, 3, 16, 14], 'Photo booth finisher ada di dekat pintu masuk, sisi kiri area.'],
+    ['event', 'Tenda event', -6.5, 1.3, [-11, -6, 20, 14], 'Enam tenda event berjajar di kiri dan kanan area tengah, menghadap ke area istirahat.'],
+    ['istirahat', 'Area makan & istirahat', -1.2, -2.9, [-9, -5, 16, 13], 'Meja dan bangku untuk istirahat ada di tengah area, di antara tenda event.'],
+    ['vip', 'Tenda VIP', -5.5, -12.3, [-12, -16, 18, 13], 'Tenda VIP ada di sisi belakang, di samping kiri stage.'],
+    ['stage', 'Stage', 1.2, -14.2, [-6, -17, 15, 14], 'Stage utama ada di sisi belakang area, di samping tenda VIP.'],
+    ['medali15', 'Medali 15K', -5.4, 14.6, [-11, 6, 18, 12], 'Tenda medali 15K paling kiri di deretan tenda selatan, menghadap ke dalam area.'],
+    ['medali7', 'Medali 7K', -1.3, 14.6, [-9, 6, 16, 12], 'Tenda medali 7K di tengah deretan tenda selatan.'],
+    ['refreshment', 'Refreshment', 2.8, 14.6, [-4, 6, 16, 12], 'Refreshment ada di tenda paling kanan, sebelah tenda medali 7K.'],
+    ['toilet', 'Toilet', 9.4, 13.2, [1, 7, 15, 12], 'Toilet portable ada di sebelah kanan tenda refreshment, di ujung bangunan beratap putih.'],
+    ['start', 'Jalur start', -3.5, 23.3, [-12, 12, 36, 14], 'Jalur start (karpet hijau) di depan venue, sejajar jalan raya, menuju gate start.'],
+    ['gate', 'Gate start', 15.8, 19.65, [6, 13, 18, 13], 'Gate start ada di ujung jalur hijau di depan venue, dekat jalan raya.']
+  ];
+  var FULL = [-33, -26, 60, 57];
+  var NS = 'http://www.w3.org/2000/svg';
+  var svg = document.getElementById('map'), mk = document.getElementById('markers'), legend = document.getElementById('legend');
+  var note = document.getElementById('note'), reset = document.getElementById('reset');
+  var current = null, vb = FULL.slice(), anim = 0;
+
+  FAC.forEach(function (f, i) {
+    var g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'mk'); g.dataset.k = f[0];
+    g.setAttribute('transform', 'translate(' + f[2] + ' ' + f[3] + ')');
+    g.innerHTML = '<circle class="ring" r="1"/><circle class="dot" r="1"/><text>' + (i + 1) + '</text>';
+    g.setAttribute('role', 'button'); g.setAttribute('tabindex', '0'); g.setAttribute('aria-label', (i + 1) + '. ' + f[1]);
+    mk.appendChild(g);
+
+    var li = document.createElement('li');
+    li.innerHTML = '<button type="button" aria-pressed="false" data-k="' + f[0] + '"><span class="n">' + (i + 1) + '</span>' + f[1] + '</button>';
+    legend.appendChild(li);
+  });
+
+  function zoomTo(target) {
+    // Sesuaikan rasio area zoom dengan rasio kotak peta agar tidak terpotong.
+    var r = svg.clientWidth / Math.max(1, svg.clientHeight), t = target.slice();
+    if (t[2] / t[3] < r) { var w = t[3] * r; t[0] -= (w - t[2]) / 2; t[2] = w; } else { var h = t[2] / r; t[1] -= (h - t[3]) / 2; t[3] = h; }
+    var from = vb.slice(), t0 = null, dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 450;
+    cancelAnimationFrame(anim);
+    var step = function (now) {
+      if (t0 === null) t0 = now;
+      var p = Math.min(1, Math.max(0, (now - t0) / dur)), e = 1 - Math.pow(1 - p, 3);
+      vb = from.map(function (v, i) { return v + (t[i] - v) * e; });
+      svg.setAttribute('viewBox', vb.join(' '));
+      if (p < 1) anim = requestAnimationFrame(step);
+    };
+    anim = requestAnimationFrame(step);
+  }
+
+  function select(k, fromHash) {
+    var f = FAC.find(function (x) { return x[0] === k; });
+    current = f ? k : null;
+    svg.classList.toggle('dim', !!f);
+    svg.querySelectorAll('.mk, .area').forEach(function (el) { el.classList.toggle('on', el.dataset.k === current); });
+    legend.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.k === current)); });
+    reset.hidden = !f;
+    if (f) { note.innerHTML = '<b>' + (FAC.indexOf(f) + 1) + '. ' + f[1] + '</b> — ' + f[5]; zoomTo(f[4]); }
+    else { note.textContent = 'Ketuk nomor di denah atau nama fasilitas untuk melihat lokasinya.'; zoomTo(FULL); }
+    if (!fromHash) history.replaceState(null, '', f ? '#' + k : location.pathname + location.search);
+  }
+
+  mk.addEventListener('click', function (e) { var g = e.target.closest('.mk'); if (g) select(g.dataset.k === current ? null : g.dataset.k); });
+  mk.addEventListener('keydown', function (e) { var g = e.target.closest('.mk'); if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(g.dataset.k); } });
+  legend.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) select(b.dataset.k === current ? null : b.dataset.k); });
+  reset.addEventListener('click', function () { select(null); });
+  window.addEventListener('hashchange', function () { select(location.hash.slice(1) || null, true); });
+  window.addEventListener('resize', function () { var f = FAC.find(function (x) { return x[0] === current; }); svg.setAttribute('viewBox', (vb = (f ? vb : FULL.slice())).join(' ')); if (f) zoomTo(f[4]); });
+  if (location.hash.length > 1) select(location.hash.slice(1), true);
+})();
+</script>
+</body>
+</html>

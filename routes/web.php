@@ -112,6 +112,7 @@ Route::redirect('/results', '/gerung-trail-run/results');
 Route::get('/gerung-trail-run/results/{bib}', [PageController::class, 'gtrResult'])->name('gtr.result');
 Route::get('/gerung-trail-run/rules', [PageController::class, 'gtrRules'])->name('gtr.rules');
 Route::get('/gerung-trail-run/race-guide', [GtrRaceGuideController::class, 'index'])->name('gtr.guide');
+Route::get('/gerung-trail-run/race-village', [PageController::class, 'gtrRaceVillage'])->name('gtr.village');
 Route::get('/gerung-trail-run/race-guide/download', [GtrRaceGuideController::class, 'download'])->name('gtr.guide.zip');
 Route::get('/gerung-trail-run/race-guide/pdf', [GtrRaceGuideController::class, 'downloadPdf'])->name('gtr.guide.pdf');
 Route::get('/gerung-trail-run/dokumen/{slug}/{lang}', [GtrDocumentController::class, 'download'])
