@@ -198,7 +198,7 @@ body { margin: 0; background: var(--forest); color: var(--paper); font-family: v
   box(1.2, 2.6, 0.5, std(0xb5654a), -12.9, 0, 16.2); box(1.2, 2.6, 0.5, std(0xb5654a), -10.3, 0, 16.2); box(3.8, 0.5, 0.5, std(0xb5654a), -11.6, 2.6, 16.2);
   // trees
   const leaf = std(0x3f6b2e, { roughness: 1 }), leaf2 = std(0x557f36, { roughness: 1 }), trunk = std(0x5a4330);
-  [[-12, -19, 3.4], [-15, -9, 3.6], [-17, -2, 3.2], [-12.5, 3, 3.6], [-19, 10, 3], [-21, 19, 3.4], [-3, -21, 3.2], [21, 14, 2.4], [26, 25, 2.6], [-24, -24, 2.8], [24, -4, 2.4], [-9.5, -17, 2.6]].forEach(([x, z, r], i) => {
+  [[-12, -19, 3.4], [-15, -9, 3.6], [-17, -2, 3.2], [-12.5, 3, 3.6], [-19, 10, 3], [-21, 19, 3.4], [-3, -21, 3.2], [25, 5, 2.4], [26, 25, 2.6], [-24, -24, 2.8], [24, -4, 2.4], [-9.5, -17, 2.6]].forEach(([x, z, r], i) => {
     box(0.5, 2.4, 0.5, trunk, x, 0, z);
     mesh(new THREE.IcosahedronGeometry(r, 1), i % 2 ? leaf : leaf2, x, 2.4 + r * 0.8, z);
     mesh(new THREE.IcosahedronGeometry(r * .7, 1), i % 2 ? leaf2 : leaf, x + r * .5, 2.4 + r * 1.2, z - r * .3);
@@ -345,7 +345,7 @@ body { margin: 0; background: var(--forest); color: var(--paper); font-family: v
   // BoxGeometry material order: +x, -x, +y, -y, +z (front), -z (back)
   [-2.5, 2.5].forEach((px) => { const m = new THREE.Mesh(new THREE.BoxGeometry(1, 2.5, 1), [sm, sm, plainG, plainG, fm, fm]); m.position.set(px, 1.25, 0); m.castShadow = m.receiveShadow = true; gate.add(m); });
   const hdr = new THREE.Mesh(new THREE.BoxGeometry(6, 1, 1), [plainG, plainG, plainG, plainG, hm, hm]); hdr.position.set(0, 3, 0); hdr.castShadow = true; gate.add(hdr);
-  if (texTopper) [0.52, -0.52].forEach((pz) => { const d = new THREE.Mesh(new THREE.CircleGeometry(0.75, 64), new THREE.MeshStandardMaterial({ map: texTopper, transparent: true, roughness: 0.6 })); d.position.set(0, 3.35, pz); if (pz < 0) d.rotation.y = Math.PI; d.castShadow = true; gate.add(d); });
+  if (texTopper) [0.52, -0.52].forEach((pz) => { const d = new THREE.Mesh(new THREE.PlaneGeometry(1.44, 1.16), new THREE.MeshStandardMaterial({ map: texTopper, transparent: true, alphaTest: 0.5, roughness: 0.6 })); d.position.set(0, 3.72, pz); if (pz < 0) d.rotation.y = Math.PI; d.castShadow = true; gate.add(d); });
   tag('Gate start', null, 13.5, 4.9, 19.65);
 
   // ---------- labels overlay ----------
