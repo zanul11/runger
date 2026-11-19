@@ -69,6 +69,37 @@ class PrepController extends Controller
         return response()->json(['message' => 'Item dihapus.']);
     }
 
+    /**
+     * POST /prep/category/rename (panitia / admin) — Body: from, to. Ganti nama kategori untuk
+     * semua itemnya; bila nama baru sudah ada, item digabung ke kategori itu.
+     */
+    public function renameCategory(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'from' => ['required', 'string', 'max:64'],
+            'to' => ['required', 'string', 'max:64'],
+        ]);
+        $to = trim($data['to']);
+        $merge = GtrPrepItem::where('category', $to)->where('category', '!=', $data['from'])->exists();
+        $n = GtrPrepItem::where('category', $data['from'])->update(['category' => $to]);
+        abort_if($n === 0, 404, 'Kategori tidak ditemukan.');
+
+        return response()->json([
+            'updated' => $n,
+            'message' => $merge ? "Digabung ke kategori \"{$to}\" ({$n} item)." : 'Kategori diganti namanya.',
+        ]);
+    }
+
+    /** POST /prep/category/delete (panitia / admin) — Body: category. Hapus kategori beserta semua itemnya. */
+    public function deleteCategory(Request $request): JsonResponse
+    {
+        $category = $request->validate(['category' => ['required', 'string', 'max:64']])['category'];
+        $n = GtrPrepItem::where('category', $category)->delete();
+        abort_if($n === 0, 404, 'Kategori tidak ditemukan.');
+
+        return response()->json(['deleted' => $n, 'message' => "Kategori dihapus ({$n} item)."]);
+    }
+
     /** POST /prep/template (panitia / admin) — tambah item template yang belum ada (aman diulang). */
     public function template(): JsonResponse
     {

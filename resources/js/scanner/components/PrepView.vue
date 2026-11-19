@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { api } from '../api.js';
 import { state } from '../store.js';
 import { formatDayTime } from '../clock.js';
@@ -87,12 +87,81 @@ async function toggle(item) {
 // ---- form tambah / ubah (admin) ----
 const form = ref(null);   // null | { id?, category, title, qty, pic, location, phase, notes }
 const saving = ref(false);
+// Kategori dipilih lewat chip (datalist tidak muncul di banyak browser HP); "Kategori baru" → ketik nama.
+const newCat = ref(false);
+const newCatInput = ref(null);
 
-function openForm(item = null) {
+function pickCat(c) {
+    newCat.value = false;
+    form.value.category = c;
+}
+
+async function startNewCat() {
+    newCat.value = true;
+    form.value.category = '';
+    await nextTick();
+    newCatInput.value?.focus();
+}
+
+function openForm(item = null, category = null) {
     if (!canEdit.value) return;
+    newCat.value = !(data.value?.categories?.length);
     form.value = item
         ? { id: item.id, category: item.category, title: item.title, qty: item.qty ?? '', pic: item.pic ?? '', location: item.location ?? '', phase: item.phase ?? '', notes: item.notes ?? '' }
-        : { category: data.value?.categories?.[0] ?? '', title: '', qty: '', pic: '', location: '', phase: '', notes: '' };
+        : { category: category ?? data.value?.categories?.[0] ?? '', title: '', qty: '', pic: '', location: '', phase: '', notes: '' };
+}
+
+// ---- ubah kategori (ganti nama untuk semua itemnya / hapus) ----
+const catForm = ref(null);   // null | { from, name, total }
+const catMerge = computed(() => {
+    const name = catForm.value?.name.trim();
+    return !!name && name !== catForm.value.from && (data.value?.categories ?? []).includes(name);
+});
+
+function openCatForm(g) {
+    if (!canEdit.value) return;
+    catForm.value = { from: g.name, name: g.name, total: g.total };
+}
+
+async function saveCat() {
+    const { from, name } = catForm.value;
+    const to = name.trim();
+    if (!to) {
+        emit('notify', 'Nama kategori wajib diisi.');
+        return;
+    }
+    if (to === from) {
+        catForm.value = null;
+        return;
+    }
+    saving.value = true;
+    try {
+        const res = await prepApi('/category/rename', { method: 'POST', body: { from, to } });
+        emit('notify', res.message);
+        openCats.value = openCats.value.map((c) => (c === from ? to : c));
+        catForm.value = null;
+        await load();
+    } catch (e) {
+        emit('notify', e.message || 'Gagal menyimpan');
+    } finally {
+        saving.value = false;
+    }
+}
+
+async function removeCat() {
+    const { from, total } = catForm.value;
+    if (!confirm(`Hapus kategori "${from}" beserta ${total} itemnya? Tidak bisa dibatalkan.`)) return;
+    saving.value = true;
+    try {
+        const res = await prepApi('/category/delete', { method: 'POST', body: { category: from } });
+        emit('notify', res.message);
+        catForm.value = null;
+        await load();
+    } catch (e) {
+        emit('notify', e.message || 'Gagal menghapus');
+    } finally {
+        saving.value = false;
+    }
 }
 
 async function save() {
@@ -200,6 +269,10 @@ function meta(i) {
                         <b class="catpct num">{{ g.pct }}%</b>
                         <Icon v-if="!filtering" name="chevron-right" :size="20" class="catchev" />
                     </button>
+                    <div v-if="canEdit && isOpen(g.name)" class="cattools">
+                        <button class="btn sm ghost" @click="openCatForm(g)"><Icon name="edit" :size="16" /> Ubah kategori</button>
+                        <button class="btn sm ghost" @click="openForm(null, g.name)"><Icon name="plus-square" :size="16" /> Tambah item di sini</button>
+                    </div>
                     <ul v-if="isOpen(g.name)" class="preplist">
                         <li v-for="i in g.items" :key="i.id" :class="{ done: i.done }">
                             <button class="ckbtn" :class="{ ro: !canEdit }" :disabled="busyId === i.id || !canEdit" :aria-label="i.done ? 'Batalkan centang' : 'Tandai selesai'" @click="toggle(i)">
@@ -220,16 +293,37 @@ function meta(i) {
             </template>
         </template>
 
+        <!-- Ubah kategori: ganti nama (atau gabung) / hapus beserta itemnya -->
+        <template v-if="catForm">
+            <div class="scrim" @click="catForm = null"></div>
+            <section class="sheet prep-form" role="dialog" aria-modal="true" aria-label="Ubah kategori">
+                <div class="sheet-grip"></div>
+                <h3>Ubah kategori</h3>
+                <label class="field"><span>Nama kategori</span>
+                    <div class="input"><input v-model="catForm.name" maxlength="64" autocomplete="off" @keydown.enter="saveCat"></div>
+                </label>
+                <p v-if="catMerge" class="note">Nama ini sudah dipakai — {{ catForm.total }} item akan digabung ke kategori "{{ catForm.name.trim() }}".</p>
+                <div class="two">
+                    <button class="btn" :disabled="saving" @click="catForm = null">Batal</button>
+                    <button class="btn primary" :disabled="saving" @click="saveCat">{{ saving ? 'Menyimpan…' : 'Simpan' }}</button>
+                </div>
+                <button class="btn ghost block danger-text" :disabled="saving" @click="removeCat"><Icon name="trash" :size="18" /> Hapus kategori & {{ catForm.total }} item</button>
+            </section>
+        </template>
+
         <!-- Form tambah / ubah (admin) -->
         <template v-if="form">
             <div class="scrim" @click="form = null"></div>
             <section class="sheet prep-form" role="dialog" aria-modal="true" :aria-label="form.id ? 'Ubah item' : 'Tambah item'">
                 <div class="sheet-grip"></div>
                 <h3>{{ form.id ? 'Ubah item' : 'Tambah item' }}</h3>
-                <label class="field"><span>Kategori</span>
-                    <div class="input"><input v-model="form.category" list="prep-cats" placeholder="mis. Pos & Water Station" autocomplete="off"></div>
-                    <datalist id="prep-cats"><option v-for="c in data?.categories ?? []" :key="c" :value="c"></option></datalist>
-                </label>
+                <div class="field"><span>Kategori</span>
+                    <div class="chips wrap">
+                        <button v-for="c in data?.categories ?? []" :key="c" type="button" :class="{ on: !newCat && form.category === c }" @click="pickCat(c)">{{ c }}</button>
+                        <button type="button" :class="{ on: newCat }" @click="startNewCat"><Icon name="plus-square" :size="16" /> Kategori baru</button>
+                    </div>
+                    <div v-if="newCat" class="input"><input ref="newCatInput" v-model="form.category" placeholder="Nama kategori baru, mis. Sponsor" maxlength="64" autocomplete="off"></div>
+                </div>
                 <label class="field"><span>Nama item / tugas</span>
                     <div class="input"><input v-model="form.title" placeholder="mis. Air mineral" autocomplete="off"></div>
                 </label>

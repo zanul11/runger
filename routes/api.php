@@ -37,6 +37,8 @@ Route::prefix('timing')->name('timing.')->group(function () {
                 Route::post('/{item}/check', 'check')->name('check');
                 Route::post('/', 'store')->name('store');
                 Route::post('/template', 'template')->name('template');
+                Route::post('/category/rename', 'renameCategory')->name('category.rename');
+                Route::post('/category/delete', 'deleteCategory')->name('category.delete');
                 Route::put('/{item}', 'update')->name('update');
                 Route::delete('/{item}', 'destroy')->name('destroy');
             });
