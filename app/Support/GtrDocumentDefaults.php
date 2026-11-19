@@ -65,7 +65,7 @@ class GtrDocumentDefaults
             ])]),
             self::b('signature', ['panels' => [
                 ['title' => 'Data Pelari', 'fields' => self::lines(['Nama Lengkap Pelari', 'Nomor BIB ________  Kategori  [ ] 7K   [ ] 15K', 'No. HP / WhatsApp', 'Riwayat Penyakit']), 'sign_label' => 'Tanda Tangan Pelari', 'note' => ''],
-                ['title' => 'Kontak Darurat / Ahli Waris / Wali', 'fields' => self::lines(['Nama Ahli Waris / Wali', 'Hubungan dengan Pelari', 'No. HP / WhatsApp']), 'sign_label' => 'Tanda Tangan Ahli Waris / Wali', 'note' => 'Wajib ditandatangani orang tua/wali untuk peserta di bawah 17 tahun.'],
+                ['title' => 'Kontak Darurat / Ahli Waris / Wali', 'fields' => self::lines(['Nama Ahli Waris / Wali', 'Hubungan dengan Pelari', 'No. HP / WhatsApp']), 'sign_label' => 'Tanda Tangan Ahli Waris / Wali', 'note' => 'Wajib ditandatangani orang tua/wali untuk peserta di bawah 17 tahun, sekaligus sebagai surat izin mengikuti event.'],
             ]]),
             self::b('fields', ['items' => 'Tempat, Tanggal', 'align' => 'center']),
         ];
@@ -90,7 +90,7 @@ class GtrDocumentDefaults
             ])]),
             self::b('signature', ['panels' => [
                 ['title' => 'Runner Data', 'fields' => self::lines(["Runner's Full Name", 'Bib Number ________  Category  [ ] 7K   [ ] 15K', 'Phone / WhatsApp', 'Medical History']), 'sign_label' => "Runner's Signature", 'note' => ''],
-                ['title' => 'Emergency Contact / Guardian', 'fields' => self::lines(['Next of Kin / Guardian Name', 'Relationship to Runner', 'Phone / WhatsApp']), 'sign_label' => 'Signature of Next of Kin / Guardian', 'note' => 'Must be signed by a parent/guardian for runners under 17 years old.'],
+                ['title' => 'Emergency Contact / Guardian', 'fields' => self::lines(['Next of Kin / Guardian Name', 'Relationship to Runner', 'Phone / WhatsApp']), 'sign_label' => 'Signature of Next of Kin / Guardian', 'note' => 'Must be signed by a parent/guardian for runners under 17 years old, which also serves as a permission letter to join the event.'],
             ]]),
             self::b('fields', ['items' => 'Place, Date', 'align' => 'center']),
         ];
