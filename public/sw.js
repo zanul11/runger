@@ -1,7 +1,7 @@
 /*
  * Service worker Runger App — mode race day / offline.
  * - Halaman app & kategori GTR: network-first, fallback cache, fallback /offline.html.
- * - Aset statis (Leaflet, PDF.js, font, /assets, /pwa, /storage): stale-while-revalidate.
+ * - Aset statis (Leaflet, PDF.js, three.js peta race village, font, /assets, /pwa, /storage): stale-while-revalidate.
  * - Tile peta (OpenTopoMap, CARTO, Esri): cache-first, dibatasi jumlahnya.
  * Request lain (POST, API, admin) tidak disentuh.
  */
@@ -30,7 +30,7 @@ self.addEventListener('message', e => {
 
 const isTile = url => /tile\.opentopomap\.org|basemaps\.cartocdn\.com|arcgisonline\.com|tile\.openstreetmap\.org/.test(url.hostname);
 const isStatic = url =>
-  url.hostname === 'unpkg.com' || url.hostname === 'cdnjs.cloudflare.com' || url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com' ||
+  url.hostname === 'unpkg.com' || url.hostname === 'cdnjs.cloudflare.com' || url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com' ||
   (url.origin === self.location.origin && /^\/(assets|pwa|storage|gtr|css|js|fonts)\//.test(url.pathname));
 const isPage = (req, url) =>
   req.mode === 'navigate' && url.origin === self.location.origin &&

@@ -23,6 +23,9 @@
   .rg-txt .d{font-size:11.5px;color:rgba(255,255,255,.7);margin-top:4px;line-height:1.35}
   .rg-go{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);
     font-weight:800;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase}
+  /* race village: warna hutan & lime mengikuti peta 3D-nya */
+  .rg-card.rv{background:radial-gradient(220px 140px at 100% 0%,rgba(217,242,122,.28),transparent 70%),linear-gradient(135deg,#16301F 0%,#0E2217 100%);box-shadow:0 12px 28px rgba(14,34,23,.3)}
+  .rg-card.rv .rg-ic{background:#D9F27A;color:#0E2217;box-shadow:0 6px 16px rgba(217,242,122,.3)}
   .rg-card.off{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:0 6px 20px rgba(15,24,48,.05)}
   .rg-card.off .rg-ic{background:#EEF2FF;color:var(--blue);box-shadow:none}
   .rg-card.off .d{color:var(--mute)}
@@ -50,6 +53,7 @@
 
 @php
   $dlIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M4 20h16"/></svg>';
+  $mapIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11.5a7 7 0 0 1 14 0C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
   $bookIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6.5a2.5 2.5 0 0 0 0 5H19"/><path d="M9 7h6M9 11h4"/></svg>';
 @endphp
 
@@ -76,6 +80,19 @@
       <span class="d">Race guide resmi sedang disiapkan panitia. Sementara itu, baca <a href="{{ route('gtr.rules') }}" style="color:var(--blue);font-weight:700">Rules &amp; Regulations</a>.</span>
     </span>
   </div>
+@endif
+
+{{-- ===== Race Village (peta 3D venue) ===== --}}
+@if($village)
+  <div class="g-head"><span class="k">Race Village</span></div>
+  <a class="rg-card rv" href="{{ route('gtr.account.guide.village') }}">
+    <span class="rg-ic">{!! $mapIcon !!}</span>
+    <span class="rg-txt">
+      <span class="t">Peta Race Village</span>
+      <span class="d">Peta 3D venue · cari toilet, medali, refreshment &amp; gate start</span>
+    </span>
+    <span class="rg-go">Lihat →</span>
+  </a>
 @endif
 
 {{-- ===== Dokumen Peserta ===== --}}

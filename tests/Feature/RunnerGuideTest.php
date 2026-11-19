@@ -75,4 +75,24 @@ class RunnerGuideTest extends TestCase
 
         Storage::disk('public')->assertExists($dir . '/gtr-race-guide.pdf');
     }
+
+    public function test_race_village_map_is_linked_and_embedded(): void
+    {
+        $runner = $this->runner();
+        $this->assertNotNull(\App\Http\Controllers\RunnerDashboardController::raceVillageUrl());
+
+        $this->actingAs($runner, 'runner')->get(route('gtr.account.guide'))
+            ->assertOk()
+            ->assertSee('Peta Race Village')
+            ->assertSee(route('gtr.account.guide.village'));
+
+        $this->actingAs($runner, 'runner')->get(route('gtr.account.guide.village'))
+            ->assertOk()
+            ->assertSee('<iframe src="/assets/gtr/race-village/Peta-Race-Village-GTR-web/index.html?v=', false);
+    }
+
+    public function test_race_village_requires_login(): void
+    {
+        $this->get(route('gtr.account.guide.village'))->assertRedirect(route('gtr.login'));
+    }
 }

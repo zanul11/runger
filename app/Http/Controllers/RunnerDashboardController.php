@@ -181,7 +181,30 @@ class RunnerDashboardController extends Controller
             'pageCount' => $slides->count(),
             'updatedAt' => $s->race_guide_published_at,
             'docs' => rescue(fn () => \App\Models\GtrDocument::published()->get(), collect(), false),
+            'village' => self::raceVillageUrl(),
         ]);
+    }
+
+    /** Peta 3D race village (halaman statis di public/), ditampilkan dalam app lewat iframe. */
+    public function guideVillage()
+    {
+        $url = self::raceVillageUrl();
+        if (! $url) {
+            return redirect()->route('gtr.account.guide');
+        }
+
+        return view('pages.runner.guide-village', ['tab' => 'guide', 'village' => $url]);
+    }
+
+    /** Folder peta race village di public/ (index.html + assets/ gambar). */
+    public const RACE_VILLAGE_DIR = 'assets/gtr/race-village/Peta-Race-Village-GTR-web';
+
+    /** URL relatif peta race village (+ versi dari waktu ubah file), atau null bila belum dipasang. */
+    public static function raceVillageUrl(): ?string
+    {
+        $file = public_path(self::RACE_VILLAGE_DIR.'/index.html');
+
+        return is_file($file) ? '/'.self::RACE_VILLAGE_DIR.'/index.html?v='.filemtime($file) : null;
     }
 
     /** Baca Race Guide di dalam app (viewer PDF, cadangan gambar slide). */

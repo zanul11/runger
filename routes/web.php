@@ -156,6 +156,7 @@ Route::middleware('auth:runner')->group(function () {
     Route::get('/runger-app/jadwal', [RunnerDashboardController::class, 'schedule'])->name('gtr.account.schedule');
     Route::get('/runger-app/guide', [RunnerDashboardController::class, 'guide'])->name('gtr.account.guide');
     Route::get('/runger-app/guide/race-guide', [RunnerDashboardController::class, 'guideView'])->name('gtr.account.guide.view');
+    Route::get('/runger-app/guide/race-village', [RunnerDashboardController::class, 'guideVillage'])->name('gtr.account.guide.village');
     Route::get('/runger-app/transaksi', [RunnerDashboardController::class, 'transaction'])->name('gtr.account.transaction');
     Route::get('/runger-app/transaksi/selesai', [PaymentController::class, 'finish'])->name('gtr.payment.finish');
     Route::post('/runger-app/transaksi/{registration}/bayar', [PaymentController::class, 'pay'])->name('gtr.payment.pay');

@@ -1,0 +1,23 @@
+PETA RACE VILLAGE 3D - GERUNG TRAIL RUN 2026 (versi pelari)
+=============================================================
+
+Isi folder
+  index.html   halaman peta 3D (tanpa detail ukuran)
+  assets/      gambar gate & logo yang dipakai model
+
+1. Pasang di server sendiri (Laravel / hosting biasa)
+   Salin folder ini ke   public/race-village/
+   Halaman bisa dibuka di   https://domain-anda/race-village/
+
+2. Tampilkan di dalam halaman lain (iframe)
+   <iframe src="/race-village/" title="Peta Race Village GTR 2026"
+           style="width:100%;height:80vh;border:0;border-radius:12px"
+           loading="lazy" allowfullscreen></iframe>
+
+3. Buka langsung ke lokasi tertentu (tambahkan #nama di akhir link)
+   #masuk  #medali  #refreshment  #toilet  #photo  #istirahat  #stage  #gate  #top
+   contoh: /race-village/#toilet
+
+Catatan
+  - Butuh koneksi internet: library 3D (three.js) dan font dimuat dari CDN.
+  - Jalankan lewat http/https, bukan dibuka langsung dari file di komputer.

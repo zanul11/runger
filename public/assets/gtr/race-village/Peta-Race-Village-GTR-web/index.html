@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Peta Race Village GTR</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800;1,900&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: full-screen 3D stage; title + view switcher float top-left, legend bottom-left, labels drawn over the scene */
+:root {
+  --forest: #0e2217;
+  --forest-2: #16301f;
+  --moss: #2f6044;
+  --lime: #d9f27a;
+  --paper: #f4f6ef;
+  --muted: #b9c8bc;
+  --red: #c8202b;
+  --display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --body: 'Barlow', system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--forest); color: var(--paper); font-family: var(--body); overflow: hidden; }
+#scene { position: fixed; inset: 0; }
+#scene canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+.hud { position: fixed; z-index: 5; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.top { top: calc(12px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-start; justify-content: space-between; }
+.brand { background: color-mix(in srgb, var(--forest) 86%, transparent); border: 1px solid color-mix(in srgb, var(--lime) 30%, transparent); border-radius: 12px; padding: 10px 14px 11px; backdrop-filter: blur(6px); max-width: 100%; }
+.brand .eyebrow { font: 700 11px/1 var(--body); letter-spacing: .2em; color: var(--lime); text-transform: uppercase; }
+.brand h1 { margin: 6px 0 0; font: italic 900 28px/0.95 var(--display); letter-spacing: .01em; text-wrap: balance; }
+.brand p { margin: 5px 0 0; font: 500 13px/1.35 var(--body); color: var(--muted); }
+.brand p.venue { margin-top: 8px; font: 700 15px/1.2 var(--body); color: var(--paper); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.brand p.venue span { font: 800 11px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--forest); background: var(--lime); padding: 4px 6px 3px; border-radius: 4px; }
+
+.views { display: flex; flex-wrap: wrap; gap: 6px; background: color-mix(in srgb, var(--forest) 86%, transparent); border: 1px solid color-mix(in srgb, var(--lime) 30%, transparent); border-radius: 12px; padding: 6px; backdrop-filter: blur(6px); }
+.views button, .views label { font: 700 13px/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--paper); background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 9px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.views button:hover { border-color: color-mix(in srgb, var(--lime) 45%, transparent); }
+.views button[aria-pressed="true"] { background: var(--lime); color: var(--forest); }
+.views button:focus-visible, .views input:focus-visible + span { outline: 2px solid var(--lime); outline-offset: 2px; }
+.views .sep { width: 1px; background: color-mix(in srgb, var(--paper) 20%, transparent); margin: 4px 2px; }
+.views input { accent-color: var(--lime); margin: 0; }
+
+.fac { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); max-width: 560px; background: color-mix(in srgb, var(--forest) 90%, transparent); border: 1px solid color-mix(in srgb, var(--lime) 30%, transparent); border-radius: 12px; padding: 10px 12px 11px; backdrop-filter: blur(6px); }
+.fac h2 { margin: 0 0 8px; font: 800 13px/1 var(--display); letter-spacing: .16em; color: var(--lime); }
+.fac .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fac button { font: 700 13px/1 var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--paper); background: color-mix(in srgb, var(--paper) 8%, transparent); border: 1px solid color-mix(in srgb, var(--paper) 18%, transparent); border-radius: 999px; padding: 8px 12px; cursor: pointer; white-space: nowrap; }
+.fac button:hover { border-color: var(--lime); }
+.fac button[aria-pressed="true"] { background: var(--lime); color: var(--forest); border-color: var(--lime); }
+.fac button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+.fac p { margin: 8px 0 0; font: 500 13px/1.35 var(--body); color: var(--muted); }
+.hint { top: auto; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); font: 500 12px/1.3 var(--body); color: var(--muted); background: color-mix(in srgb, var(--forest) 80%, transparent); padding: 7px 10px; border-radius: 8px; }
+@media (max-width: 760px) { .brand h1 { font-size: 22px; } .hint { display: none; } .fac .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; } }
+
+#labels { position: fixed; inset: 0; pointer-events: none; z-index: 3; }
+#labels[hidden] { display: none !important; }
+.tag { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; font: 800 12px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--forest); background: var(--lime); padding: 5px 8px 4px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,.35); }
+.tag small { display: block; font: 600 10px/1.2 var(--body); letter-spacing: .04em; text-transform: none; color: var(--forest-2); margin-top: 2px; }
+.tag::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 8px; height: 8px; background: var(--lime); transform: translateX(-50%) rotate(45deg); }
+#loading[hidden] { display: none !important; }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; font: 800 18px/1 var(--display); letter-spacing: .2em; color: var(--lime); z-index: 9; background: var(--forest); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="scene" aria-label="Model 3D race village Gerung Trail Run: stage, tenda VIP, tenda event, photo booth, booth medali, gate start dan jalur start" role="img"></div>
+<div id="labels"></div>
+<div id="loading">MEMUAT 3D…</div>
+
+<div class="hud top">
+  <div class="brand">
+    <div class="eyebrow">Peta race village · 3D</div>
+    <h1>Gerung Trail Run 2026</h1>
+    <p class="venue"><span>Venue</span> SD Negeri 4 Banyu Urip</p>
+    <p>Gerung, Lombok Barat · Keteri Hill · Minggu, 29 Nov 2026</p>
+  </div>
+  <div class="views" role="toolbar" aria-label="Sudut pandang">
+    <button type="button" id="v-overview" data-view="overview" aria-pressed="true">Overview</button>
+    <button type="button" id="v-top" data-view="top" aria-pressed="false">Atas</button>
+    <span class="sep" aria-hidden="true"></span>
+    <label for="t-labels"><input type="checkbox" id="t-labels" checked><span>Label</span></label>
+  </div>
+</div>
+
+<nav class="hud fac" aria-label="Fasilitas">
+  <h2>CARI FASILITAS</h2>
+  <div class="chips">
+    <button type="button" id="f-masuk" data-view="masuk" aria-pressed="false">Pintu masuk</button>
+    <button type="button" id="f-medali" data-view="medali" aria-pressed="false">Ambil medali</button>
+    <button type="button" id="f-refresh" data-view="refreshment" aria-pressed="false">Refreshment</button>
+    <button type="button" id="f-toilet" data-view="toilet" aria-pressed="false">Toilet</button>
+    <button type="button" id="f-photo" data-view="photo" aria-pressed="false">Photo booth</button>
+    <button type="button" id="f-rest" data-view="istirahat" aria-pressed="false">Area istirahat</button>
+    <button type="button" id="f-stage" data-view="stage" aria-pressed="false">Stage</button>
+    <button type="button" id="f-gate" data-view="gate" aria-pressed="false">Gate start</button>
+  </div>
+  <p id="fac-note" aria-live="polite">Pilih fasilitas untuk melihat lokasinya.</p>
+</nav>
+<div class="hud hint">Seret untuk memutar · scroll / cubit untuk zoom</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(async function () {
+  const C = { forest: 0x0e2217, moss: 0x2f6044, green: 0x24452f, lime: 0xd9f27a, red: 0xc8202b, white: 0xf4f6ef };
+  try {
+    await Promise.race([
+      Promise.all([document.fonts.load('italic 900 40px "Barlow Condensed"'), document.fonts.load('800 40px "Barlow Condensed"'), document.fonts.load('700 20px Barlow')]),
+      new Promise((r) => setTimeout(r, 2500)),
+    ]);
+  } catch (e) {}
+
+  const host = document.getElementById('scene');
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(host.clientWidth, host.clientHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  host.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xcfe2ea);
+  scene.fog = new THREE.Fog(0xcfe2ea, 70, 150);
+  const camera = new THREE.PerspectiveCamera(42, host.clientWidth / host.clientHeight, 0.1, 400);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 4; controls.maxDistance = 110;
+
+  scene.add(new THREE.HemisphereLight(0xeef6ff, 0x5b6b3e, 0.75));
+  const sun = new THREE.DirectionalLight(0xfff4e0, 1.0);
+  sun.position.set(-30, 45, 25); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, near: 1, far: 140 });
+  scene.add(sun);
+
+  const loader = new THREE.TextureLoader();
+  const load = (u) => new Promise((res) => loader.load(u, (t) => { t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; res(t); }, undefined, () => res(null)));
+  const [texHeader, texFront, texSide, texTopper, texLogo] = await Promise.all(['assets/gate-header.jpg', 'assets/gate-front.jpg', 'assets/gate-side.jpg', 'assets/gate-topper.png', 'assets/gtr-logo.png'].map(load));
+  const logoImg = texLogo && texLogo.image;
+
+  const std = (color, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.85, metalness: 0.02 }, o));
+  const texMat = (t, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ map: t, roughness: 0.75 }, o));
+  function mesh(geo, mat, x, y, z, cast = true) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; scene.add(m); return m; }
+  function box(w, h, d, mat, x, y, z) { return mesh(new THREE.BoxGeometry(w, h, d), mat, x, y + h / 2, z); }
+
+  function canvasTex(w, h, draw) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); draw(g, w, h);
+    const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; return t;
+  }
+  function whiteLogo(g, x, y, w, h) {
+    if (!logoImg) return;
+    const c = document.createElement('canvas'); c.width = logoImg.width; c.height = logoImg.height; const k = c.getContext('2d');
+    k.drawImage(logoImg, 0, 0); k.globalCompositeOperation = 'source-in'; k.fillStyle = '#fff'; k.fillRect(0, 0, c.width, c.height);
+    const r = Math.min(w / c.width, h / c.height); g.drawImage(c, x + (w - c.width * r) / 2, y + (h - c.height * r) / 2, c.width * r, c.height * r);
+  }
+  function greenBg(g, w, h) { const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#2f6044'); gr.addColorStop(1, '#0e2217'); g.fillStyle = gr; g.fillRect(0, 0, w, h); }
+  function mountains(g, x, y, w, h, color) { g.fillStyle = color; g.beginPath(); g.moveTo(x, y + h); g.lineTo(x + w * .3, y + h * .25); g.lineTo(x + w * .45, y + h * .55); g.lineTo(x + w * .65, y); g.lineTo(x + w, y + h); g.closePath(); g.fill(); }
+
+  // ---------- ground ----------
+  const groundTex = canvasTex(1024, 768, (g, w, h) => {
+    g.fillStyle = '#7d8f55'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 2600; i++) { g.fillStyle = `rgba(${60 + Math.random() * 40},${80 + Math.random() * 40},${30 + Math.random() * 30},.35)`; g.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
+  });
+  mesh(new THREE.PlaneGeometry(90, 70), texMat(groundTex, { roughness: 1 }), 0, 0, 0, false).rotation.x = -Math.PI / 2;
+  const asphalt = std(0x3b3e40, { roughness: 0.95 });
+  mesh(new THREE.PlaneGeometry(90, 8), asphalt, 0, 0.01, 27, false).rotation.x = -Math.PI / 2;
+  mesh(new THREE.PlaneGeometry(5, 50), asphalt, -30, 0.01, 0, false).rotation.x = -Math.PI / 2;
+  for (let i = 0; i < 5; i++) mesh(new THREE.PlaneGeometry(0.5, 3.4), std(0xf2f2ee), -8.3 + i * 0.9, 0.02, 26.2, false).rotation.x = -Math.PI / 2;
+  const paveTex = canvasTex(512, 512, (g, w, h) => {
+    g.fillStyle = '#a49c90'; g.fillRect(0, 0, w, h); g.strokeStyle = 'rgba(70,64,56,.35)'; g.lineWidth = 2;
+    for (let y = 0; y < h; y += 32) for (let x = (y / 32) % 2 ? 16 : 0; x < w; x += 32) g.strokeRect(x, y, 32, 32);
+  });
+  paveTex.wrapS = paveTex.wrapT = THREE.RepeatWrapping;
+  const pave = (x0, x1, z0, z1) => { const t = paveTex.clone(); t.needsUpdate = true; t.repeat.set((x1 - x0) / 4, (z1 - z0) / 4); const m = mesh(new THREE.PlaneGeometry(x1 - x0, z1 - z0), texMat(t, { roughness: 0.95 }), (x0 + x1) / 2, 0.02, (z0 + z1) / 2, false); m.rotation.x = -Math.PI / 2; };
+  pave(-8, 5.8, -13.2, 15.8); pave(-14, -8, 7.2, 15.8);
+  // green start corridor (carpet)
+  mesh(new THREE.PlaneGeometry(31, 4.2), std(0x2b6a3c, { roughness: 1 }), 6, 0.03, 19.6, false).rotation.x = -Math.PI / 2;
+
+  // ---------- surroundings ----------
+  function building(x0, x1, z0, z1, h, wallC, roofC, ridgeAlongZ = true) {
+    box(x1 - x0, h, z1 - z0, std(wallC), (x0 + x1) / 2, 0, (z0 + z1) / 2);
+    const len = ridgeAlongZ ? z1 - z0 : x1 - x0, span = ridgeAlongZ ? x1 - x0 : z1 - z0;
+    const shape = new THREE.Shape(); shape.moveTo(-span / 2 - .4, 0); shape.lineTo(0, span * 0.28); shape.lineTo(span / 2 + .4, 0); shape.lineTo(-span / 2 - .4, 0);
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: len + .6, bevelEnabled: false });
+    const roof = mesh(geo, std(roofC, { roughness: 0.6, metalness: roofC === 0xb9bec2 ? 0.35 : 0.05 }), (x0 + x1) / 2, h, (z0 + z1) / 2);
+    if (ridgeAlongZ) { roof.position.z = z0 - .3; } else { roof.rotation.y = Math.PI / 2; roof.position.x = x0 - .3; }
+  }
+  building(-26.5, -13.5, -23, 0.8, 3.6, 0xd8d3c8, 0xb9bec2, true);
+  building(6, 19, -10, 11.5, 3.8, 0xd8d3c8, 0xb9bec2, true);
+  building(4.5, 17.5, -24.5, -11.5, 3.4, 0xe9e0cf, 0xb8423a, false);
+  // perimeter wall on the street side + entrance arch
+  box(5.8, 1.6, 0.25, std(0xd9cfc1), -17.5, 0, 16.2);
+  box(1.2, 2.6, 0.5, std(0xb5654a), -12.9, 0, 16.2); box(1.2, 2.6, 0.5, std(0xb5654a), -10.3, 0, 16.2); box(3.8, 0.5, 0.5, std(0xb5654a), -11.6, 2.6, 16.2);
+  // trees
+  const leaf = std(0x3f6b2e, { roughness: 1 }), leaf2 = std(0x557f36, { roughness: 1 }), trunk = std(0x5a4330);
+  [[-12, -19, 3.4], [-15, -9, 3.6], [-17, -2, 3.2], [-12.5, 3, 3.6], [-19, 10, 3], [-21, 19, 3.4], [-3, -21, 3.2], [21, 14, 2.4], [26, 25, 2.6], [-24, -24, 2.8], [24, -4, 2.4], [-9.5, -17, 2.6]].forEach(([x, z, r], i) => {
+    box(0.5, 2.4, 0.5, trunk, x, 0, z);
+    mesh(new THREE.IcosahedronGeometry(r, 1), i % 2 ? leaf : leaf2, x, 2.4 + r * 0.8, z);
+    mesh(new THREE.IcosahedronGeometry(r * .7, 1), i % 2 ? leaf2 : leaf, x + r * .5, 2.4 + r * 1.2, z - r * .3);
+  });
+
+  // ---------- tents ----------
+  function valanceTex(title, sub) {
+    return canvasTex(1024, 192, (g, w, h) => {
+      greenBg(g, w, h); g.fillStyle = '#d9f27a'; g.fillRect(0, h - 10, w, 10);
+      whiteLogo(g, 20, 14, 200, 150);
+      g.fillStyle = '#fff'; g.textBaseline = 'middle'; g.textAlign = 'center';
+      g.font = 'italic 900 92px "Barlow Condensed", sans-serif'; g.fillText(title, w / 2 + 70, sub ? 78 : 96);
+      if (sub) { g.fillStyle = '#d9f27a'; g.font = '800 42px "Barlow Condensed", sans-serif'; g.fillText(sub, w / 2 + 70, 146); }
+    });
+  }
+  const wallTex = canvasTex(512, 512, (g, w, h) => { greenBg(g, w, h); mountains(g, 0, h * .72, w, h * .28, 'rgba(0,0,0,.25)'); g.fillStyle = '#c8202b'; g.fillRect(0, h - 18, w, 18); whiteLogo(g, w * .2, h * .18, w * .6, h * .45); });
+  const canopy = std(0x1f4a30, { roughness: 0.7, side: THREE.DoubleSide });
+  const leg = std(0xdfe3e0, { metalness: 0.6, roughness: 0.35 });
+  function tent(cx, cz, size, rotY, title, sub, wall = true) {
+    const g = new THREE.Group(); g.position.set(cx, 0, cz); g.rotation.y = rotY; scene.add(g);
+    const H = 2.4, s = size / 2;
+    const add = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; g.add(m); return m; };
+    [[-s, -s], [s, -s], [-s, s], [s, s]].forEach(([x, z]) => add(new THREE.CylinderGeometry(0.04, 0.04, H, 8), leg, x * .98, H / 2, z * .98));
+    const roof = add(new THREE.ConeGeometry(size * 0.72, size * 0.55, 4, 1, true), canopy, 0, H + 0.3 + size * 0.275, 0); roof.rotation.y = Math.PI / 4;
+    const vt = valanceTex(title, sub), vm = texMat(vt, { side: THREE.DoubleSide }), plain = std(0x1f4a30, { side: THREE.DoubleSide });
+    add(new THREE.PlaneGeometry(size, 0.4), vm, 0, H + 0.1, s); // front valance (+z)
+    add(new THREE.PlaneGeometry(size, 0.4), plain, 0, H + 0.1, -s).rotation.y = Math.PI;
+    add(new THREE.PlaneGeometry(size, 0.4), plain, s, H + 0.1, 0).rotation.y = Math.PI / 2;
+    add(new THREE.PlaneGeometry(size, 0.4), plain, -s, H + 0.1, 0).rotation.y = -Math.PI / 2;
+    if (wall) { add(new THREE.PlaneGeometry(size, H), texMat(wallTex), 0, H / 2, -s + 0.03); add(new THREE.PlaneGeometry(size, H), texMat(wallTex), 0, H / 2, -s - 0.01).rotation.y = Math.PI; }
+    // table inside
+    add(new THREE.BoxGeometry(size * 0.6, 0.06, 0.6), std(0xf4f6ef), 0, 0.75, s * 0.35);
+    add(new THREE.BoxGeometry(size * 0.6, 0.7, 0.04), std(0x1f4a30), 0, 0.38, s * 0.35 + 0.28);
+    return g;
+  }
+  const labels = [];
+  const tag = (text, sub, x, y, z) => labels.push({ text, sub, p: new THREE.Vector3(x, y, z) });
+
+  tent(-5.5, -8.4, 5, 0, 'VIP', null); tag('Tenda VIP', null, -5.5, 5.6, -8.4);
+  [-2, 1.3, 4.6].forEach((z, i) => {
+    tent(-6.5, z, 3, Math.PI / 2, 'GTR', null); tent(4.2, z, 3, -Math.PI / 2, 'GTR', null);
+  });
+  tag('Tenda event', null, -6.5, 4.6, 1.3); tag('Tenda event', null, 4.2, 4.6, 1.3);
+  [[-5.4, 'MEDALI 15K', 'PENYERAHAN'], [-1.3, 'MEDALI 7K', 'PENYERAHAN'], [2.8, 'REFRESHMENT', null]].forEach(([x, t, s]) => tent(x, 11.4, 4, Math.PI, t, s));
+  tag('Medali 15K · Medali 7K · Refreshment', null, -1.3, 5.4, 11.4);
+
+  // tables + benches in the plaza
+  const wood = std(0xb9874f, { roughness: 0.8 });
+  [-0.8, 1.9, 4.6].forEach((z) => { box(2.4, 0.06, 0.8, wood, -1.2, 0.72, z); [-1, 1].forEach((sx) => [-0.32, 0.32].forEach((sz) => box(0.06, 0.72, 0.06, std(0x444), -1.2 + sx, 0, z + sz))); [-0.7, 0.7].forEach((dz) => box(2.4, 0.05, 0.3, wood, -1.2, 0.44, z + dz)); });
+  tag('Area makan & istirahat', null, -1.2, 2.2, 1.9);
+
+  // ---------- stage ----------
+  const stageX = 1.2, stageZ = -9.4;
+  box(7, 1, 7, std(0x1a1d1c), stageX, 0, stageZ);
+  box(7.1, 0.05, 7.1, std(0x2b2f2d, { roughness: 0.5 }), stageX, 1, stageZ);
+  for (let i = 0; i < 4; i++) box(2.4, 0.25 * (i + 1), 0.35, std(0x5d6562), stageX, 0, stageZ + 3.5 + 0.35 * (3.5 - i));
+  const truss = std(0xc7ccce, { metalness: 0.7, roughness: 0.3 });
+  [[-3.5, -3.5], [3.5, -3.5], [-3.5, 3.5], [3.5, 3.5]].forEach(([dx, dz]) => box(0.3, 6, 0.3, truss, stageX + dx, 1, stageZ + dz));
+  box(7.3, 0.3, 0.3, truss, stageX, 7, stageZ - 3.5); box(7.3, 0.3, 0.3, truss, stageX, 7, stageZ + 3.5);
+  box(0.3, 0.3, 7.3, truss, stageX - 3.5, 7, stageZ); box(0.3, 0.3, 7.3, truss, stageX + 3.5, 7, stageZ);
+  const backdrop = canvasTex(1400, 900, (g, w, h) => {
+    greenBg(g, w, h); mountains(g, 0, h * .7, w * .7, h * .3, 'rgba(0,0,0,.25)'); mountains(g, w * .35, h * .74, w * .65, h * .26, 'rgba(0,0,0,.18)');
+    g.fillStyle = '#c8202b'; g.fillRect(0, h - 26, w, 26);
+    whiteLogo(g, w * .08, h * .14, w * .34, h * .62);
+    g.fillStyle = '#fff'; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+    g.font = 'italic 900 150px "Barlow Condensed", sans-serif'; g.fillText('GERUNG', w * .46, h * .38); g.fillText('TRAIL RUN', w * .46, h * .55);
+    g.fillStyle = '#d9f27a'; g.fillText('2026', w * .46, h * .72);
+    g.font = '800 40px "Barlow Condensed", sans-serif'; g.fillStyle = '#fff'; g.fillText('KETERI HILL · 29 NOVEMBER 2026', w * .465, h * .82);
+  });
+  mesh(new THREE.PlaneGeometry(6.8, 4.4), texMat(backdrop, { emissive: 0x111111 }), stageX, 1 + 2.6, stageZ - 3.3);
+  tag('Stage', null, stageX, 8.2, stageZ);
+
+  // ---------- photo booth ----------
+  const boothTex = canvasTex(800, 960, (g, w, h) => {
+    greenBg(g, w, h); g.strokeStyle = '#d9f27a'; g.lineWidth = 18; g.strokeRect(40, 40, w - 80, h - 80);
+    whiteLogo(g, w * .2, h * .12, w * .6, h * .34);
+    g.fillStyle = '#fff'; g.textAlign = 'center'; g.font = 'italic 900 120px "Barlow Condensed", sans-serif'; g.fillText('I AM A', w / 2, h * .62); g.fillStyle = '#d9f27a'; g.fillText('FINISHER', w / 2, h * .76);
+    g.fillStyle = '#fff'; g.font = '800 36px "Barlow Condensed", sans-serif'; g.fillText('#GTR2026', w / 2, h * .86);
+  });
+  const booth = new THREE.Group(); booth.position.set(-10.5, 0, 9.6); booth.rotation.y = Math.PI / 2; scene.add(booth);
+  const bm = new THREE.Mesh(new THREE.BoxGeometry(3, 2.5, 0.12), [std(0x0e2217), std(0x0e2217), std(0x0e2217), std(0x0e2217), texMat(boothTex), std(0x0e2217)]);
+  bm.position.y = 1.4; bm.castShadow = true; booth.add(bm);
+  const bf = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.15, 1.2), std(0x24452f)); bf.position.set(0, 0.075, 0.6); bf.receiveShadow = true; booth.add(bf);
+  tag('Photo booth', null, -10.5, 3.5, 9.6);
+
+  // ---------- barricades ----------
+  const fenceMat = std(0xbfc5c7, { metalness: 0.6, roughness: 0.4 });
+  function barricade(x, z, rotY, banner) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = rotY; scene.add(g);
+    const add = (geo, mat, px, py, pz) => { const m = new THREE.Mesh(geo, mat); m.position.set(px, py, pz); m.castShadow = true; g.add(m); return m; };
+    add(new THREE.BoxGeometry(2.4, 0.05, 0.05), fenceMat, 0, 1.05, 0); add(new THREE.BoxGeometry(2.4, 0.05, 0.05), fenceMat, 0, 0.15, 0);
+    [-1.2, 1.2].forEach((px) => add(new THREE.BoxGeometry(0.05, 1.1, 0.05), fenceMat, px, 0.55, 0));
+    if (banner) { add(new THREE.PlaneGeometry(2.36, 0.85), texMat(banner), 0, 0.6, 0.03); add(new THREE.PlaneGeometry(2.36, 0.85), texMat(banner), 0, 0.6, -0.03).rotation.y = Math.PI; }
+    else for (let i = -1.1; i <= 1.1; i += 0.18) add(new THREE.BoxGeometry(0.025, 0.9, 0.025), fenceMat, i, 0.6, 0);
+  }
+  const banA = canvasTex(640, 230, (g, w, h) => { greenBg(g, w, h); whiteLogo(g, 30, 20, 260, 190); g.fillStyle = '#fff'; g.font = 'italic 900 72px "Barlow Condensed", sans-serif'; g.textBaseline = 'middle'; g.fillText('GTR 2026', 320, h / 2); g.fillStyle = '#d9f27a'; g.fillRect(0, h - 10, w, 10); });
+  const banB = canvasTex(640, 230, (g, w, h) => { greenBg(g, w, h); mountains(g, 60, 50, 520, 150, '#d9f27a'); mountains(g, 220, 90, 300, 110, 'rgba(255,255,255,.85)'); g.fillStyle = '#c8202b'; g.fillRect(0, h - 10, w, 10); });
+  for (let i = 0; i < 12; i++) barricade(-8.6 + i * 2.5, 21.9, 0, i % 2 ? banB : banA);
+  for (let i = 0; i < 7; i++) barricade(-8.6 + i * 2.5, 16.0, 0, null);
+  tag('Jalur start', null, 2, 2.2, 19.6);
+  tag('Pintu masuk peserta', null, -11.6, 3.8, 16.2);
+
+  // ---------- portable toilets (right of refreshment, at the end of the white-roof building) ----------
+  const wcDoor = canvasTex(256, 512, (g, w, h) => {
+    g.fillStyle = '#2f6db0'; g.fillRect(0, 0, w, h); g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 6; g.strokeRect(14, 30, w - 28, h - 44);
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(w / 2, 120, 50, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#2f6db0'; g.font = '800 44px "Barlow Condensed", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('WC', w / 2, 122);
+    g.fillStyle = '#fff'; g.font = '800 40px "Barlow Condensed", sans-serif'; g.fillText('TOILET', w / 2, 220);
+    g.fillStyle = '#d9d9d9'; g.fillRect(w - 60, h / 2, 26, 12);
+  });
+  const wcBody = std(0x2f6db0, { roughness: 0.55 }), wcRoof = std(0xf2f4f6, { roughness: 0.5 });
+  [12.5, 13.9].forEach((z) => {
+    const g = new THREE.Group(); g.position.set(7.2, 0, z); g.rotation.y = -Math.PI / 2; scene.add(g);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.15, 2.25, 1.15), [wcBody, wcBody, wcBody, wcBody, texMat(wcDoor, { roughness: 0.55 }), wcBody]);
+    body.position.y = 1.125; body.castShadow = body.receiveShadow = true; g.add(body);
+    const roof = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.8, 0.22, 4), wcRoof); roof.rotation.y = Math.PI / 4; roof.position.y = 2.36; roof.castShadow = true; g.add(roof);
+    const vent = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.4, 10), wcRoof); vent.position.set(0.35, 2.6, -0.35); g.add(vent);
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.1, 1.25), std(0x2b2f33)); base.position.y = 0.05; base.receiveShadow = true; g.add(base);
+  });
+  pave(5.8, 8.2, 11.8, 15.8);
+  tag('Toilet', null, 7.2, 3.4, 13.2);
+
+  // ---------- school name board at the entrance ----------
+  const schoolTex = canvasTex(1024, 300, (g, w, h) => {
+    g.fillStyle = '#1d4f8f'; g.fillRect(0, 0, w, h); g.strokeStyle = '#f2c230'; g.lineWidth = 14; g.strokeRect(10, 10, w - 20, h - 20);
+    g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '800 92px "Barlow Condensed", sans-serif'; g.fillText('SD NEGERI 4 BANYU URIP', w / 2, h * .42);
+    g.font = '600 40px Barlow, sans-serif'; g.fillStyle = '#f2c230'; g.fillText('Kecamatan Gerung · Kabupaten Lombok Barat', w / 2, h * .74);
+  });
+  const post = std(0x9aa1a6, { metalness: 0.5, roughness: 0.4 });
+  box(0.12, 3.4, 0.12, post, -17.6, 0, 17.4); box(0.12, 3.4, 0.12, post, -13.6, 0, 17.4);
+  const sb = new THREE.Mesh(new THREE.BoxGeometry(4.4, 1.3, 0.08), [std(0x1d4f8f), std(0x1d4f8f), std(0x1d4f8f), std(0x1d4f8f), texMat(schoolTex), std(0x1d4f8f)]);
+  sb.position.set(-15.6, 2.85, 17.45); sb.castShadow = true; scene.add(sb);
+  tag('SD Negeri 4 Banyu Urip', null, -15.6, 4.3, 17.4);
+
+  // cones
+  const cone = std(0xf06a1d);
+  [[21.5, 17.5], [21.5, 21.7], [19, 17.5], [19, 21.7]].forEach(([x, z]) => mesh(new THREE.ConeGeometry(0.18, 0.7, 16), cone, x, 0.35, z));
+
+  // ---------- gate start (cube pillars 1 x 2.5 m, header 6 x 1 x 1 m) ----------
+  const gate = new THREE.Group(); gate.position.set(13.5, 0, 19.65); gate.rotation.y = Math.PI / 2; scene.add(gate);
+  const plainG = std(0x0e2217);
+  const fm = texFront ? texMat(texFront) : std(0x2f6044), sm = texSide ? texMat(texSide) : std(0x2f6044), hm = texHeader ? texMat(texHeader) : std(0x2f6044);
+  // BoxGeometry material order: +x, -x, +y, -y, +z (front), -z (back)
+  [-2.5, 2.5].forEach((px) => { const m = new THREE.Mesh(new THREE.BoxGeometry(1, 2.5, 1), [sm, sm, plainG, plainG, fm, fm]); m.position.set(px, 1.25, 0); m.castShadow = m.receiveShadow = true; gate.add(m); });
+  const hdr = new THREE.Mesh(new THREE.BoxGeometry(6, 1, 1), [plainG, plainG, plainG, plainG, hm, hm]); hdr.position.set(0, 3, 0); hdr.castShadow = true; gate.add(hdr);
+  if (texTopper) [0.52, -0.52].forEach((pz) => { const d = new THREE.Mesh(new THREE.CircleGeometry(0.75, 64), new THREE.MeshStandardMaterial({ map: texTopper, transparent: true, roughness: 0.6 })); d.position.set(0, 3.35, pz); if (pz < 0) d.rotation.y = Math.PI; d.castShadow = true; gate.add(d); });
+  tag('Gate start', null, 13.5, 4.9, 19.65);
+
+  // ---------- labels overlay ----------
+  const layer = document.getElementById('labels');
+  labels.forEach((l) => { const el = document.createElement('div'); el.className = 'tag'; el.textContent = l.text; if (l.sub) { const s = document.createElement('small'); s.textContent = l.sub; el.appendChild(s); } layer.appendChild(el); l.el = el; });
+  const v = new THREE.Vector3(), ray = new THREE.Raycaster(), dir = new THREE.Vector3();
+  const solids = []; scene.traverse((o) => { if (o.isMesh && o.geometry.type !== 'PlaneGeometry') solids.push(o); });
+  let frame = 0;
+  function placeLabels() {
+    if (layer.hidden) return;
+    const w = host.clientWidth, h = host.clientHeight, check = (frame++ % 12) === 0;
+    labels.forEach((l) => {
+      v.copy(l.p).project(camera);
+      let vis = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1;
+      if (vis && check) {
+        dir.copy(l.p).sub(camera.position); const dist = dir.length(); ray.set(camera.position, dir.normalize()); ray.far = dist - 0.6;
+        l.hiddenBy = ray.intersectObjects(solids, false).length > 0;
+      }
+      if (l.hiddenBy) vis = false;
+      l.el.style.display = vis ? '' : 'none';
+      if (vis) { l.el.style.left = ((v.x + 1) / 2 * w) + 'px'; l.el.style.top = ((1 - v.y) / 2 * h) + 'px'; }
+    });
+  }
+
+  // ---------- views ----------
+  const VIEWS = {
+    overview: { pos: [26, 30, 44], tgt: [-1, 0, 4] },
+    gate: { pos: [24, 3.4, 13.5], tgt: [13.5, 2.1, 19.6], note: 'Gate start ada di ujung jalur hijau di depan venue, dekat jalan raya.' },
+    stage: { pos: [1.5, 6, 10], tgt: [1.2, 3, -9], note: 'Stage utama ada di sisi belakang area, di samping tenda VIP.' },
+    masuk: { pos: [-9, 6, 30], tgt: [-12, 1.5, 15.5], note: 'Pintu masuk peserta ada di samping papan nama SD Negeri 4 Banyu Urip, dari arah jalan raya.' },
+    medali: { pos: [-3.3, 3.4, 2.4], tgt: [-3.3, 1.6, 11.4], note: 'Tenda medali ada di sisi selatan area: kiri untuk 15K, tengah untuk 7K.' },
+    refreshment: { pos: [2.8, 3.4, 3.4], tgt: [2.8, 1.6, 11.4], note: 'Refreshment ada di tenda paling kanan, sebelah tenda medali 7K.' },
+    toilet: { pos: [-0.5, 4, 16], tgt: [7.2, 1.3, 13.2], note: 'Toilet portable ada di sebelah kanan tenda refreshment, di ujung bangunan beratap putih.' },
+    photo: { pos: [-3.8, 2.9, 9.8], tgt: [-10.5, 1.5, 9.6], note: 'Photo booth finisher ada di dekat pintu masuk, sisi kiri area.' },
+    istirahat: { pos: [5.5, 5.5, 9.5], tgt: [-1.2, 0.8, 1.9], note: 'Meja dan bangku untuk istirahat ada di tengah area, di antara tenda event.' },
+    top: { pos: [0, 72, 9], tgt: [0, 0, 3] },
+  };
+  let anim = null;
+  function go(name, instant) {
+    const vw = VIEWS[name] || VIEWS.overview;
+    document.querySelectorAll('.views button, .fac button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
+    const note = document.getElementById('fac-note'); if (note) note.textContent = vw.note || 'Pilih fasilitas untuk melihat lokasinya.';
+    const to = { p: new THREE.Vector3(...vw.pos), t: new THREE.Vector3(...vw.tgt) };
+    if (instant || matchMedia('(prefers-reduced-motion: reduce)').matches) { camera.position.copy(to.p); controls.target.copy(to.t); controls.update(); anim = null; return; }
+    anim = { from: { p: camera.position.clone(), t: controls.target.clone() }, to, t0: performance.now() };
+  }
+  document.querySelectorAll('.views button, .fac button').forEach((b) => b.addEventListener('click', () => { go(b.dataset.view); try { history.replaceState(null, '', '#' + b.dataset.view); } catch (e) {} }));
+  document.getElementById('t-labels').addEventListener('change', (e) => { layer.hidden = !e.target.checked; });
+  const initial = (location.hash || '').slice(1);
+  go(VIEWS[initial] ? initial : 'overview', true);
+  window.addEventListener('hashchange', () => { const n = location.hash.slice(1); if (VIEWS[n]) go(n); });
+
+  function resize() { const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  window.addEventListener('resize', resize);
+
+  function loop(now) {
+    if (anim) {
+      const k = Math.min(1, (now - anim.t0) / 1100), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      camera.position.lerpVectors(anim.from.p, anim.to.p, e); controls.target.lerpVectors(anim.from.t, anim.to.t, e);
+      if (k >= 1) anim = null;
+    }
+    controls.update(); renderer.render(scene, camera); placeLabels(); requestAnimationFrame(loop);
+  }
+  document.getElementById('loading').hidden = true;
+  requestAnimationFrame(loop);
+})().catch((err) => { const l = document.getElementById('loading'); l.hidden = false; l.textContent = 'Model 3D gagal dimuat. Muat ulang halaman.'; console.error(err); });
+</script>
+
+</body>
+</html>
