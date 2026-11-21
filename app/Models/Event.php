@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Event extends Model
 {
@@ -16,11 +18,22 @@ class Event extends Model
         'is_featured' => 'boolean',
         'is_published' => 'boolean',
         'is_coming_soon' => 'boolean',
+        'roster_aktif' => 'boolean',
         'tikum_lat' => 'decimal:7',
         'tikum_lng' => 'decimal:7',
     ];
 
     protected $appends = ['status'];
+
+    protected static function booted(): void
+    {
+        // Roster panitia: hanya satu event aktif.
+        static::saved(function (Event $event) {
+            if ($event->roster_aktif && ($event->wasRecentlyCreated || $event->wasChanged('roster_aktif'))) {
+                static::whereKeyNot($event->id)->where('roster_aktif', true)->update(['roster_aktif' => false]);
+            }
+        });
+    }
 
     /**
      * Status di-derive otomatis:
@@ -35,11 +48,12 @@ class Event extends Model
                 return 'coming_soon';
             }
             if ($this->date) {
-                $eventDt = \Carbon\Carbon::parse($this->date->format('Y-m-d') . ' ' . ($this->time ?? '23:59'), 'Asia/Makassar');
+                $eventDt = Carbon::parse($this->date->format('Y-m-d').' '.($this->time ?? '23:59'), 'Asia/Makassar');
                 if ($eventDt->isPast()) {
                     return 'completed';
                 }
             }
+
             return 'upcoming';
         });
     }
@@ -80,6 +94,28 @@ class Event extends Model
     public function results(): HasMany
     {
         return $this->hasMany(Result::class);
+    }
+
+    /** Roster panitia hari H: area → grup → pos. */
+    public function rosterAreas(): HasMany
+    {
+        return $this->hasMany(RosterArea::class)->orderBy('urutan')->orderBy('id');
+    }
+
+    public function rosterConsumption(): HasOne
+    {
+        return $this->hasOne(RosterConsumptionSetting::class);
+    }
+
+    /**
+     * Event yang tampil di GTR Crew → Roster: yang ditandai roster_aktif, lalu event yang sudah
+     * punya struktur roster, lalu event GTR.
+     */
+    public static function rosterActive(): ?self
+    {
+        return static::where('roster_aktif', true)->first()
+            ?? static::whereHas('rosterAreas')->latest('date')->first()
+            ?? static::find(static::gtrId());
     }
 
     /** Slug event GTR (modul race-timing single-event). */

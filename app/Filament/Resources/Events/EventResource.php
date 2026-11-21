@@ -18,8 +18,8 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -85,6 +85,19 @@ class EventResource extends Resource
                     Textarea::make('note')->columnSpanFull()->rows(3)->helperText('Ditampilkan di card agenda.'),
                 ]),
 
+            Section::make('Roster Panitia Hari H')
+                ->description('Info yang tampil di header roster panitia (GTR Crew → Roster & /crew/roster). Nama = title, tanggal = date, kategori = Jarak. Struktur pos: menu GTR → Struktur Roster.')
+                ->columns(2)
+                ->collapsible()
+                ->components([
+                    TextInput::make('lokasi_race_village')->label('Lokasi Race Village')->maxLength(160)->placeholder('SD Negeri 4 Banyu Urip'),
+                    TextInput::make('lokasi_rute')->label('Lokasi rute')->maxLength(160)->placeholder('Bukit Keteri, Gerung, Lombok Barat, NTB'),
+                    TextInput::make('catatan_open_gate')->label('Catatan open gate')->maxLength(160)->placeholder('Open gate 1 jam sebelum start'),
+                    TextInput::make('penyelenggara')->maxLength(160)->placeholder('Komunitas Runger (Runners Gerung)'),
+                    Toggle::make('roster_aktif')->label('Aktif di roster')
+                        ->helperText('Hanya satu event yang aktif; event lain otomatis dinonaktifkan.'),
+                ]),
+
             Section::make('Poster')
                 ->components([
                     FileUpload::make('poster_image')->disk('public')
@@ -137,6 +150,7 @@ class EventResource extends Resource
                 })->tooltip('Otomatis dari tanggal · "Coming Soon" via toggle'),
                 IconColumn::make('is_featured')->boolean()->label('Featured'),
                 IconColumn::make('is_published')->boolean()->label('Published'),
+                IconColumn::make('roster_aktif')->boolean()->label('Roster')->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('date', 'asc')
             ->filters([

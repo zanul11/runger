@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Timing\AdminController;
 use App\Http\Controllers\Api\Timing\PrepController;
 use App\Http\Controllers\Api\Timing\RacepackController;
+use App\Http\Controllers\Api\Timing\RosterController;
 use App\Http\Controllers\Api\Timing\ScanBatchController;
 use App\Http\Controllers\Api\Timing\SessionController;
 use App\Http\Controllers\Api\Timing\TimeController;
@@ -42,6 +43,22 @@ Route::prefix('timing')->name('timing.')->group(function () {
                 Route::put('/{item}', 'update')->name('update');
                 Route::delete('/{item}', 'destroy')->name('destroy');
             });
+        });
+
+        // Roster panitia hari H: semua akun GTR Crew boleh lihat & export; isi petugas, tamu konsumsi
+        // & import petugas: panitia (koordinator) + admin; import struktur: admin (dicek di controller).
+        // Struktur pos dikelola di Filament. Versi baca-saja publik: /crew/roster.
+        Route::prefix('roster')->name('roster.')->controller(RosterController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/export', 'export')->name('export');
+            Route::middleware('api.role:panitia,admin')->group(function () {
+                Route::put('/positions/{position}/slots/{slot}', 'slot')->whereNumber('slot')->name('slot');
+                Route::put('/consumption', 'consumption')->name('consumption');
+                Route::post('/import/preview', 'import')->name('import.preview');
+                Route::post('/import', 'import')->name('import');
+            });
+            Route::patch('/{type}/{id}', 'update')->middleware('api.admin')
+                ->whereIn('type', ['areas', 'groups', 'positions'])->whereNumber('id')->name('update');
         });
 
         // Tembak start kategori: admin saja.
