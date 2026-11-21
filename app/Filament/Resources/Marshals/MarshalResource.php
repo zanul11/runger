@@ -46,7 +46,7 @@ class MarshalResource extends Resource
 
     public const ROLES = [
         User::ROLE_MARSHAL => 'Marshal — scan timing di pos',
-        User::ROLE_PANITIA => 'Panitia — hanya checklist Persiapan',
+        User::ROLE_PANITIA => 'Panitia — Persiapan & isi Roster (koordinator)',
     ];
 
     protected static ?int $navigationSort = 2;

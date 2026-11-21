@@ -10,6 +10,7 @@ import RacepackPanel from './RacepackPanel.vue';
 import gtrLogo from '../assets/gtr-logo.png';
 import ParticipantsView from './ParticipantsView.vue';
 import PrepView from './PrepView.vue';
+import RosterView from './RosterView.vue';
 import AdminPanel from './admin/AdminPanel.vue';
 import LocationPicker from './admin/LocationPicker.vue';
 
@@ -28,7 +29,7 @@ const active = computed(() => {
 });
 const scanLabel = computed(() => (active.value === 'racepack' ? 'Race Pack' : active.value === 'timing' ? point.value?.code : null));
 const MODE_LABEL = { timing: 'Timing', racepack: 'Race Pack', admin: 'Kontrol' };
-const view = ref('main');   // main | participants | prep
+const view = ref('main');   // main | participants | prep | roster (layar penuh)
 const menu = ref(false);
 const toast = ref(null);
 let toastTimer;
@@ -99,6 +100,9 @@ function openParticipants() {
                 <small>Panitia</small>
                 <strong>Persiapan GTR</strong>
             </div>
+            <button class="loc-people loc-change" aria-label="Buka roster panitia hari H" @click="view = 'roster'">
+                <Icon name="users" :size="18" /> Roster
+            </button>
         </section>
         <section v-else-if="active === 'admin' || (mode === 'scan' && !active)" class="locbar rp">
             <div class="loc-badge"><Icon name="grid" :size="24" /></div>
@@ -182,7 +186,8 @@ function openParticipants() {
             </div>
         </template>
 
-        <MenuSheet v-if="menu" @close="menu = false" @notify="notify" @participants="openParticipants" @prep="menu = false; view = 'prep'" />
+        <RosterView v-if="view === 'roster'" @back="view = 'main'" />
+        <MenuSheet v-if="menu" @close="menu = false" @notify="notify" @participants="openParticipants" @prep="menu = false; view = 'prep'" @roster="menu = false; view = 'roster'" />
         <div v-if="toast" class="toast" role="status">{{ toast }}</div>
     </div>
 </template>

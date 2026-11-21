@@ -8,7 +8,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/scanner/main.js'],
+            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/scanner/main.js', 'resources/js/roster/main.js'],
             refresh: true,
             fonts: [
                 bunny('Instrument Sans', {
@@ -69,8 +69,8 @@ export default defineConfig({
                 ],
                 navigateFallback: '/crew/app',
                 navigateFallbackAllowlist: [/^\/crew\//],
-                // /crew/persiapan = halaman publik (Blade), bukan bagian aplikasi → selalu dari server.
-                navigateFallbackDenylist: [/^\/crew\/sw\.js/, /^\/crew\/persiapan/],
+                // /crew/persiapan & /crew/roster = halaman publik (Blade), bukan bagian aplikasi → selalu dari server.
+                navigateFallbackDenylist: [/^\/crew\/sw\.js/, /^\/crew\/persiapan/, /^\/crew\/roster/],
                 inlineWorkboxRuntime: true, // tanpa file workbox-*.js terpisah (path relatif /crew/)
                 cleanupOutdatedCaches: true,
                 clientsClaim: true,

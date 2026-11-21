@@ -9,6 +9,7 @@ use App\Http\Controllers\GtrResultCheckController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RoadToGtrController;
+use App\Http\Controllers\RosterPublicController;
 use App\Http\Controllers\RunnerAuthController;
 use App\Http\Controllers\RunnerDashboardController;
 use App\Http\Controllers\RunnerPasswordController;
@@ -39,6 +40,10 @@ Route::redirect('/crew', '/crew/app');
 // aplikasi dengan akun panitia. HARUS sebelum catch-all di bawah, dan dikecualikan dari
 // navigateFallback service worker (vite.config.js) supaya tidak tertangkap sebagai app shell.
 Route::get('/crew/persiapan', [GtrPrepPublicController::class, 'index'])->name('crew.prep');
+// Roster panitia hari H — publik baca-saja (rapat / proyektor), no. HP disamarkan. Sama seperti
+// /crew/persiapan: sebelum catch-all & dikecualikan dari navigateFallback service worker.
+Route::get('/crew/roster', [RosterPublicController::class, 'index'])->name('crew.roster');
+Route::get('/crew/roster/data', [RosterPublicController::class, 'data'])->middleware('throttle:60,1')->name('crew.roster.data');
 Route::view('/crew/{any}', 'scanner.app')->where('any', '.*')->name('crew');
 
 // URL lama /scanner (sebelum 15 Nov 2026). HP yang sudah memasang aplikasi lama masih punya

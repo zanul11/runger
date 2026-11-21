@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             GallerySeeder::class,
             ContactSeeder::class,
             RouteSeeder::class,
+            RosterGtr2026Seeder::class,
         ]);
     }
 }

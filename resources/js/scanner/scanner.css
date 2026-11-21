@@ -1003,3 +1003,7 @@ a.round { text-decoration: none; background: var(--surface-2); }
 .catgroup .preplist { padding: 0 8px 8px; }
 .catgroup .preplist li { background: var(--surface-2); }
 .catgroup .preplist li.done { background: var(--bg); }
+
+/* Roster panitia hari H: layar penuh di atas shell (tema sendiri, lihat resources/js/roster/roster.css). */
+.roster-layer { position: fixed; inset: 0; z-index: 50; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; background: #f5f2ea; }
+html.roster-open, html.roster-open body { overflow: hidden; }

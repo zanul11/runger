@@ -6,7 +6,7 @@ import { formatTime, nowMs } from '../clock.js';
 import Icon from './Icon.vue';
 import InstallCard from './InstallCard.vue';
 
-const emit = defineEmits(['close', 'notify', 'participants', 'prep']);
+const emit = defineEmits(['close', 'notify', 'participants', 'prep', 'roster']);
 const busy = ref(false);
 const now = ref(nowMs());
 let tick;
@@ -84,6 +84,10 @@ async function doLogout() {
             <button v-if="!isPanitia()" class="tile" @click="emit('prep')">
                 <span class="tile-ic"><Icon name="check-circle" :size="18" /></span>
                 <span>Persiapan<small>checklist panitia</small></span>
+            </button>
+            <button class="tile" @click="emit('roster')">
+                <span class="tile-ic"><Icon name="users" :size="18" /></span>
+                <span>Roster<small>panitia hari H</small></span>
             </button>
             <button class="tile" @click="syncNow">
                 <span class="tile-ic"><Icon name="upload" :size="18" /></span>
