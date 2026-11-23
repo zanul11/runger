@@ -18,6 +18,7 @@ const saveTamu = (n) => roster('/consumption', { method: 'PUT', body: { tamu_tam
 const exportJson = () => roster('/export');
 const importJson = (mode, data, preview) => roster(preview ? '/import/preview' : '/import', { method: 'POST', body: { mode, data }, timeout: 60000 });
 const updateItem = (type, id, body) => roster(`/${type}/${id}`, { method: 'PATCH', body });
+const deleteItem = (type, id) => roster(`/${type}/${id}`, { method: 'DELETE' });
 const shareUrl = `${location.origin}/crew/roster`;
 
 // Layar di belakang tidak ikut scroll.
@@ -27,7 +28,7 @@ onBeforeUnmount(() => document.documentElement.classList.remove('roster-open'));
 
 <template>
     <div class="roster-layer">
-        <RosterBoard :load="load" :save-slot="saveSlot" :save-tamu="saveTamu" :export-json="exportJson" :import-json="importJson" :update-item="updateItem"
+        <RosterBoard :load="load" :save-slot="saveSlot" :save-tamu="saveTamu" :export-json="exportJson" :import-json="importJson" :update-item="updateItem" :delete-item="deleteItem"
                      :share-url="shareUrl" show-back @back="emit('back')" />
     </div>
 </template>

@@ -6,8 +6,21 @@
 
 export const isFilled = (slot) => !!String(slot?.nama ?? '').trim();
 
+/**
+ * Kunci nama untuk menghitung orang: huruf kecil, aksen, tanda baca & spasi dirapikan —
+ * "Budi  S." dan "budi s" = orang yang sama (dihitung 1 meski mengisi beberapa slot / pos).
+ */
+export function nameKey(nama) {
+    const raw = String(nama ?? '').trim();
+    const k = raw.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+    return k || raw.toLowerCase();
+}
+
+const filledSlots = (pos) => (pos.slots ?? []).slice(0, pos.max).filter(isFilled);
+
+/** Slot terisi di satu pos (dipakai status & kekurangan pos). */
 export function filledCount(pos) {
-    return (pos.slots ?? []).slice(0, pos.max).filter(isFilled).length;
+    return filledSlots(pos).length;
 }
 
 /** ok = terisi ≥ min (min 0 selalu ok) · part = 0 < terisi < min · empty = kosong. */
@@ -28,18 +41,43 @@ export function positionsOf(area) {
     return area.groups.flatMap((g) => g.positions);
 }
 
-/** Total sekumpulan pos. Kekurangan = jumlah kekurangan per pos (kelebihan di satu pos tidak menutup pos lain). */
+/**
+ * Total sekumpulan pos. filled = jumlah ORANG (nama sama dihitung 1), slots = slot terisi,
+ * dup = selisihnya. Kekurangan = jumlah kekurangan per pos (kelebihan di satu pos tidak menutup pos lain).
+ */
 export function totals(positions) {
-    const t = { filled: 0, min: 0, max: 0, short: 0, count: positions.length, full: 0 };
+    const t = { filled: 0, slots: 0, dup: 0, min: 0, max: 0, short: 0, count: positions.length, full: 0 };
+    const people = new Set();
     for (const p of positions) {
-        const n = filledCount(p);
-        t.filled += n;
+        for (const s of filledSlots(p)) people.add(nameKey(s.nama));
+        t.slots += filledCount(p);
         t.min += p.min;
         t.max += p.max;
         t.short += shortfall(p);
         if (posStatus(p) === 'ok') t.full++;
     }
+    t.filled = people.size;
+    t.dup = t.slots - t.filled;
     return t;
+}
+
+/**
+ * Nama yang muncul di lebih dari satu slot: nameKey → daftar { pos, slot_no }.
+ * Untuk penanda "nama sama" di slot (orangnya dihitung 1 di total).
+ */
+export function duplicateNames(data) {
+    const map = new Map();
+    for (const a of data?.areas ?? []) {
+        for (const p of positionsOf(a)) {
+            for (const s of filledSlots(p)) {
+                const k = nameKey(s.nama);
+                if (!map.has(k)) map.set(k, []);
+                map.get(k).push({ pos: p.nama, posId: p.id, slot_no: s.slot_no });
+            }
+        }
+    }
+    for (const [k, list] of map) if (list.length < 2) map.delete(k);
+    return map;
 }
 
 export const range = (min, max) => (min === max ? `${min}` : `${min}–${max}`);
@@ -121,6 +159,7 @@ export function whatsappText(data, tamu) {
     if (e.catatan_open_gate) L.push(`⏰ ${e.catatan_open_gate}`);
     L.push('');
     L.push(`*Total: ${all.filled} terisi dari ${range(all.min, all.max)} orang*${all.short ? ` — ⚠️ kurang ${all.short} dari minimal` : ' ✓'}`);
+    if (all.dup) L.push(`_(${all.slots} slot terisi — nama yang sama di beberapa pos dihitung 1 orang)_`);
     for (const a of areas) {
         const t = totals(positionsOf(a));
         L.push(`• ${a.nama}: ${t.filled} terisi dari ${range(t.min, t.max)}${t.short ? ` (kurang ${t.short})` : ' ✓'}`);
@@ -134,7 +173,7 @@ export function whatsappText(data, tamu) {
             for (const p of g.positions) {
                 const km = kmLabel(p);
                 L.push(`*${p.nama}*${km ? ` (${km})` : ''} — ${filledCount(p)}/${needOf(p)}`);
-                const filled = p.slots.slice(0, p.max).filter(isFilled);
+                const filled = filledSlots(p);
                 for (const s of filled) L.push(`• ${s.nama.trim()}${s.no_hp ? ` (${s.no_hp})` : ''}`);
                 const missing = Math.max(p.min - filled.length, filled.length ? 0 : 1);
                 for (let i = 0; i < missing; i++) L.push('• _(belum ada)_');
