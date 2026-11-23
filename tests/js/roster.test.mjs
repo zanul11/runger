@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { consumption, filledCount, matches, posStatus, rosterCsv, shortfall, totals, whatsappText } from '../../resources/js/roster/logic.js';
+import { consumption, duplicateNames, filledCount, nameKey, matches, posStatus, rosterCsv, shortfall, totals, whatsappText } from '../../resources/js/roster/logic.js';
 
 const slot = (nama = '', no_hp = '') => ({ nama, no_hp, catatan: '' });
 const pos = (over = {}) => ({ id: 1, nama: 'Marshal 3', min: 2, max: 2, km: ['2', '8,1', '12,8'], slots: [slot(), slot()], ...over });
@@ -68,4 +68,23 @@ test('CSV satu baris per slot', () => {
     const lines = rosterCsv(data()).split('\r\n');
     assert.equal(lines.length, 1 + 1 + 3 + 2 + 2);
     assert.ok(lines[1].includes('Race Director;;1;1;wajib;Budi;0812'));
+});
+
+test('nama sama dihitung 1 orang di total (huruf besar, spasi & titik diabaikan)', () => {
+    assert.equal(nameKey('  Budi   S. '), nameKey('budi s'));
+    assert.notEqual(nameKey('Budi'), nameKey('Budiman'));
+    const d = data();
+    d.areas[1].groups[0].positions[0].slots = [slot('budi'), slot('Wahab')];      // Budi juga Race Director
+    d.areas[1].groups[0].positions[1].slots = [slot(' WAHAB '), slot()];
+    const all = d.areas.flatMap((a) => a.groups.flatMap((g) => g.positions));
+    const t = totals(all);
+    assert.deepEqual([t.filled, t.slots, t.dup], [3, 5, 2]); // Budi, A, Wahab
+    assert.equal(t.short, 1, 'kekurangan tetap per pos (Timing kurang 1)');
+    assert.equal(filledCount(all[2]), 2, 'status pos tetap per slot');
+    const dup = duplicateNames(d);
+    assert.deepEqual([...dup.keys()].sort(), ['budi', 'wahab']);
+    assert.deepEqual(dup.get('budi').map((x) => x.pos), ['Race Director', 'Marshal 3']);
+    assert.match(whatsappText(d), /\*Total: 3 terisi dari 5–8 orang\* — ⚠️ kurang 1 dari minimal\n_\(5 slot terisi — nama yang sama di beberapa pos dihitung 1 orang\)_/);
+    // konsumsi memakai jumlah orang, bukan slot
+    assert.equal(consumption(d, 0).panitia, 8);
 });

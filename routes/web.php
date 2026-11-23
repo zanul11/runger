@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CrewMapController;
 use App\Http\Controllers\GtrBibCheckController;
 use App\Http\Controllers\GtrBibController;
 use App\Http\Controllers\GtrDocumentController;
@@ -44,6 +45,8 @@ Route::get('/crew/persiapan', [GtrPrepPublicController::class, 'index'])->name('
 // /crew/persiapan: sebelum catch-all & dikecualikan dari navigateFallback service worker.
 Route::get('/crew/roster', [RosterPublicController::class, 'index'])->name('crew.roster');
 Route::get('/crew/roster/data', [RosterPublicController::class, 'data'])->middleware('throttle:60,1')->name('crew.roster.data');
+// Peta sign arah & marshal (baca-saja, tanpa login). Sebelum catch-all & dikecualikan dari navigateFallback SW.
+Route::get('/crew/peta', [CrewMapController::class, 'index'])->name('crew.map');
 Route::view('/crew/{any}', 'scanner.app')->where('any', '.*')->name('crew');
 
 // URL lama /scanner (sebelum 15 Nov 2026). HP yang sudah memasang aplikasi lama masih punya

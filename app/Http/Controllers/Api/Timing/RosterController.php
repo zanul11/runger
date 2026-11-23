@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Timing;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\RosterArea;
+use App\Models\RosterAssignment;
 use App\Models\RosterConsumptionSetting;
 use App\Models\RosterGroup;
 use App\Models\RosterPosition;
@@ -101,6 +102,29 @@ class RosterController extends Controller
             ->all());
 
         return response()->json(['id' => $pos->id, 'nama' => $pos->nama, 'message' => 'Pos diperbarui.']);
+    }
+
+    /**
+     * DELETE /roster/{type}/{id} (admin) — hapus area / kelompok / pos yang tidak diperlukan,
+     * beserta isinya (kelompok, pos & petugas di dalamnya ikut terhapus lewat cascade).
+     */
+    public function destroy(string $type, int $id): JsonResponse
+    {
+        [$model, $positionIds, $label] = match ($type) {
+            'areas' => [$m = RosterArea::findOrFail($id), $m->positions()->pluck('roster_positions.id'), 'Area'],
+            'groups' => [$m = RosterGroup::findOrFail($id), $m->positions()->pluck('id'), 'Kelompok'],
+            default => [$m = RosterPosition::findOrFail($id), collect([$m->id]), 'Pos'],
+        };
+        $petugas = RosterAssignment::whereIn('position_id', $positionIds)->filled()->count();
+        $nama = $model->nama;
+        $model->delete();
+
+        return response()->json([
+            'deleted' => ['type' => $type, 'id' => $id],
+            'positions' => $positionIds->count(),
+            'petugas' => $petugas,
+            'message' => "{$label} \"{$nama}\" dihapus".($petugas ? " ({$petugas} petugas ikut terhapus)." : '.'),
+        ]);
     }
 
     /** PUT /roster/consumption — Body: tamu_tambahan. */

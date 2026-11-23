@@ -47,6 +47,8 @@ class GtrCategory extends Model
         'elevation_profile' => 'array',
         'water_stations' => 'array',
         'course_pois' => 'array',
+        'crew_signs' => 'array',
+        'crew_marshals' => 'array',
         'mandatory_gear' => 'array',
         'recommended_gear' => 'array',
         'rundown' => 'array',
@@ -251,6 +253,82 @@ class GtrCategory extends Model
             })
             ->sortBy('km')
             ->values();
+    }
+
+    // ===== Titik operasional panitia (sign arah & marshal) — tampil di /crew/peta, BUKAN di Course Map peserta =====
+
+    /** Warna sign arah di lapangan: label & warna penanda di peta. */
+    public const SIGN_COLORS = [
+        'red' => ['label' => 'Merah', 'hex' => '#E2362B'],
+        'blue' => ['label' => 'Biru', 'hex' => '#2563EB'],
+        'green' => ['label' => 'Hijau', 'hex' => '#16A34A'],
+        'yellow' => ['label' => 'Kuning', 'hex' => '#EAB308'],
+    ];
+
+    /** Arah sign (relatif terhadap arah lari peserta): label, simbol, rotasi panah (derajat; null = ikon khusus). */
+    public const SIGN_DIRECTIONS = [
+        'straight' => ['label' => 'Lurus', 'symbol' => '↑', 'rotate' => 0],
+        'left' => ['label' => 'Belok Kiri', 'symbol' => '←', 'rotate' => -90],
+        'right' => ['label' => 'Belok Kanan', 'symbol' => '→', 'rotate' => 90],
+        'slight_left' => ['label' => 'Serong Kiri', 'symbol' => '↖', 'rotate' => -45],
+        'slight_right' => ['label' => 'Serong Kanan', 'symbol' => '↗', 'rotate' => 45],
+        'u_turn' => ['label' => 'Putar Balik', 'symbol' => '↶', 'rotate' => null],
+    ];
+
+    public static function signDirectionOptions(): array
+    {
+        return collect(self::SIGN_DIRECTIONS)->map(fn ($d) => $d['symbol'] . '  ' . $d['label'])->all();
+    }
+
+    /** Tim asal marshal (saran di form admin; nama lain tetap boleh). */
+    public const MARSHAL_TEAMS = ['Basecamp', 'Runger'];
+
+    public static function signColorOptions(): array
+    {
+        return collect(self::SIGN_COLORS)->map(fn ($c) => $c['label'])->all();
+    }
+
+    /** Sign arah dinormalisasi, urut KM, kode S1, S2, ... */
+    public function crewSigns(): Collection
+    {
+        return collect($this->crew_signs ?? [])
+            ->filter(fn ($p) => is_array($p) && isset($p['km']) && is_numeric($p['km']))
+            ->map(function (array $p) {
+                $color = isset(self::SIGN_COLORS[$p['color'] ?? '']) ? $p['color'] : 'red';
+                $dir = isset(self::SIGN_DIRECTIONS[$p['direction'] ?? '']) ? $p['direction'] : null;
+
+                return [
+                    'km' => round((float) $p['km'], 2),
+                    'color' => $color,
+                    'color_label' => self::SIGN_COLORS[$color]['label'],
+                    'hex' => self::SIGN_COLORS[$color]['hex'],
+                    // arah kosong = belum diisi admin (penanda tanpa panah)
+                    'direction' => $dir,
+                    'direction_label' => $dir ? self::SIGN_DIRECTIONS[$dir]['label'] : null,
+                    'symbol' => $dir ? self::SIGN_DIRECTIONS[$dir]['symbol'] : null,
+                    'rotate' => $dir ? self::SIGN_DIRECTIONS[$dir]['rotate'] : null,
+                    'note' => trim((string) ($p['note'] ?? '')) ?: null,
+                ];
+            })
+            ->sortBy('km')
+            ->values()
+            ->map(fn (array $p, int $i) => $p + ['code' => 'S' . ($i + 1)]);
+    }
+
+    /** Marshal dinormalisasi, urut KM, kode M1, M2, ... */
+    public function crewMarshals(): Collection
+    {
+        return collect($this->crew_marshals ?? [])
+            ->filter(fn ($p) => is_array($p) && isset($p['km']) && is_numeric($p['km']))
+            ->map(fn (array $p) => [
+                'km' => round((float) $p['km'], 2),
+                'team' => trim((string) ($p['team'] ?? '')) ?: null,
+                'count' => max(1, (int) ($p['count'] ?? 1)),
+                'note' => trim((string) ($p['note'] ?? '')) ?: null,
+            ])
+            ->sortBy('km')
+            ->values()
+            ->map(fn (array $p, int $i) => $p + ['code' => 'M' . ($i + 1)]);
     }
 
     /**

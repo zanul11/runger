@@ -59,6 +59,8 @@ Route::prefix('timing')->name('timing.')->group(function () {
             });
             Route::patch('/{type}/{id}', 'update')->middleware('api.admin')
                 ->whereIn('type', ['areas', 'groups', 'positions'])->whereNumber('id')->name('update');
+            Route::delete('/{type}/{id}', 'destroy')->middleware('api.admin')
+                ->whereIn('type', ['areas', 'groups', 'positions'])->whereNumber('id')->name('destroy');
         });
 
         // Tembak start kategori: admin saja.

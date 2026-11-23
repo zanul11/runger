@@ -338,4 +338,39 @@ class GtrCrewRosterTest extends TestCase
         $this->patchJson($url, ['deskripsi' => ''])->assertOk();
         $this->assertNull($p->fresh()->deskripsi);
     }
+
+    public function test_admin_deletes_position_group_area_from_crew_app(): void
+    {
+        $svc = app(RosterService::class);
+        $p = $this->pos('Marshal 3');
+        $g = $p->group;
+        $a = $g->area;
+        $svc->saveSlot($p, 1, ['nama' => 'Wahab'], $this->admin);
+
+        Sanctum::actingAs($this->panitia);
+        $this->deleteJson("/api/timing/roster/positions/{$p->id}")->assertForbidden();
+        $this->assertNotNull($p->fresh());
+
+        Sanctum::actingAs($this->admin);
+        $this->deleteJson("/api/timing/roster/positions/{$p->id}")->assertOk()
+            ->assertJsonPath('petugas', 1)
+            ->assertJsonPath('message', 'Pos "Marshal 3" dihapus (1 petugas ikut terhapus).');
+        $this->assertNull($p->fresh());
+        $this->assertSame(0, RosterAssignment::where('position_id', $p->id)->count());
+        $this->deleteJson("/api/timing/roster/positions/{$p->id}")->assertNotFound();
+
+        // Kelompok: semua pos di dalamnya ikut terhapus.
+        $ids = $g->positions()->pluck('id');
+        $this->assertNotEmpty($ids);
+        $this->deleteJson("/api/timing/roster/groups/{$g->id}")->assertOk()->assertJsonPath('positions', $ids->count());
+        $this->assertSame(0, RosterPosition::whereIn('id', $ids)->count());
+
+        // Area acuan konsumsi dihapus → acuan kosong, roster tetap bisa dimuat.
+        $areas = $this->event->rosterAreas()->count();
+        $this->deleteJson("/api/timing/roster/areas/{$a->id}")->assertOk();
+        $this->assertNull(RosterArea::find($a->id));
+        $this->getJson('/api/timing/roster')->assertOk()
+            ->assertJsonCount($areas - 1, 'areas')
+            ->assertJsonPath('consumption.area_acuan_id', null);
+    }
 }

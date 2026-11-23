@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import {
-    consumption, filledCount, isFilled, kmLabel, matches, needOf, posStatus, positionsOf, range, rosterCsv, shortfall, totals, whatsappText,
+    consumption, duplicateNames, filledCount, isFilled, kmLabel, nameKey, matches, needOf, posStatus, positionsOf, range, rosterCsv, shortfall, totals, whatsappText,
 } from './logic.js';
 import RosterSimple from './RosterSimple.vue';
 import './roster.css';
@@ -18,6 +18,7 @@ const props = defineProps({
     exportJson: { type: Function, default: null },            // () => object
     importJson: { type: Function, default: null },            // (mode, data, preview) => result
     updateItem: { type: Function, default: null },            // (type, id, body) => void — admin
+    deleteItem: { type: Function, default: null },            // (type, id) => { message } — admin
     showBack: { type: Boolean, default: false },
     shareUrl: { type: String, default: null },
     pollMs: { type: Number, default: 7000 },
@@ -253,6 +254,17 @@ const icon = (key) => data.value?.icons?.[key] ?? data.value?.icons?.flag ?? [];
 const cons = computed(() => consumption(data.value, tamu.value));
 const STATUS_LABEL = { ok: 'Terpenuhi', part: 'Kurang', empty: 'Kosong' };
 
+// Nama yang sama di beberapa slot = 1 orang di total; slotnya diberi penanda.
+const dups = computed(() => duplicateNames(data.value));
+function dupOf(p, s) {
+    if (!isFilled(s)) return null;
+    const list = dups.value.get(nameKey(s.nama));
+    if (!list) return null;
+    const others = list.filter((x) => !(x.posId === p.id && x.slot_no === s.slot_no))
+        .map((x) => (x.posId === p.id ? `${x.pos} (slot ${x.slot_no})` : x.pos));
+    return { n: list.length, title: `Nama sama juga di: ${[...new Set(others)].join(', ')} — dihitung 1 orang di total` };
+}
+
 // ---------------------------------------------------------------- ringkasan WA / export / cetak
 const copyBox = ref(null);
 async function copyWa() {
@@ -387,6 +399,47 @@ async function saveRename(compact = false) {
     }
 }
 
+// Hapus area / kelompok / pos yang tidak diperlukan (admin) — dari modal ubah.
+const canDelete = computed(() => canRename.value && !!props.deleteItem);
+function findItem(type, id) {
+    for (const a of data.value?.areas ?? []) {
+        if (type === 'areas' && a.id === id) return a;
+        for (const g of a.groups) {
+            if (type === 'groups' && g.id === id) return g;
+            for (const p of g.positions) if (type === 'positions' && p.id === id) return p;
+        }
+    }
+    return null;
+}
+function deleteWarning(r) {
+    const item = findItem(r.type, r.id);
+    const positions = !item ? [] : r.type === 'positions' ? [item] : r.type === 'groups' ? item.positions : positionsOf(item);
+    const petugas = positions.reduce((n, p) => n + filledCount(p), 0);
+    const parts = [];
+    if (r.type === 'areas') parts.push(`${item?.groups.length ?? 0} kelompok`);
+    if (r.type !== 'positions') parts.push(`${positions.length} pos`);
+    if (petugas) parts.push(`${petugas} petugas yang sudah diisi`);
+    return `Hapus ${r.label} "${r.nama.trim() || item?.nama}"?`
+        + (parts.length ? `\n\nIkut terhapus: ${parts.join(', ')}.` : '')
+        + '\n\nTidak bisa dibatalkan.';
+}
+async function removeItem() {
+    const r = ren.value;
+    if (!confirm(deleteWarning(r))) return;
+    r.busy = true;
+    r.error = null;
+    try {
+        const res = await props.deleteItem(r.type, r.id);
+        notify(res?.message || `${r.label} dihapus.`);
+        ren.value = null;
+        lastRaw = '';
+        await load();
+    } catch (e) {
+        r.busy = false;
+        r.error = e.body?.message || e.message || 'Gagal menghapus';
+    }
+}
+
 const CHANGE_LABEL = { tambah: 'Tambah', ubah: 'Ubah', kosongkan: 'Kosongkan', hapus: 'Hapus' };
 
 // ---------------------------------------------------------------- ornamen kontur topografi
@@ -449,6 +502,7 @@ const contours = [
                                 <em :style="{ left: pct(c.t.min, c.t.max) + '%' }" title="Batas minimal"></em>
                             </div>
                             <p class="rg-sum-s">{{ c.t.short ? `Kurang ${c.t.short} orang dari minimal` : 'Minimal terpenuhi ✓' }}</p>
+                            <p v-if="c.t.dup" class="rg-sum-d" :title="`${c.t.slots} slot terisi oleh ${c.t.filled} orang`">{{ c.t.slots }} slot · nama sama dihitung 1</p>
                         </div>
                     </div>
                 </template>
@@ -531,6 +585,7 @@ const contours = [
                                             <b>{{ s.nama || '—' }}</b><span v-if="s.no_hp" class="num">{{ s.no_hp }}</span>
                                         </span>
                                         <em v-if="i >= p.min" class="rg-opt">opsional</em>
+                                        <em v-if="dupOf(p, s)" class="rg-dup" :title="dupOf(p, s).title">nama sama ×{{ dupOf(p, s).n }}</em>
                                         <i class="rg-dot" aria-hidden="true"></i>
                                     </li>
                                 </ol>
@@ -570,7 +625,7 @@ const contours = [
                 <p class="rg-foot">
                     <template v-if="data.public">Halaman baca-saja · no. HP disamarkan · diperbarui otomatis. Isi petugas dari aplikasi <a href="/crew/app">GTR Crew</a> dengan akun panitia.</template>
                     <template v-else-if="!canFill">Akun ini hanya bisa melihat. Pengisian petugas: akun panitia (koordinator) atau admin.</template>
-                    <template v-else>Isian tersimpan otomatis &amp; tampil di perangkat lain dalam beberapa detik. Arahkan kursor ke slot untuk melihat siapa yang terakhir mengubah.<template v-if="canRename"> Ketuk ikon pensil untuk mengganti nama area/kelompok, atau mengubah pos (nama, jumlah orang, jobdesk).</template></template>
+                    <template v-else>Isian tersimpan otomatis &amp; tampil di perangkat lain dalam beberapa detik. Arahkan kursor ke slot untuk melihat siapa yang terakhir mengubah.<template v-if="canRename"> Ketuk ikon pensil untuk mengganti nama atau menghapus area/kelompok/pos, dan mengubah pos (nama, jumlah orang, jobdesk).</template> Nama yang sama di beberapa slot dihitung 1 orang.</template>
                 </p>
             </main>
         </template>
@@ -606,10 +661,11 @@ const contours = [
                     <button v-if="ren.canCompact" type="button" class="rg-btn primary rg-compact" :disabled="ren.busy" @click="saveRename(true)">Pindahkan ke slot kosong &amp; simpan</button>
                 </div>
                 <div class="rg-modal-actions">
+                    <button v-if="canDelete" type="button" class="rg-btn danger" :disabled="ren.busy" @click="removeItem">Hapus {{ ren.label }}</button>
                     <button type="button" class="rg-btn" :disabled="ren.busy" @click="ren = null">Batal</button>
                     <button type="submit" class="rg-btn primary" :disabled="ren.busy">{{ ren.busy ? 'Menyimpan…' : 'Simpan' }}</button>
                 </div>
-                <p class="rg-note">Tambah/hapus pos atau kelompok tetap di panel admin → Roster Panitia.</p>
+                <p class="rg-note">{{ ren.type === 'positions' ? 'Hapus pos = slot & petugas di pos ini ikut terhapus.' : `Hapus ${ren.label} = semua pos & petugas di dalamnya ikut terhapus.` }} Tambah pos/kelompok baru tetap di panel admin → Roster Panitia.</p>
             </form>
         </div>
 

@@ -761,6 +761,7 @@ button:disabled { opacity: .45; cursor: default; }
     line-height: 1.15;
 }
 .tile:active:not(:disabled) { background: var(--lime-soft); }
+a.tile { text-decoration: none; color: inherit; }
 .tile small { display: block; margin-top: 2px; font-size: 12px; font-weight: 650; color: var(--faint); }
 .tile-ic { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--surface-2); color: var(--ink); }
 .tile.danger { background: var(--surface-3); color: var(--bad-text); }
