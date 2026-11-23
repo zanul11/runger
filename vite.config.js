@@ -69,8 +69,8 @@ export default defineConfig({
                 ],
                 navigateFallback: '/crew/app',
                 navigateFallbackAllowlist: [/^\/crew\//],
-                // /crew/persiapan & /crew/roster = halaman publik (Blade), bukan bagian aplikasi → selalu dari server.
-                navigateFallbackDenylist: [/^\/crew\/sw\.js/, /^\/crew\/persiapan/, /^\/crew\/roster/],
+                // /crew/persiapan, /crew/roster & /crew/peta = halaman publik (Blade), bukan bagian aplikasi → selalu dari server.
+                navigateFallbackDenylist: [/^\/crew\/sw\.js/, /^\/crew\/persiapan/, /^\/crew\/roster/, /^\/crew\/peta/],
                 inlineWorkboxRuntime: true, // tanpa file workbox-*.js terpisah (path relatif /crew/)
                 cleanupOutdatedCaches: true,
                 clientsClaim: true,

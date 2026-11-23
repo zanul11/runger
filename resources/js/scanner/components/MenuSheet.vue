@@ -89,6 +89,10 @@ async function doLogout() {
                 <span class="tile-ic"><Icon name="users" :size="18" /></span>
                 <span>Roster<small>panitia hari H</small></span>
             </button>
+            <a class="tile" href="/crew/peta">
+                <span class="tile-ic"><Icon name="pin" :size="18" /></span>
+                <span>Peta rute<small>sign &amp; marshal</small></span>
+            </a>
             <button class="tile" @click="syncNow">
                 <span class="tile-ic"><Icon name="upload" :size="18" /></span>
                 <span>Kirim data<small>sekarang</small></span>

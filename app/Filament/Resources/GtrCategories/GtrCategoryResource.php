@@ -293,7 +293,7 @@ class GtrCategoryResource extends Resource
      * Validasi repeater pos / info jalur: KM tidak melebihi panjang rute;
      * untuk pos, jam cut-off harus makin lambat mengikuti urutan KM.
      */
-    protected static function courseKmRule(?GtrCategory $record, bool $checkCutoff): \Closure
+    public static function courseKmRule(?GtrCategory $record, bool $checkCutoff): \Closure
     {
         return function (string $attribute, $value, \Closure $fail) use ($record, $checkCutoff) {
             $items = collect(is_array($value) ? $value : [])->filter(fn ($p) => is_array($p) && is_numeric($p['km'] ?? null));
