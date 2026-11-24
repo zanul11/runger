@@ -20,7 +20,8 @@ class RacepackReminder extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Ambil Race Pack-mu & Dokumen Wajib Dibawa — Gerung Trail Run 2026',
+            subject: 'Pengingat Race Pack Collection & E-Ticket — '.$this->registration->nomor_registrasi
+                .($this->registration->bib_number ? ' · BIB '.$this->registration->bib_number : ''),
         );
     }
 

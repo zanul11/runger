@@ -18,7 +18,8 @@ class SendGtrRaceReminders extends Command
     protected $signature = 'gtr:race-reminders
         {type=auto : auto | h7 | h1}
         {--dry-run : Tampilkan jumlah penerima tanpa mengirim}
-        {--test= : Kirim satu contoh ke email ini (tidak menandai terkirim)}';
+        {--test= : Kirim satu contoh ke email ini (tidak menandai terkirim)}
+        {--resend : Kirim ulang juga ke yang sudah pernah dikirimi (mis. blast ulang dengan e-ticket)}';
 
     protected $description = 'Kirim email pengingat race pack (H-7) & briefing race day (H-1) GTR';
 
@@ -50,7 +51,7 @@ class SendGtrRaceReminders extends Command
         $query = GtrRegistration::with('category')
             ->where('payment_status', 'paid')
             ->whereNotNull('email')
-            ->whereNull($column)
+            ->when(! $this->option('resend'), fn ($q) => $q->whereNull($column))
             ->when($type === 'h7', fn ($q) => $q->whereNull('racepack_collected_at'));
 
         if ($email = $this->option('test')) {
