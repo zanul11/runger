@@ -20,7 +20,7 @@ class RacepackReminder extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Ambil Race Pack-mu — Gerung Trail Run 2026',
+            subject: 'Ambil Race Pack-mu & Dokumen Wajib Dibawa — Gerung Trail Run 2026',
         );
     }
 

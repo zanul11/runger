@@ -3,6 +3,13 @@
   $cat = $reg->category;
   $setting = \App\Models\GtrSetting::first();
   $appUrl = route('gtr.login');
+  $title = $setting->title ?? 'Gerung Trail Run 2026';
+  // Persyaratan RPC dari pengaturan GTR: baris bernomor → daftar, baris lain → catatan.
+  $reqLines = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $setting?->rpc_requirements))));
+  $reqItems = array_values(array_map(fn ($l) => preg_replace('/^\d+[.)]\s*/', '', $l), array_filter($reqLines, fn ($l) => preg_match('/^\d+[.)]/', $l))));
+  $reqNotes = array_values(array_filter($reqLines, fn ($l) => ! preg_match('/^\d+[.)]/', $l)));
+  $docs = \App\Models\GtrDocument::published()->get();
+  $row = 'padding:10px 16px;border-top:1px solid #eef';
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -19,7 +26,7 @@
 
           <tr>
             <td style="background:#101010;padding:28px 32px;color:#ffffff;border-bottom:4px solid #E53935">
-              <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-bottom:6px">{{ $setting->title ?? 'Gerung Trail Run 2026' }} · H-7</div>
+              <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-bottom:6px">{{ $title }} · Race Pack Collection</div>
               <div style="font-size:22px;font-weight:800">Saatnya Ambil Race Pack 🎁</div>
             </td>
           </tr>
@@ -28,24 +35,63 @@
             <td style="padding:28px 32px">
               <p style="margin:0 0 14px;font-size:15px;line-height:1.6">Halo <strong>{{ $reg->full_name }}</strong>,</p>
               <p style="margin:0 0 20px;font-size:14px;line-height:1.7;color:#444">
-                Race day tinggal seminggu lagi! Jangan lupa ambil race pack-mu (BIB, jersey, dan perlengkapan lainnya) sesuai jadwal di bawah.
+                Race day sudah dekat! Ambil race pack-mu (BIB, jersey, dan perlengkapan lainnya) sesuai jadwal di bawah, dan <strong>siapkan dokumen wajib</strong> supaya proses pengambilan cepat.
               </p>
 
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e6e9f2;border-radius:12px;overflow:hidden;font-size:14px;margin:0 0 20px">
                 <tr><td style="padding:10px 16px;color:#667;width:40%">Kategori</td><td style="padding:10px 16px;font-weight:700">{{ $cat->distance ?? '' }} · {{ $cat->name ?? '-' }}</td></tr>
-                <tr><td style="padding:10px 16px;color:#667;border-top:1px solid #eef">Nomor BIB</td><td style="padding:10px 16px;font-weight:800;border-top:1px solid #eef">{{ $reg->bib_number ?: '-' }}</td></tr>
-                <tr><td style="padding:10px 16px;color:#667;border-top:1px solid #eef">Ukuran Jersey</td><td style="padding:10px 16px;font-weight:700;border-top:1px solid #eef">{{ $reg->size }}</td></tr>
+                <tr><td style="{{ $row }};color:#667">Nomor BIB</td><td style="{{ $row }};font-weight:800">{{ $reg->bib_number ?: '-' }}</td></tr>
+                <tr><td style="{{ $row }};color:#667">Ukuran Jersey</td><td style="{{ $row }};font-weight:700">{{ $reg->size }}</td></tr>
                 @if($setting?->racepack_schedule)
-                <tr><td style="padding:10px 16px;color:#667;border-top:1px solid #eef">Jadwal</td><td style="padding:10px 16px;font-weight:700;border-top:1px solid #eef">{{ $setting->racepack_schedule }}</td></tr>
+                <tr><td style="{{ $row }};color:#667">Jadwal</td><td style="{{ $row }};font-weight:700">{{ $setting->racepack_schedule }}</td></tr>
                 @endif
                 @if($setting?->racepack_location)
-                <tr><td style="padding:10px 16px;color:#667;border-top:1px solid #eef">Lokasi</td><td style="padding:10px 16px;font-weight:700;border-top:1px solid #eef">{{ $setting->racepack_location }}</td></tr>
+                <tr><td style="{{ $row }};color:#667">Lokasi</td><td style="{{ $row }}"><strong>{{ $setting->racepack_location }}</strong>@if($setting->racepack_address)<br><span style="font-size:12px;color:#667">{{ $setting->racepack_address }}</span>@endif
+                  @if($setting->racepack_maps_url)<br><a href="{{ $setting->racepack_maps_url }}" style="font-size:12px;color:#E53935;font-weight:700;text-decoration:none">Buka di Google Maps →</a>@endif</td></tr>
                 @endif
               </table>
 
+              @if($reqItems)
+              <div style="margin:0 0 10px;font-size:15px;font-weight:800">📋 Wajib dibawa saat pengambilan</div>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;line-height:1.5;margin:0 0 {{ $reqNotes ? '8' : '18' }}px">
+                @foreach($reqItems as $i => $item)
+                <tr>
+                  <td width="30" valign="top" style="padding:5px 0"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:11px;background:#E53935;color:#fff;font-size:12px;font-weight:700;text-align:center">{{ $i + 1 }}</span></td>
+                  <td valign="top" style="padding:6px 0;color:#333">{{ $item }}</td>
+                </tr>
+                @endforeach
+              </table>
+              @foreach($reqNotes as $note)
+              <p style="margin:0 0 18px;font-size:12px;line-height:1.6;color:#667">{{ $note }}</p>
+              @endforeach
+              @endif
+
+              @if($docs->isNotEmpty())
+              <div style="margin:0 0 6px;font-size:15px;font-weight:800">⬇️ Unduh & print dokumennya</div>
+              <p style="margin:0 0 10px;font-size:13px;line-height:1.6;color:#555">Print, isi, dan tanda tangani sebelum datang ke lokasi.</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e6e9f2;border-radius:12px;overflow:hidden;font-size:14px;margin:0 0 20px">
+                @foreach($docs as $doc)
+                <tr>
+                  <td style="padding:12px 16px;{{ $loop->first ? '' : 'border-top:1px solid #eef;' }}font-weight:700;color:#1a1a1a">{{ $doc->title_id }}</td>
+                  <td align="right" style="padding:12px 16px;{{ $loop->first ? '' : 'border-top:1px solid #eef;' }}white-space:nowrap">
+                    <a href="{{ route('gtr.doc', [$doc->slug, 'id']) }}" style="display:inline-block;background:#101010;color:#ffffff;text-decoration:none;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px">PDF</a>
+                    @if($doc->has_en && $doc->pdf_en)
+                    <a href="{{ route('gtr.doc', [$doc->slug, 'en']) }}" style="display:inline-block;margin-left:4px;border:1px solid #cbd2e0;color:#334155;text-decoration:none;font-size:12px;font-weight:700;padding:6px 10px;border-radius:8px">EN</a>
+                    @endif
+                  </td>
+                </tr>
+                @endforeach
+              </table>
+              @endif
+
+              @if($setting?->rpc_proxy_note)
+              <p style="margin:0 0 18px;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;font-size:13px;line-height:1.6;color:#7c2d12">
+                <strong>Tidak bisa datang sendiri?</strong><br>{{ $setting->rpc_proxy_note }}
+              </p>
+              @endif
+
               <p style="margin:0 0 18px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;line-height:1.6;color:#334155">
                 Tunjukkan <strong>QR e-ticket</strong> di Runger App (My Race → detail race) ke petugas.
-                @if($setting?->racepack_note)<br>{{ $setting->racepack_note }}@endif
               </p>
 
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -57,8 +103,8 @@
               </table>
 
               <p style="margin:22px 0 0;font-size:13px;line-height:1.7;color:#666">
-                Sambil menunggu, cek course map & atur target finish di Runger App untuk membuat race plan dan pace band-mu.<br><br>
-                Salam, Panitia {{ $setting->title ?? 'Gerung Trail Run 2026' }}.
+                @if($setting?->rpc_contact)Ada pertanyaan? Hubungi <strong>{{ $setting->rpc_contact }}</strong>.<br><br>@endif
+                Salam, Panitia {{ $title }}.
               </p>
             </td>
           </tr>

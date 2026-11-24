@@ -65,6 +65,7 @@ class RosterGtr2026Seeder extends Seeder
                     ['Marshal 8', 1, 2, $m, 'sign', ['7,56', '12,2']],
                     ['Marshal 9', 1, 1, $m, 'sign', ['8,5']],
                     ['Marshal 10', 1, 2, $m, 'sign', ['10,1']],
+                    ['Marshal Rumah Terakhir', 1, 1, $m, 'sign', null, 'Rumah terakhir, sebelum Marshal 11'],
                     ['Marshal 11', 1, 2, $m, 'sign', ['11,75']],
                 ],
                 'Pos CP / WS / COP' => [
