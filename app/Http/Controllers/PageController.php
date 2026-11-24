@@ -134,8 +134,9 @@ class PageController extends Controller
             ->with(['registrations' => fn ($q) => $q
                 // Slot cadangan panitia ("Runners 1", ...) & slot sponsor ("Bank NTB Syariah 1", ...) tidak ditampilkan.
                 ->whereRaw("COALESCE(full_name, '') NOT REGEXP '^(Runners|Bank NTB Syariah) [0-9]+$'")
-                // Urut: lunas dulu → nomor BIB (numerik, 4 digit >999) → nama.
-                ->orderByRaw("CASE WHEN payment_status = 'paid' THEN 0 ELSE 1 END")
+                // Hanya peserta yang sudah lunas.
+                ->where('payment_status', 'paid')
+                // Urut: nomor BIB (numerik, 4 digit >999) → nama.
                 ->orderByRaw('bib_number IS NULL')      // yang punya BIB dulu
                 ->orderByRaw('LENGTH(bib_number)')       // 3 digit sebelum 4 digit
                 ->orderBy('bib_number')

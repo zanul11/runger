@@ -63,7 +63,7 @@
     <div class="block-head">
       <div class="eye">Registered Runners</div>
       <h2>Entry List</h2>
-      <p>Pilih tab kategori atau cari nama / nomor BIB. Peserta yang sudah bayar tampil lebih dulu.</p>
+      <p>Pilih tab kategori atau cari nama / nomor BIB. Hanya peserta yang sudah lunas yang ditampilkan.</p>
     </div>
 
     <div class="el-toolbar">
