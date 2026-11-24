@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { state, canTiming, canRacepack, canAdmin, isPanitia } from '../store.js';
+import { state, canTiming, canRacepack, canAdmin, isPanitia, isBendahara } from '../store.js';
 import { syncSoon } from '../sync.js';
 import Icon from './Icon.vue';
 import MenuSheet from './MenuSheet.vue';
@@ -11,6 +11,7 @@ import gtrLogo from '../assets/gtr-logo.png';
 import ParticipantsView from './ParticipantsView.vue';
 import PrepView from './PrepView.vue';
 import RosterView from './RosterView.vue';
+import ExpenseView from './ExpenseView.vue';
 import AdminPanel from './admin/AdminPanel.vue';
 import LocationPicker from './admin/LocationPicker.vue';
 
@@ -29,7 +30,7 @@ const active = computed(() => {
 });
 const scanLabel = computed(() => (active.value === 'racepack' ? 'Race Pack' : active.value === 'timing' ? point.value?.code : null));
 const MODE_LABEL = { timing: 'Timing', racepack: 'Race Pack', admin: 'Kontrol' };
-const view = ref('main');   // main | participants | prep | roster (layar penuh)
+const view = ref('main');   // main | participants | prep | roster | expenses (layar penuh)
 const menu = ref(false);
 const toast = ref(null);
 let toastTimer;
@@ -83,7 +84,7 @@ function openParticipants() {
             <span class="logo-tile sm"><img :src="gtrLogo" alt="Gerung Trail Run"></span>
             <div class="brandmark">
                 <b>GTR Crew</b>
-                <small>{{ isPanitia() ? 'Persiapan' : mode === 'scan' && !active ? 'Pilih lokasi' : (MODE_LABEL[active] ?? 'Timing') }} · GTR 2026</small>
+                <small>{{ isPanitia() ? 'Persiapan' : isBendahara() ? 'Pengeluaran' : mode === 'scan' && !active ? 'Pilih lokasi' : (MODE_LABEL[active] ?? 'Timing') }} · GTR 2026</small>
             </div>
             <button class="pill" :class="syncPill.cls" :aria-label="`${syncPill.label}, ${state.pending} data menunggu`" @click="syncSoon(0)">
                 <span class="dot"></span>
@@ -99,6 +100,16 @@ function openParticipants() {
             <div class="loc-text">
                 <small>Panitia</small>
                 <strong>Persiapan GTR</strong>
+            </div>
+            <button class="loc-people loc-change" aria-label="Buka roster panitia hari H" @click="view = 'roster'">
+                <Icon name="users" :size="18" /> Roster
+            </button>
+        </section>
+        <section v-else-if="isBendahara()" class="locbar rp">
+            <div class="loc-badge"><Icon name="card" :size="24" /></div>
+            <div class="loc-text">
+                <small>Bendahara</small>
+                <strong>Pengeluaran GTR</strong>
             </div>
             <button class="loc-people loc-change" aria-label="Buka roster panitia hari H" @click="view = 'roster'">
                 <Icon name="users" :size="18" /> Roster
@@ -163,6 +174,8 @@ function openParticipants() {
         </div>
 
         <PrepView v-if="isPanitia()" standalone @notify="notify" />
+        <ExpenseView v-else-if="isBendahara()" standalone @notify="notify" />
+        <ExpenseView v-else-if="view === 'expenses'" @back="view = 'main'" @notify="notify" />
         <PrepView v-else-if="view === 'prep'" @back="view = 'main'" @notify="notify" />
         <ParticipantsView v-else-if="view === 'participants'" :mode="active === 'timing' ? 'timing' : 'racepack'" @back="view = 'main'" @notify="notify" />
 
@@ -187,7 +200,7 @@ function openParticipants() {
         </template>
 
         <RosterView v-if="view === 'roster'" @back="view = 'main'" />
-        <MenuSheet v-if="menu" @close="menu = false" @notify="notify" @participants="openParticipants" @prep="menu = false; view = 'prep'" @roster="menu = false; view = 'roster'" />
+        <MenuSheet v-if="menu" @close="menu = false" @notify="notify" @participants="openParticipants" @prep="menu = false; view = 'prep'" @roster="menu = false; view = 'roster'" @expenses="menu = false; view = 'expenses'" />
         <div v-if="toast" class="toast" role="status">{{ toast }}</div>
     </div>
 </template>

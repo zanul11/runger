@@ -47,6 +47,7 @@ class MarshalResource extends Resource
     public const ROLES = [
         User::ROLE_MARSHAL => 'Marshal — scan timing di pos',
         User::ROLE_PANITIA => 'Panitia — Persiapan & isi Roster (koordinator)',
+        User::ROLE_BENDAHARA => 'Bendahara — input Pengeluaran & kwitansi',
     ];
 
     protected static ?int $navigationSort = 2;
@@ -56,7 +57,7 @@ class MarshalResource extends Resource
     /** Hanya tampilkan user dengan role marshal / panitia. */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->whereIn('role', [User::ROLE_MARSHAL, User::ROLE_PANITIA]);
+        return parent::getEloquentQuery()->whereIn('role', array_keys(self::ROLES));
     }
 
     /** Opsi pilihan pos: "KODE · Nama". */
@@ -82,7 +83,7 @@ class MarshalResource extends Resource
                 ->default(User::ROLE_MARSHAL)
                 ->required()
                 ->live()
-                ->helperText('Panitia biasa hanya bisa membuka & mencentang checklist Persiapan.'),
+                ->helperText('Panitia biasa hanya bisa membuka & mencentang checklist Persiapan. Bendahara hanya menu Pengeluaran.'),
             TextInput::make('password')->label('Password')->password()
                 ->revealable()
                 ->required(fn (string $operation) => $operation === 'create')
@@ -108,13 +109,24 @@ class MarshalResource extends Resource
                 TextColumn::make('role')
                     ->label('Peran')
                     ->badge()
-                    ->formatStateUsing(fn (string $state) => $state === User::ROLE_PANITIA ? 'Panitia' : 'Marshal')
-                    ->color(fn (string $state) => $state === User::ROLE_PANITIA ? 'gray' : 'success'),
+                    ->formatStateUsing(fn (string $state) => match ($state) {
+                        User::ROLE_PANITIA => 'Panitia',
+                        User::ROLE_BENDAHARA => 'Bendahara',
+                        default => 'Marshal',
+                    })
+                    ->color(fn (string $state) => match ($state) {
+                        User::ROLE_PANITIA => 'gray',
+                        User::ROLE_BENDAHARA => 'warning',
+                        default => 'success',
+                    }),
                 TextColumn::make('active_pos')
                     ->label('Pos Aktif')
                     ->state(function (User $record): string {
                         if ($record->isPanitia()) {
                             return '— (Persiapan saja)';
+                        }
+                        if ($record->isBendahara()) {
+                            return '— (Pengeluaran saja)';
                         }
                         $a = $record->activeAssignment();
 

@@ -15,16 +15,17 @@ class CreateMarshal extends CreateRecord
 
     /**
      * Marshal: user + assignment ke pos dalam satu transaksi (MarshalService).
-     * Panitia: user saja (tanpa pos) — hanya checklist Persiapan.
+     * Panitia / bendahara: user saja (tanpa pos) — Persiapan / Pengeluaran.
      */
     protected function handleRecordCreation(array $data): Model
     {
-        if (($data['role'] ?? User::ROLE_MARSHAL) === User::ROLE_PANITIA) {
+        $role = $data['role'] ?? User::ROLE_MARSHAL;
+        if (in_array($role, [User::ROLE_PANITIA, User::ROLE_BENDAHARA], true)) {
             return User::create([
                 'name' => $data['name'],
                 'username' => $data['username'],
                 'password' => $data['password'],
-                'role' => User::ROLE_PANITIA,
+                'role' => $role,
             ]);
         }
 

@@ -31,8 +31,11 @@ class User extends Authenticatable implements FilamentUser
     /** Panitia biasa: di GTR Crew hanya Persiapan & Roster — sebagai koordinator boleh mengisi petugas (tanpa scan & data peserta). */
     public const ROLE_PANITIA = 'panitia';
 
+    /** Bendahara: di GTR Crew hanya Pengeluaran (input nominal, PIC, keterangan & kwitansi) + Roster. */
+    public const ROLE_BENDAHARA = 'bendahara';
+
     /** Role yang boleh login ke aplikasi GTR Crew (/crew). */
-    public const CREW_ROLES = [self::ROLE_ADMIN, self::ROLE_MARSHAL, self::ROLE_RACEPACK, self::ROLE_PANITIA];
+    public const CREW_ROLES = [self::ROLE_ADMIN, self::ROLE_MARSHAL, self::ROLE_RACEPACK, self::ROLE_PANITIA, self::ROLE_BENDAHARA];
 
     public function isAdmin(): bool
     {
@@ -52,6 +55,11 @@ class User extends Authenticatable implements FilamentUser
     public function isPanitia(): bool
     {
         return $this->role === self::ROLE_PANITIA;
+    }
+
+    public function isBendahara(): bool
+    {
+        return $this->role === self::ROLE_BENDAHARA;
     }
 
     /** Filament admin panel hanya untuk role admin. */

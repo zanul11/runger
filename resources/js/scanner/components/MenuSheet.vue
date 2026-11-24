@@ -1,19 +1,19 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { state, logout, refreshRoster, isPanitia } from '../store.js';
+import { state, logout, refreshRoster, isBackOffice, canAdmin } from '../store.js';
 import { syncSoon } from '../sync.js';
 import { formatTime, nowMs } from '../clock.js';
 import Icon from './Icon.vue';
 import InstallCard from './InstallCard.vue';
 
-const emit = defineEmits(['close', 'notify', 'participants', 'prep', 'roster']);
+const emit = defineEmits(['close', 'notify', 'participants', 'prep', 'roster', 'expenses']);
 const busy = ref(false);
 const now = ref(nowMs());
 let tick;
 onMounted(() => { tick = setInterval(() => { now.value = nowMs(); }, 1000); });
 onBeforeUnmount(() => clearInterval(tick));
 
-const ROLES = { marshal: 'Marshal timing', racepack: 'Petugas race pack', admin: 'Admin', panitia: 'Panitia' };
+const ROLES = { marshal: 'Marshal timing', racepack: 'Petugas race pack', admin: 'Admin', panitia: 'Panitia', bendahara: 'Bendahara' };
 const user = computed(() => state.session.user);
 const initials = computed(() => (user.value.name || '?').split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase());
 const offset = computed(() => {
@@ -68,7 +68,7 @@ async function doLogout() {
         <div class="stats">
             <div class="stat dark"><small>Jam (WITA)</small><b class="num">{{ formatTime(now) }}</b></div>
             <div class="stat" :class="{ hot: state.pending > 0 }"><small>Belum terkirim</small><b class="num">{{ state.pending }}</b></div>
-            <div v-if="!isPanitia()" class="stat"><small>Data peserta</small><b class="num">{{ state.rosterCount }}</b></div>
+            <div v-if="!isBackOffice()" class="stat"><small>Data peserta</small><b class="num">{{ state.rosterCount }}</b></div>
             <div class="stat"><small>Selisih jam HP</small><b class="num">{{ offset }}</b></div>
             <div class="stat wide">
                 <small>Sinkron terakhir</small>
@@ -77,13 +77,17 @@ async function doLogout() {
         </div>
 
         <div class="tiles">
-            <button v-if="!isPanitia()" class="tile" @click="emit('participants')">
+            <button v-if="!isBackOffice()" class="tile" @click="emit('participants')">
                 <span class="tile-ic"><Icon name="users" :size="18" /></span>
                 <span>Data peserta<small class="num">{{ state.rosterCount }} di HP</small></span>
             </button>
-            <button v-if="!isPanitia()" class="tile" @click="emit('prep')">
+            <button v-if="!isBackOffice()" class="tile" @click="emit('prep')">
                 <span class="tile-ic"><Icon name="check-circle" :size="18" /></span>
                 <span>Persiapan<small>checklist panitia</small></span>
+            </button>
+            <button v-if="canAdmin()" class="tile" @click="emit('expenses')">
+                <span class="tile-ic"><Icon name="card" :size="18" /></span>
+                <span>Pengeluaran<small>bendahara</small></span>
             </button>
             <button class="tile" @click="emit('roster')">
                 <span class="tile-ic"><Icon name="users" :size="18" /></span>
@@ -97,7 +101,7 @@ async function doLogout() {
                 <span class="tile-ic"><Icon name="upload" :size="18" /></span>
                 <span>Kirim data<small>sekarang</small></span>
             </button>
-            <button v-if="!isPanitia()" class="tile" :disabled="busy" @click="reload">
+            <button v-if="!isBackOffice()" class="tile" :disabled="busy" @click="reload">
                 <span class="tile-ic"><Icon name="refresh" :size="18" /></span>
                 <span>{{ busy ? 'Memuat…' : 'Muat ulang' }}<small>data peserta</small></span>
             </button>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Timing\AdminController;
+use App\Http\Controllers\Api\Timing\ExpenseController;
 use App\Http\Controllers\Api\Timing\PrepController;
 use App\Http\Controllers\Api\Timing\RacepackController;
 use App\Http\Controllers\Api\Timing\RosterController;
@@ -13,12 +14,12 @@ use Illuminate\Support\Facades\Route;
 // ===== Modul TIMING GTR (aplikasi panitia GTR Crew /crew) =====
 // Role: marshal = scan timing · racepack = pengambilan racepack · admin = Kontrol + boleh scan
 // timing (di pos yang ia pilih lewat /admin/location) & racepack · panitia = hanya Persiapan
-// (session / time / prep; endpoint lain punya middleware role sendiri).
+// (session / time / prep; endpoint lain punya middleware role sendiri) · bendahara = Pengeluaran.
 Route::prefix('timing')->name('timing.')->group(function () {
     // Login → token Sanctum per device.
     Route::post('/session', [SessionController::class, 'store'])->middleware('throttle:30,1')->name('session.store');
 
-    Route::middleware(['auth:sanctum', 'api.role:marshal,racepack,admin,panitia'])->group(function () {
+    Route::middleware(['auth:sanctum', 'api.role:marshal,racepack,admin,panitia,bendahara'])->group(function () {
         Route::get('/session', [SessionController::class, 'show'])->name('session.show');
         Route::delete('/session', [SessionController::class, 'destroy'])->name('session.destroy');
         Route::get('/time', TimeController::class)->name('time');
@@ -62,6 +63,18 @@ Route::prefix('timing')->name('timing.')->group(function () {
             Route::delete('/{type}/{id}', 'destroy')->middleware('api.admin')
                 ->whereIn('type', ['areas', 'groups', 'positions'])->whereNumber('id')->name('destroy');
         });
+
+        // Pengeluaran panitia + kwitansi: bendahara & admin (lihat, tambah, ubah, hapus).
+        Route::prefix('expenses')->name('expenses.')->controller(ExpenseController::class)
+            ->middleware('api.role:bendahara,admin')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/export', 'export')->name('export');
+                Route::post('/', 'store')->name('store');
+                // Multipart (kwitansi) tidak bisa lewat PUT di PHP → ubah memakai POST.
+                Route::post('/{expense}', 'update')->name('update');
+                Route::delete('/{expense}', 'destroy')->name('destroy');
+                Route::get('/{expense}/receipt', 'receipt')->name('receipt');
+            });
 
         // Tembak start kategori: admin saja.
         Route::post('/waves/{category}/start', [WaveController::class, 'start'])->middleware('api.admin')->name('waves.start');

@@ -224,6 +224,19 @@ export function isPanitia() {
     return state.session?.user?.role === 'panitia';
 }
 
+export function isBendahara() {
+    return state.session?.user?.role === 'bendahara';
+}
+
+/** Akun tanpa data peserta & scan (panitia: Persiapan, bendahara: Pengeluaran). */
+export function isBackOffice() {
+    return isPanitia() || isBendahara();
+}
+
+export function canExpenses() {
+    return ['bendahara', 'admin'].includes(state.session?.user?.role);
+}
+
 export function canAdmin() {
     return state.session?.user?.role === 'admin';
 }
