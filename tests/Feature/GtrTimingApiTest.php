@@ -506,4 +506,21 @@ class GtrTimingApiTest extends TestCase
         $this->getJson('/api/timing/racepack/lookup?code='.$pending->nomor_registrasi)->assertStatus(422)->assertJsonPath('status', 'not_paid');
         $this->assertNull($pending->fresh()->racepack_collected_at);
     }
+
+    public function test_racepack_history_lists_time_staff_and_proxy(): void
+    {
+        Sanctum::actingAs($this->racepackStaff());
+        $this->postJson('/api/timing/racepack/checkin', ['code' => '7001'])->assertOk();
+        $this->postJson('/api/timing/racepack/checkin', ['code' => $this->sari->nomor_registrasi, 'picked_by' => 'Kakak'])->assertOk();
+
+        $res = $this->getJson('/api/timing/racepack/history')->assertOk()->assertJsonPath('collected', 2);
+        $items = collect($res->json('items'))->keyBy('registration_number');
+        $this->assertSame('Petugas RP', $items[$this->budi->nomor_registrasi]['collected_by']);
+        $this->assertNull($items[$this->budi->nomor_registrasi]['picked_by']);
+        $this->assertSame('Kakak', $items[$this->sari->nomor_registrasi]['picked_by']);
+        $this->assertNotNull($items[$this->sari->nomor_registrasi]['collected_at_ms']);
+
+        Sanctum::actingAs(User::create(['name' => 'M', 'username' => 'm9', 'password' => 'rahasia6', 'role' => User::ROLE_MARSHAL]));
+        $this->getJson('/api/timing/racepack/history')->assertForbidden();
+    }
 }

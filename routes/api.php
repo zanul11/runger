@@ -29,6 +29,7 @@ Route::prefix('timing')->name('timing.')->group(function () {
         Route::middleware('api.role:racepack,admin')->group(function () {
             Route::get('/racepack/lookup', [RacepackController::class, 'lookup'])->name('racepack.lookup');
             Route::post('/racepack/checkin', [RacepackController::class, 'checkin'])->name('racepack.checkin');
+            Route::get('/racepack/history', [RacepackController::class, 'history'])->name('racepack.history');
         });
 
         // Checklist persiapan panitia: semua akun GTR Crew boleh lihat; centang & kelola item hanya

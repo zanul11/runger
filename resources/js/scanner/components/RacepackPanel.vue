@@ -6,6 +6,7 @@ import { feedback, unlockAudio } from '../feedback.js';
 import { formatTime } from '../clock.js';
 import Icon from './Icon.vue';
 import QrReader from './QrReader.vue';
+import RacepackHistory from './RacepackHistory.vue';
 
 /**
  * Pengambilan racepack, 3 langkah:
@@ -20,6 +21,7 @@ const inputMode = ref(readMode());   // qr | search
 const query = ref('');
 const roster = ref([]);
 const searchBox = ref(null);
+const history = ref(false);
 
 function readMode() {
     try { return localStorage.getItem('gtr-racepack-mode') === 'search' ? 'search' : 'qr'; } catch { return 'qr'; }
@@ -133,12 +135,14 @@ onBeforeUnmount(() => clearTimeout(doneTimer));
 </script>
 
 <template>
-    <main class="panel" :class="{ 'rp-qr': (step === 'input' || step === 'loading') && inputMode === 'qr' }">
+    <RacepackHistory v-if="history" @back="history = false" />
+    <main v-else class="panel" :class="{ 'rp-qr': (step === 'input' || step === 'loading') && inputMode === 'qr' }">
         <!-- 1. Input -->
         <template v-if="step === 'input' || step === 'loading'">
             <div class="seg" role="tablist" aria-label="Cara mencari peserta">
                 <button role="tab" :class="{ on: inputMode === 'qr' }" @click="setMode('qr')"><Icon name="camera" :size="18" /> Scan e-ticket</button>
                 <button role="tab" :class="{ on: inputMode === 'search' }" @click="setMode('search')"><Icon name="list" :size="18" /> Cari nama</button>
+                <button aria-label="Riwayat pengambilan" @click="history = true"><Icon name="clock" :size="18" /> Riwayat</button>
             </div>
 
             <section v-if="step === 'loading'" class="stage">

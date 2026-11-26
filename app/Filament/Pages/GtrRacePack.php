@@ -34,6 +34,11 @@ class GtrRacePack extends Page
 
     public string $pickedBy = '';
 
+    /** Filter riwayat: cari nama/BIB/wakil/petugas, hanya yang diwakilkan. */
+    public string $historyQuery = '';
+
+    public bool $historyProxyOnly = false;
+
     public function getTitle(): string
     {
         return 'Pengambilan Race Pack';
@@ -147,5 +152,22 @@ class GtrRacePack extends Page
     {
         return GtrRegistration::with(['category', 'racepackCollector'])->whereNotNull('racepack_collected_at')
             ->latest('racepack_collected_at')->limit(8)->get();
+    }
+
+    /** Riwayat lengkap penyerahan race pack (terbaru dulu): waktu, petugas, wakil. */
+    public function history()
+    {
+        $q = trim($this->historyQuery);
+
+        // ponytail: tanpa paginasi (ratusan peserta); tambah ->paginate() bila > ~2000.
+        return GtrRegistration::with(['category', 'racepackCollector'])->whereNotNull('racepack_collected_at')
+            ->when($this->historyProxyOnly, fn ($w) => $w->whereNotNull('racepack_picked_by')->where('racepack_picked_by', '!=', ''))
+            ->when($q !== '', fn ($w) => $w->where(fn ($w) => $w
+                ->where('full_name', 'like', "%{$q}%")
+                ->orWhere('bib_number', 'like', "%{$q}%")
+                ->orWhere('nomor_registrasi', 'like', "%{$q}%")
+                ->orWhere('racepack_picked_by', 'like', "%{$q}%")
+                ->orWhereHas('racepackCollector', fn ($u) => $u->where('name', 'like', "%{$q}%"))))
+            ->latest('racepack_collected_at')->get();
     }
 }

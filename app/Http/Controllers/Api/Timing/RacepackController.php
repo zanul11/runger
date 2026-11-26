@@ -48,6 +48,30 @@ class RacepackController extends Controller
         return $this->respond($racepack->checkin($data['code'], $request->user(), $data['picked_by'] ?? null, $at));
     }
 
+    /**
+     * GET /api/timing/racepack/history — riwayat penyerahan race pack, terbaru dulu:
+     * waktu, petugas yang menyerahkan, dan nama wakil bila diwakilkan.
+     */
+    public function history(): JsonResponse
+    {
+        $paid = GtrRegistration::where('payment_status', 'paid');
+        // ponytail: semua baris sekaligus (ratusan peserta); tambah paginasi bila > ~2000.
+        $rows = (clone $paid)->whereNotNull('racepack_collected_at')
+            ->with(['category', 'racepackCollector'])->latest('racepack_collected_at')->get()
+            ->map(fn (GtrRegistration $r) => [
+                'bib' => Bib::normalize($r->bib_number) ?? $r->bib_number,
+                'registration_number' => $r->nomor_registrasi,
+                'name' => $r->displayName(),
+                'category' => $r->category?->distance ?: $r->category?->name,
+                'size' => $r->size,
+                'collected_at_ms' => DateTimeMs::toMs($r->racepack_collected_at),
+                'collected_by' => $r->racepackCollector?->name,
+                'picked_by' => $r->racepack_picked_by,
+            ]);
+
+        return response()->json(['total' => $paid->count(), 'collected' => $rows->count(), 'items' => $rows]);
+    }
+
     /** @param array{status: string, registration: ?GtrRegistration} $result */
     private function respond(array $result): JsonResponse
     {

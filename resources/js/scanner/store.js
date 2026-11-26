@@ -378,6 +378,11 @@ export async function racepackCheckin(code, pickedBy = null) {
     return { status: 'ok', participant: fromRoster(local), queued: true };
 }
 
+/** Riwayat penyerahan race pack dari server (petugas race pack & admin). */
+export function racepackHistory() {
+    return api('/racepack/history', { token: state.session?.token, timeout: 15000 });
+}
+
 /**
  * Data peserta di HP untuk layar "Data Peserta": roster + waktu lewat pos ini (gabungan scan
  * lokal semua user di HP ini dan `seen_at_ms` dari server).

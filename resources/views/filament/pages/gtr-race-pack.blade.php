@@ -135,13 +135,67 @@
                 <div style="font-weight:700;margin-bottom:10px">Terakhir diserahkan</div>
                 @forelse($this->recent() as $r)
                     <div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid rgba(128,128,128,.12);font-size:13px">
-                        <span><b>{{ $r->bib_number ?: '—' }}</b> {{ $r->full_name }}</span>
+                        <span><b>{{ $r->bib_number ?: '—' }}</b> {{ $r->full_name }}
+                            @if($r->racepack_picked_by)<span style="color:#d97706"> · diwakilkan {{ $r->racepack_picked_by }}</span>@endif
+                        </span>
                         <span style="{{ $muted }}">{{ $r->racepack_collected_at->format('d M H:i') }}</span>
                     </div>
                 @empty
                     <div style="{{ $muted }}">Belum ada.</div>
                 @endforelse
             </div>
+        </div>
+    </div>
+
+    {{-- Riwayat lengkap --}}
+    @php $history = $this->history(); @endphp
+    <div style="{{ $box }}">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-weight:700">Riwayat pengambilan <span style="{{ $muted }}">({{ $history->count() }})</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+                <label style="display:flex;gap:6px;align-items:center;font-size:13px">
+                    <x-filament::input.checkbox wire:model.live="historyProxyOnly" /> Hanya yang diwakilkan
+                </label>
+                <x-filament::input.wrapper style="min-width:240px">
+                    <x-filament::input type="search" wire:model.live.debounce.400ms="historyQuery" placeholder="Cari nama / BIB / wakil / petugas" />
+                </x-filament::input.wrapper>
+            </div>
+        </div>
+        <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead>
+                    <tr style="text-align:left;{{ $muted }}">
+                        <th style="padding:6px 8px">Waktu (WITA)</th>
+                        <th style="padding:6px 8px">BIB</th>
+                        <th style="padding:6px 8px">Peserta</th>
+                        <th style="padding:6px 8px">Kategori</th>
+                        <th style="padding:6px 8px">Jersey</th>
+                        <th style="padding:6px 8px">Diambil oleh</th>
+                        <th style="padding:6px 8px">Petugas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($history as $h)
+                        <tr style="border-top:1px solid rgba(128,128,128,.12)">
+                            <td style="padding:7px 8px;white-space:nowrap">{{ $h->racepack_collected_at->timezone('Asia/Makassar')->format('d M Y H:i:s') }}</td>
+                            <td style="padding:7px 8px;font-weight:700">{{ $h->bib_number ?: '—' }}</td>
+                            <td style="padding:7px 8px">{{ $h->full_name }}<div style="{{ $muted }}">{{ $h->nomor_registrasi }}</div></td>
+                            <td style="padding:7px 8px">{{ $h->category->distance ?? $h->category->name ?? '' }}</td>
+                            <td style="padding:7px 8px">{{ $h->size }}</td>
+                            <td style="padding:7px 8px">
+                                @if($h->racepack_picked_by)
+                                    <span style="color:#d97706;font-weight:700">Diwakilkan: {{ $h->racepack_picked_by }}</span>
+                                @else
+                                    Sendiri
+                                @endif
+                            </td>
+                            <td style="padding:7px 8px">{{ $h->racepackCollector->name ?? '—' }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="7" style="padding:12px 8px;{{ $muted }}">{{ $historyQuery !== '' || $historyProxyOnly ? 'Tidak ada yang cocok.' : 'Belum ada race pack yang diserahkan.' }}</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </x-filament-panels::page>

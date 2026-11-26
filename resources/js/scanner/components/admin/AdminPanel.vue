@@ -13,13 +13,14 @@ import AdminReset from './AdminReset.vue';
 import AdminPointScans from './AdminPointScans.vue';
 import AdminChecklist from './AdminChecklist.vue';
 import PrepView from '../PrepView.vue';
+import RacepackHistory from '../RacepackHistory.vue';
 
 /**
  * Menu Kontrol (admin): START race + ringkasan, dan pintu ke Status pos, Sweep, Lacak,
  * Finish board, Scan bermasalah, Reset data uji.
  */
 const emit = defineEmits(['notify']);
-const view = ref('home');   // home | checklist | prep | posts | point | sweep | track | finish | issues | reset
+const view = ref('home');   // home | checklist | prep | racepack | posts | point | sweep | track | finish | issues | reset
 const pointId = ref(null);
 const returnTo = ref('home'); // layar asal saat membuka lacak dari scan per pos
 const trackBib = ref(null);
@@ -134,6 +135,7 @@ function back() {
     <AdminReset v-else-if="view === 'reset'" @back="back" @notify="emit('notify', $event)" />
     <AdminChecklist v-else-if="view === 'checklist'" @back="back" @open="open($event)" />
     <PrepView v-else-if="view === 'prep'" @back="back" @notify="emit('notify', $event)" />
+    <RacepackHistory v-else-if="view === 'racepack'" @back="back" />
 
     <main v-else class="panel admin">
         <div v-if="error && !race" class="alert warn"><Icon name="wifi-off" :size="20" /><span>{{ error }}</span></div>
@@ -204,6 +206,7 @@ function back() {
                 <b v-if="badge('sweep')" class="tile-badge num">{{ badge('sweep') }}</b>
                 <span>Sweep<small>Belum lewat CP terakhir</small></span>
             </button>
+            <button class="tile" @click="open('racepack')"><span class="tile-ic"><Icon name="package" :size="20" /></span><span>Riwayat race pack<small>Waktu · petugas · wakil</small></span></button>
             <button class="tile" @click="open('track')"><span class="tile-ic"><Icon name="search" :size="20" /></span><span>Lacak peserta<small>BIB / nama → posisi</small></span></button>
             <button class="tile" @click="open('finish')"><span class="tile-ic"><Icon name="trophy" :size="20" /></span><span>Finish board<small>Podium & finisher terbaru</small></span></button>
             <button class="tile" @click="open('issues')">
