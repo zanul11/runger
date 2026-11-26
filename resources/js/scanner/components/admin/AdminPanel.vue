@@ -135,7 +135,7 @@ function back() {
     <AdminReset v-else-if="view === 'reset'" @back="back" @notify="emit('notify', $event)" />
     <AdminChecklist v-else-if="view === 'checklist'" @back="back" @open="open($event)" />
     <PrepView v-else-if="view === 'prep'" @back="back" @notify="emit('notify', $event)" />
-    <RacepackHistory v-else-if="view === 'racepack'" @back="back" />
+    <RacepackHistory v-else-if="view === 'racepack'" @back="back" @notify="emit('notify', $event)" />
 
     <main v-else class="panel admin">
         <div v-if="error && !race" class="alert warn"><Icon name="wifi-off" :size="20" /><span>{{ error }}</span></div>

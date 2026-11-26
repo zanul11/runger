@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\GtrRacepackLog;
 use App\Models\GtrRegistration;
 use App\Models\User;
 use App\Support\Bib;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Check-in pengambilan racepack (H-2) dari scanner. Kode = nomor BIB (QR BIB / keypad)
@@ -70,15 +72,48 @@ class GtrRacepackCheckin
             return ['status' => self::NOT_PAID, 'registration' => $reg];
         }
 
-        $updated = GtrRegistration::whereKey($reg->id)
-            ->whereNull('racepack_collected_at')
-            ->update([
-                'racepack_collected_at' => $at ?? now(),
-                'racepack_collected_by' => $by->id,
-                'racepack_picked_by' => $pickedBy ?: null,
-                'updated_at' => now(),
-            ]);
+        $updated = $this->collect($reg, $by, $pickedBy, $at);
 
         return ['status' => $updated ? self::OK : self::ALREADY, 'registration' => $reg->fresh(['category', 'racepackCollector'])];
+    }
+
+    /** Tandai diambil + catat log. False bila sudah diambil sebelumnya (keduluan petugas lain). */
+    public function collect(GtrRegistration $reg, User $by, ?string $pickedBy = null, ?Carbon $at = null): bool
+    {
+        $at ??= now();
+        $pickedBy = trim((string) $pickedBy) ?: null;
+
+        return DB::transaction(function () use ($reg, $by, $pickedBy, $at) {
+            $updated = GtrRegistration::whereKey($reg->id)->whereNull('racepack_collected_at')->update([
+                'racepack_collected_at' => $at,
+                'racepack_collected_by' => $by->id,
+                'racepack_picked_by' => $pickedBy,
+                'updated_at' => now(),
+            ]);
+            if ($updated) {
+                GtrRacepackLog::create(['gtr_registration_id' => $reg->id, 'collected_at' => $at, 'collected_by' => $by->id, 'picked_by' => $pickedBy]);
+            }
+
+            return (bool) $updated;
+        });
+    }
+
+    /** Batalkan pengambilan: status registrasi dikosongkan, log ditandai dibatalkan (tetap di riwayat). */
+    public function cancel(GtrRegistration $reg, User $by): bool
+    {
+        return DB::transaction(function () use ($reg, $by) {
+            $updated = GtrRegistration::whereKey($reg->id)->whereNotNull('racepack_collected_at')->update([
+                'racepack_collected_at' => null,
+                'racepack_collected_by' => null,
+                'racepack_picked_by' => null,
+                'updated_at' => now(),
+            ]);
+            if ($updated) {
+                GtrRacepackLog::where('gtr_registration_id', $reg->id)->whereNull('cancelled_at')
+                    ->update(['cancelled_at' => now(), 'cancelled_by' => $by->id, 'updated_at' => now()]);
+            }
+
+            return (bool) $updated;
+        });
     }
 }

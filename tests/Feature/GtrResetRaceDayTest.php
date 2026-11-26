@@ -78,6 +78,7 @@ class GtrResetRaceDayTest extends TestCase
         $this->postJson('/api/timing/scans/batch', ['scans' => [$this->scan(now()->getTimestampMs())]])->assertOk();
         app(GtrTimingAdmin::class)->adjustResult($this->budi->fresh(), 'status', 'dq', 'uji', $this->admin);
         $this->budi->forceFill(['racepack_collected_at' => now(), 'racepack_collected_by' => $this->admin->id, 'race_status' => 'dq'])->saveQuietly();
+        \App\Models\GtrRacepackLog::create(['gtr_registration_id' => $this->budi->id, 'collected_at' => now(), 'collected_by' => $this->admin->id]);
         $this->marshal->createToken('timing:dev-1', ['timing']);
         GtrSetting::first()->update(['results_published' => true]);
     }
@@ -115,6 +116,7 @@ class GtrResetRaceDayTest extends TestCase
 
         $this->assertNull($this->budi->fresh()->racepack_collected_at);
         $this->assertNull($this->budi->fresh()->racepack_collected_by);
+        $this->assertSame(0, \App\Models\GtrRacepackLog::count());
         $this->assertSame(0, $this->marshal->tokens()->count());
     }
 

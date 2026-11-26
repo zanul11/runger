@@ -3,7 +3,9 @@
 namespace App\Filament\Pages;
 
 use App\Models\GtrCategory;
+use App\Models\GtrRacepackLog;
 use App\Models\GtrRegistration;
+use App\Services\GtrRacepackCheckin;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -92,11 +94,9 @@ class GtrRacePack extends Page
             return;
         }
 
-        $reg->forceFill([
-            'racepack_collected_at' => now(),
-            'racepack_collected_by' => auth()->id(),
-            'racepack_picked_by' => trim($this->pickedBy) ?: null,
-        ])->save();
+        if (! app(GtrRacepackCheckin::class)->collect($reg, auth()->user(), $this->pickedBy)) {
+            return;
+        }
 
         Notification::make()->title('Race pack diambil')->body($reg->full_name . ' · BIB ' . ($reg->bib_number ?: '-') . ' · Jersey ' . $reg->size)->success()->send();
         $this->query = '';
@@ -110,7 +110,7 @@ class GtrRacePack extends Page
         if (! $reg) {
             return;
         }
-        $reg->forceFill(['racepack_collected_at' => null, 'racepack_collected_by' => null, 'racepack_picked_by' => null])->save();
+        app(GtrRacepackCheckin::class)->cancel($reg, auth()->user());
         Notification::make()->title('Status pengambilan dibatalkan')->body($reg->full_name)->send();
     }
 
@@ -154,20 +154,19 @@ class GtrRacePack extends Page
             ->latest('racepack_collected_at')->limit(8)->get();
     }
 
-    /** Riwayat lengkap penyerahan race pack (terbaru dulu): waktu, petugas, wakil. */
+    /** Riwayat lengkap penyerahan race pack (terbaru dulu): waktu, petugas, wakil, pembatalan. */
     public function history()
     {
         $q = trim($this->historyQuery);
 
         // ponytail: tanpa paginasi (ratusan peserta); tambah ->paginate() bila > ~2000.
-        return GtrRegistration::with(['category', 'racepackCollector'])->whereNotNull('racepack_collected_at')
-            ->when($this->historyProxyOnly, fn ($w) => $w->whereNotNull('racepack_picked_by')->where('racepack_picked_by', '!=', ''))
+        return GtrRacepackLog::with(['registration.category', 'collector', 'canceller'])
+            ->when($this->historyProxyOnly, fn ($w) => $w->whereNotNull('picked_by'))
             ->when($q !== '', fn ($w) => $w->where(fn ($w) => $w
-                ->where('full_name', 'like', "%{$q}%")
-                ->orWhere('bib_number', 'like', "%{$q}%")
-                ->orWhere('nomor_registrasi', 'like', "%{$q}%")
-                ->orWhere('racepack_picked_by', 'like', "%{$q}%")
-                ->orWhereHas('racepackCollector', fn ($u) => $u->where('name', 'like', "%{$q}%"))))
-            ->latest('racepack_collected_at')->get();
+                ->where('picked_by', 'like', "%{$q}%")
+                ->orWhereHas('registration', fn ($r) => $r->where('full_name', 'like', "%{$q}%")
+                    ->orWhere('bib_number', 'like', "%{$q}%")->orWhere('nomor_registrasi', 'like', "%{$q}%"))
+                ->orWhereHas('collector', fn ($u) => $u->where('name', 'like', "%{$q}%"))))
+            ->latest('collected_at')->latest('id')->get();
     }
 }

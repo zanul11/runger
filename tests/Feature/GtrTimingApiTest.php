@@ -523,4 +523,29 @@ class GtrTimingApiTest extends TestCase
         Sanctum::actingAs(User::create(['name' => 'M', 'username' => 'm9', 'password' => 'rahasia6', 'role' => User::ROLE_MARSHAL]));
         $this->getJson('/api/timing/racepack/history')->assertForbidden();
     }
+
+    public function test_admin_cancels_racepack_and_history_keeps_the_record(): void
+    {
+        $staff = $this->racepackStaff();
+        Sanctum::actingAs($staff);
+        $this->postJson('/api/timing/racepack/checkin', ['code' => '7001', 'picked_by' => 'Adik'])->assertOk();
+        $this->postJson('/api/timing/racepack/cancel', ['code' => '7001'])->assertForbidden(); // hanya admin
+
+        $admin = User::create(['name' => 'Admin X', 'username' => 'adm9', 'password' => 'rahasia6', 'role' => User::ROLE_ADMIN]);
+        Sanctum::actingAs($admin);
+        $this->postJson('/api/timing/racepack/cancel', ['code' => '7001'])->assertOk()->assertJsonPath('status', 'cancelled')
+            ->assertJsonPath('participant.racepack_collected_at_ms', null);
+        $this->postJson('/api/timing/racepack/cancel', ['code' => '7001'])->assertStatus(409)->assertJsonPath('status', 'not_collected');
+        $this->assertNull($this->budi->fresh()->racepack_collected_at);
+
+        // Diambil lagi setelah dibatalkan → 2 baris riwayat, yang lama bertanda dibatalkan.
+        $this->postJson('/api/timing/racepack/checkin', ['code' => '7001'])->assertOk()->assertJsonPath('status', 'ok');
+        $items = $this->getJson('/api/timing/racepack/history')->assertOk()->assertJsonPath('collected', 1)->json('items');
+        $this->assertCount(2, $items);
+        $old = collect($items)->firstWhere('picked_by', 'Adik');
+        $this->assertSame('Admin X', $old['cancelled_by']);
+        $this->assertNotNull($old['cancelled_at_ms']);
+        $this->assertSame('Petugas RP', $old['collected_by']);
+        $this->assertNull(collect($items)->firstWhere('picked_by', null)['cancelled_at_ms']);
+    }
 }

@@ -172,27 +172,37 @@
                         <th style="padding:6px 8px">Jersey</th>
                         <th style="padding:6px 8px">Diambil oleh</th>
                         <th style="padding:6px 8px">Petugas</th>
+                        <th style="padding:6px 8px">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($history as $h)
-                        <tr style="border-top:1px solid rgba(128,128,128,.12)">
-                            <td style="padding:7px 8px;white-space:nowrap">{{ $h->racepack_collected_at->timezone('Asia/Makassar')->format('d M Y H:i:s') }}</td>
-                            <td style="padding:7px 8px;font-weight:700">{{ $h->bib_number ?: '—' }}</td>
-                            <td style="padding:7px 8px">{{ $h->full_name }}<div style="{{ $muted }}">{{ $h->nomor_registrasi }}</div></td>
-                            <td style="padding:7px 8px">{{ $h->category->distance ?? $h->category->name ?? '' }}</td>
-                            <td style="padding:7px 8px">{{ $h->size }}</td>
+                        @php $r = $h->registration; @endphp
+                        <tr style="border-top:1px solid rgba(128,128,128,.12);{{ $h->cancelled_at ? 'opacity:.6' : '' }}">
+                            <td style="padding:7px 8px;white-space:nowrap">{{ $h->collected_at->timezone('Asia/Makassar')->format('d M Y H:i:s') }}</td>
+                            <td style="padding:7px 8px;font-weight:700">{{ $r->bib_number ?: '—' }}</td>
+                            <td style="padding:7px 8px">{{ $r->full_name }}<div style="{{ $muted }}">{{ $r->nomor_registrasi }}</div></td>
+                            <td style="padding:7px 8px">{{ $r->category->distance ?? $r->category->name ?? '' }}</td>
+                            <td style="padding:7px 8px">{{ $r->size }}</td>
                             <td style="padding:7px 8px">
-                                @if($h->racepack_picked_by)
-                                    <span style="color:#d97706;font-weight:700">Diwakilkan: {{ $h->racepack_picked_by }}</span>
+                                @if($h->picked_by)
+                                    <span style="color:#d97706;font-weight:700">Diwakilkan: {{ $h->picked_by }}</span>
                                 @else
                                     Sendiri
                                 @endif
                             </td>
-                            <td style="padding:7px 8px">{{ $h->racepackCollector->name ?? '—' }}</td>
+                            <td style="padding:7px 8px">{{ $h->collector->name ?? '—' }}</td>
+                            <td style="padding:7px 8px">
+                                @if($h->cancelled_at)
+                                    <span style="color:#dc2626;font-weight:700">Dibatalkan</span>
+                                    <div style="{{ $muted }}">{{ $h->cancelled_at->timezone('Asia/Makassar')->format('d M H:i') }} · {{ $h->canceller->name ?? '—' }}</div>
+                                @else
+                                    <span style="color:#16a34a;font-weight:700">Diambil</span>
+                                @endif
+                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" style="padding:12px 8px;{{ $muted }}">{{ $historyQuery !== '' || $historyProxyOnly ? 'Tidak ada yang cocok.' : 'Belum ada race pack yang diserahkan.' }}</td></tr>
+                        <tr><td colspan="8" style="padding:12px 8px;{{ $muted }}">{{ $historyQuery !== '' || $historyProxyOnly ? 'Tidak ada yang cocok.' : 'Belum ada race pack yang diserahkan.' }}</td></tr>
                     @endforelse
                 </tbody>
             </table>

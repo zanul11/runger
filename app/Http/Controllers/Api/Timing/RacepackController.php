@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Timing;
 
 use App\Casts\DateTimeMs;
 use App\Http\Controllers\Controller;
+use App\Models\GtrRacepackLog;
 use App\Models\GtrRegistration;
 use App\Services\GtrRacepackCheckin;
 use App\Support\Bib;
@@ -50,26 +51,54 @@ class RacepackController extends Controller
 
     /**
      * GET /api/timing/racepack/history — riwayat penyerahan race pack, terbaru dulu:
-     * waktu, petugas yang menyerahkan, dan nama wakil bila diwakilkan.
+     * waktu, petugas, nama wakil bila diwakilkan, dan pembatalan (siapa & kapan).
      */
     public function history(): JsonResponse
     {
-        $paid = GtrRegistration::where('payment_status', 'paid');
         // ponytail: semua baris sekaligus (ratusan peserta); tambah paginasi bila > ~2000.
-        $rows = (clone $paid)->whereNotNull('racepack_collected_at')
-            ->with(['category', 'racepackCollector'])->latest('racepack_collected_at')->get()
-            ->map(fn (GtrRegistration $r) => [
-                'bib' => Bib::normalize($r->bib_number) ?? $r->bib_number,
-                'registration_number' => $r->nomor_registrasi,
-                'name' => $r->displayName(),
-                'category' => $r->category?->distance ?: $r->category?->name,
-                'size' => $r->size,
-                'collected_at_ms' => DateTimeMs::toMs($r->racepack_collected_at),
-                'collected_by' => $r->racepackCollector?->name,
-                'picked_by' => $r->racepack_picked_by,
+        $rows = GtrRacepackLog::with(['registration.category', 'collector', 'canceller'])
+            ->latest('collected_at')->latest('id')->get()
+            ->map(fn (GtrRacepackLog $l) => [
+                'id' => $l->id,
+                'bib' => Bib::normalize($l->registration->bib_number) ?? $l->registration->bib_number,
+                'registration_number' => $l->registration->nomor_registrasi,
+                'name' => $l->registration->displayName(),
+                'category' => $l->registration->category?->distance ?: $l->registration->category?->name,
+                'size' => $l->registration->size,
+                'collected_at_ms' => DateTimeMs::toMs($l->collected_at),
+                'collected_by' => $l->collector?->name,
+                'picked_by' => $l->picked_by,
+                'cancelled_at_ms' => DateTimeMs::toMs($l->cancelled_at),
+                'cancelled_by' => $l->canceller?->name,
             ]);
 
-        return response()->json(['total' => $paid->count(), 'collected' => $rows->count(), 'items' => $rows]);
+        $paid = GtrRegistration::where('payment_status', 'paid');
+
+        return response()->json([
+            'total' => (clone $paid)->count(),
+            'collected' => $paid->whereNotNull('racepack_collected_at')->count(),
+            'items' => $rows,
+        ]);
+    }
+
+    /**
+     * POST /api/timing/racepack/cancel — batalkan pengambilan (admin saja). Body: { code }.
+     * 200 status=cancelled · 409 status=not_collected · 404 not_found.
+     */
+    public function cancel(Request $request, GtrRacepackCheckin $racepack): JsonResponse
+    {
+        $data = $request->validate(['code' => ['required', 'string', 'max:40']]);
+        $reg = $racepack->resolve($data['code']);
+        if (! $reg) {
+            return response()->json(['status' => 'not_found', 'participant' => null], 404);
+        }
+
+        $ok = $racepack->cancel($reg, $request->user());
+
+        return response()->json([
+            'status' => $ok ? 'cancelled' : 'not_collected',
+            'participant' => self::participant($reg->fresh(['category', 'racepackCollector'])),
+        ], $ok ? 200 : 409);
     }
 
     /** @param array{status: string, registration: ?GtrRegistration} $result */

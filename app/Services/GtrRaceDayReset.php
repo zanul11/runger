@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Timing\SessionController;
 use App\Http\Controllers\GtrBibCheckController;
 use App\Http\Controllers\GtrResultCheckController;
 use App\Models\GtrCategory;
+use App\Models\GtrRacepackLog;
 use App\Models\GtrRegistration;
 use App\Models\GtrResult;
 use App\Models\GtrResultAdjustment;
@@ -77,6 +78,7 @@ class GtrRaceDayReset
             if ($racepack) {
                 GtrRegistration::query()->whereNotNull('racepack_collected_at')
                     ->update(['racepack_collected_at' => null, 'racepack_collected_by' => null, 'racepack_picked_by' => null]);
+                GtrRacepackLog::query()->delete(); // data uji coba, ikut dibersihkan
             }
 
             if ($logout) {
@@ -116,6 +118,7 @@ class GtrRaceDayReset
             'racepack' => $racepack
                 ? DB::table('gtr_registrations')->whereNotNull('racepack_collected_at')->get(['id', 'racepack_collected_at', 'racepack_collected_by', 'racepack_picked_by'])
                 : [],
+            'racepack_logs' => $racepack ? DB::table('gtr_racepack_logs')->get() : [],
             'settings' => DB::table('gtr_settings')->get(['id', 'results_published', 'timing_reset_at']),
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 

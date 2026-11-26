@@ -378,6 +378,15 @@ export async function racepackCheckin(code, pickedBy = null) {
     return { status: 'ok', participant: fromRoster(local), queued: true };
 }
 
+/** Batalkan pengambilan race pack (admin, wajib online). Roster HP ikut ditandai belum diambil. */
+export async function racepackCancel(code) {
+    const res = await api('/racepack/cancel', { method: 'POST', token: state.session?.token, timeout: 8000, body: { code } });
+    const parsed = parseRacepackCode(code);
+    const local = parsed ? await findLocal(parsed) : null;
+    if (local) await db.participants.update(local.bib, { racepack: false, racepack_at_ms: null, racepack_by: null, racepack_picked_by: null });
+    return res;
+}
+
 /** Riwayat penyerahan race pack dari server (petugas race pack & admin). */
 export function racepackHistory() {
     return api('/racepack/history', { token: state.session?.token, timeout: 15000 });

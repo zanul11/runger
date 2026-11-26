@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { racepackLookup, racepackCheckin, rosterList, categoryName } from '../store.js';
+import { racepackLookup, racepackCheckin, racepackCancel, rosterList, categoryName, canAdmin, state } from '../store.js';
 import { syncSoon } from '../sync.js';
 import { feedback, unlockAudio } from '../feedback.js';
 import { formatTime } from '../clock.js';
@@ -122,6 +122,20 @@ async function take() {
     step.value = 'detail';
 }
 
+/** Admin: batalkan pengambilan (online). Riwayat tetap mencatat pembatalan. */
+async function cancelTake() {
+    if (!confirm(`Batalkan pengambilan race pack ${p.value?.name}? Tetap tercatat di riwayat.`)) return;
+    step.value = 'saving';
+    try {
+        const res = await racepackCancel(found.value.code);
+        found.value = { ...found.value, status: 'available', participant: res.participant ?? p.value, offline: false };
+    } catch (e) {
+        alert(e.message || 'Gagal membatalkan');
+    } finally {
+        step.value = 'detail';
+    }
+}
+
 function reset() {
     clearTimeout(doneTimer);
     found.value = null;
@@ -232,7 +246,12 @@ onBeforeUnmount(() => clearTimeout(doneTimer));
                         <Icon name="package" :size="22" /> {{ step === 'saving' ? 'Menyimpan…' : 'Ambil Race Pack' }}
                     </button>
                 </div>
-                <button v-else class="btn primary lg block" @click="reset">Scan peserta berikutnya <span class="go"><Icon name="chevron-right" :size="20" :stroke="2.75" /></span></button>
+                <div v-else style="display: grid; gap: 8px">
+                    <button v-if="found.status === 'already' && canAdmin() && state.online" class="btn danger lg block" :disabled="step === 'saving'" @click="cancelTake">
+                        <Icon name="x-circle" :size="20" /> Batalkan pengambilan
+                    </button>
+                    <button class="btn primary lg block" @click="reset">Scan peserta berikutnya <span class="go"><Icon name="chevron-right" :size="20" :stroke="2.75" /></span></button>
+                </div>
             </div>
         </template>
 
